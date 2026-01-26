@@ -125,6 +125,19 @@ export default function Home() {
         {/* Sidebar - 1 column */}
         <div className="lg:col-span-1 space-y-4">
           <ViewpointBalance />
+          
+          {/* Campaign Tools CTA */}
+          <Card className="border-kenya-green/50 bg-linear-to-br from-brand-surface to-kenya-green/10 p-4">
+              <h3 className="font-bold text-lg mb-2">Running for Office?</h3>
+              <p className="text-sm text-brand-text-muted mb-4">
+                  Access professional campaign tools, manage your team, and publish verified content.
+              </p>
+              <a href="/campaign">
+                  <Button className="w-full bg-kenya-green hover:bg-kenya-green/90 text-white font-bold">
+                      Enter Campaign HQ
+                  </Button>
+              </a>
+          </Card>
         </div>
       </div>
     </div>
