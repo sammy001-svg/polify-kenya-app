@@ -5,7 +5,7 @@ import { CAMPAIGN_TEMPLATES, CampaignTemplate } from '@/lib/campaign-data';
 import { CampaignTemplateCard } from '@/components/campaign/CampaignTemplateCard';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ShieldCheck, FileCheck, ArrowRight, Flag, Users, UserCircle, FileText, Video, Target } from 'lucide-react';
+import { ShieldCheck, FileCheck, ArrowRight, Flag, Users, UserCircle, FileText, Video, Target, BarChart3, Calendar, Wallet } from 'lucide-react';
 import Link from 'next/link';
 
 export default function CampaignPage() {
@@ -28,6 +28,21 @@ export default function CampaignPage() {
         
         {/* Verification Status Simulation */}
         <div className="flex items-center gap-4">
+            <Link href="/campaign/finance">
+                <Button variant="outline" className="bg-brand-surface border-border hover:bg-brand-surface-secondary gap-2 text-brand-text">
+                    <Wallet className="w-4 h-4 text-kenya-gold" /> Finance
+                </Button>
+            </Link>
+            <Link href="/campaign/events">
+                <Button variant="outline" className="bg-brand-surface border-border hover:bg-brand-surface-secondary gap-2 text-brand-text">
+                    <Calendar className="w-4 h-4 text-kenya-red" /> Events
+                </Button>
+            </Link>
+            <Link href="/campaign/analytics">
+                <Button variant="outline" className="bg-brand-surface border-border hover:bg-brand-surface-secondary gap-2 text-brand-text">
+                    <BarChart3 className="w-4 h-4 text-blue-500" /> Analytics
+                </Button>
+            </Link>
             <Link href="/campaign/commitments">
                 <Button variant="outline" className="bg-brand-surface border-border hover:bg-brand-surface-secondary gap-2 text-brand-text">
                     <Target className="w-4 h-4 text-kenya-gold" /> Promises
