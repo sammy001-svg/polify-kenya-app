@@ -16,7 +16,8 @@ import {
   Sparkles,
   Award,
   Lightbulb,
-  Flag
+  Flag,
+  User
 } from 'lucide-react';
 import { cn } from '@/components/ui/button';
 
@@ -102,8 +103,8 @@ export function Sidebar() {
           My Civic Duty
         </h3>
         <SidebarItem icon={Users} label="My Representatives" href="/my-reps" isActive={pathname.startsWith('/my-reps')} />
-
         <SidebarItem icon={Flame} label="Active Petitions" href="/petitions" isActive={pathname.startsWith('/petitions')} />
+        <SidebarItem icon={User} label="My Profile" href="/profile" isActive={pathname.startsWith('/profile')} />
       </div>
       
       <div className="mt-auto px-3 py-4 text-xs text-brand-text-muted">

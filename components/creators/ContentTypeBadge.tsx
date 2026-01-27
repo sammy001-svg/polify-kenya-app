@@ -38,7 +38,7 @@ export function ContentTypeBadge({ type, size = 'md', showLabel = false }: Conte
       text: 'text-blue-400',
       iconBg: 'bg-blue-500',
     },
-    kenyaGold: { // Renamed from yellow to kenyaGold
+    yellow: { // Renamed from kenyaGold to match data model
       bg: 'bg-kenya-gold/20',
       border: 'border-kenya-gold/50',
       text: 'text-kenya-gold',
