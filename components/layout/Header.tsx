@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Search, Video, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { UserMenu } from '@/components/layout/UserMenu';
@@ -17,8 +18,13 @@ export function Header() {
           <Menu className="w-6 h-6" />
         </Button>
         <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-10 h-10 overflow-hidden rounded-full shadow-sm border border-white/10 group-hover:scale-105 transition-transform bg-white">
-            <img src="/polify-logo.jpg" alt="PoliFy Logo" className="w-full h-full object-cover scale-110" />
+          <div className="w-10 h-10 overflow-hidden rounded-full shadow-sm border border-white/10 group-hover:scale-105 transition-transform bg-white relative">
+            <Image 
+              src="/polify-logo.jpg" 
+              alt="PoliFy Logo" 
+              fill
+              className="object-cover scale-110" 
+            />
           </div>
           <span className="font-black text-2xl tracking-tighter hidden sm:block bg-linear-to-r from-[#922529] via-white to-[#008C51] bg-clip-text text-transparent ml-1">
             PoliFy

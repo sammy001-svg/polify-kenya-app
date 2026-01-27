@@ -1,3 +1,4 @@
+/* cSpell:ignore supabase */
 "use client";
 
 import { useState, useEffect } from "react";
@@ -22,28 +23,28 @@ export function MyActivity() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchIdeas();
-  }, []);
+    async function fetchIdeas() {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
 
-  async function fetchIdeas() {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+        const { data, error } = await supabase
+          .from('policy_ideas')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
 
-      const { data, error } = await supabase
-        .from('policy_ideas')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setIdeas(data || []);
-    } catch (error) {
-      console.error("Error fetching activity:", error);
-    } finally {
-      setLoading(false);
+        if (error) throw error;
+        setIdeas(data || []);
+      } catch (error) {
+        console.error("Error fetching activity:", error);
+      } finally {
+        setLoading(false);
+      }
     }
-  }
+
+    fetchIdeas();
+  }, [supabase]);
 
   async function deleteIdea(id: string) {
     if (!confirm("Are you sure you want to delete this idea?")) return;

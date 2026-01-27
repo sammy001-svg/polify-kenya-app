@@ -1,7 +1,8 @@
+/* cSpell:ignore supabase */
 "use client";
 
 import { type CivicCreator } from "@/lib/creators";
-import { BadgeCheck, Video, Eye, Users, TrendingUp, ArrowRight } from "lucide-react";
+import { BadgeCheck, Video, Eye, Users, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase";
@@ -31,19 +32,7 @@ export function CreatorCard({ creator }: CreatorCardProps) {
     fetchStats();
   }, [creator.id, supabase]);
 
-  const totalContent = creator.contentDistribution.facts + 
-                       creator.contentDistribution.opinions + 
-                       creator.contentDistribution.satire;
-  
-  const getContentMix = () => {
-    const facts = Math.round((creator.contentDistribution.facts / totalContent) * 100);
-    const opinions = Math.round((creator.contentDistribution.opinions / totalContent) * 100);
-    const satire = Math.round((creator.contentDistribution.satire / totalContent) * 100);
-    
-    return { facts, opinions, satire };
-  };
-  
-  const contentMix = getContentMix();
+
   
   return (
     <div className="group bg-brand-surface-secondary border border-border rounded-xl overflow-hidden hover:border-kenya-gold/50 transition-all hover:shadow-xl hover:scale-[1.02] flex flex-col h-full">

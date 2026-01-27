@@ -1,19 +1,25 @@
+/* cSpell:ignore supabase */
 "use client";
 
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
-import { Users, UserPlus, UserMinus, Loader2 } from "lucide-react";
+import { UserPlus, UserMinus, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface FollowButtonProps {
   targetId: string;
-  targetType: 'profile' | 'politician';
+  targetType: "profile" | "politician";
   className?: string;
   onFollowChange?: (isFollowing: boolean) => void;
 }
 
-export function FollowButton({ targetId, targetType, className, onFollowChange }: FollowButtonProps) {
+export function FollowButton({
+  targetId,
+  targetType,
+  className,
+  onFollowChange,
+}: FollowButtonProps) {
   const [isFollowing, setIsFollowing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -21,21 +27,23 @@ export function FollowButton({ targetId, targetType, className, onFollowChange }
 
   useEffect(() => {
     async function checkFollowStatus() {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
         setLoading(false);
         return;
       }
 
       const query = supabase
-        .from('follows')
-        .select('id')
-        .eq('follower_id', user.id);
-      
-      if (targetType === 'profile') {
-        query.eq('following_profile_id', targetId);
+        .from("follows")
+        .select("id")
+        .eq("follower_id", user.id);
+
+      if (targetType === "profile") {
+        query.eq("following_profile_id", targetId);
       } else {
-        query.eq('following_politician_id', targetId);
+        query.eq("following_politician_id", targetId);
       }
 
       const { data } = await query.single();
@@ -50,7 +58,9 @@ export function FollowButton({ targetId, targetType, className, onFollowChange }
     e.preventDefault();
     e.stopPropagation();
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user) {
       alert("Please log in to follow.");
       return;
@@ -61,14 +71,14 @@ export function FollowButton({ targetId, targetType, className, onFollowChange }
     if (isFollowing) {
       // Unfollow
       const query = supabase
-        .from('follows')
+        .from("follows")
         .delete()
-        .eq('follower_id', user.id);
-      
-      if (targetType === 'profile') {
-        query.eq('following_profile_id', targetId);
+        .eq("follower_id", user.id);
+
+      if (targetType === "profile") {
+        query.eq("following_profile_id", targetId);
       } else {
-        query.eq('following_politician_id', targetId);
+        query.eq("following_politician_id", targetId);
       }
 
       const { error } = await query;
@@ -78,17 +88,21 @@ export function FollowButton({ targetId, targetType, className, onFollowChange }
       }
     } else {
       // Follow
-      const followData: any = {
+      const followData: {
+        follower_id: string;
+        following_profile_id?: string;
+        following_politician_id?: string;
+      } = {
         follower_id: user.id,
       };
 
-      if (targetType === 'profile') {
+      if (targetType === "profile") {
         followData.following_profile_id = targetId;
       } else {
         followData.following_politician_id = targetId;
       }
 
-      const { error } = await supabase.from('follows').insert(followData);
+      const { error } = await supabase.from("follows").insert(followData);
       if (!error) {
         setIsFollowing(true);
         onFollowChange?.(true);
@@ -100,7 +114,12 @@ export function FollowButton({ targetId, targetType, className, onFollowChange }
 
   if (loading) {
     return (
-      <Button variant="outline" size="sm" disabled className={cn("gap-2", className)}>
+      <Button
+        variant="outline"
+        size="sm"
+        disabled
+        className={cn("gap-2", className)}
+      >
         <Loader2 className="w-4 h-4 animate-spin" />
         Processing
       </Button>
@@ -115,10 +134,10 @@ export function FollowButton({ targetId, targetType, className, onFollowChange }
       disabled={isProcessing}
       className={cn(
         "gap-2 transition-all duration-300",
-        isFollowing 
-          ? "bg-brand-surface-highlight text-brand-text-muted hover:bg-kenya-red/10 hover:text-kenya-red hover:border-kenya-red/30" 
+        isFollowing
+          ? "bg-brand-surface-highlight text-brand-text-muted hover:bg-kenya-red/10 hover:text-kenya-red hover:border-kenya-red/30"
           : "bg-kenya-green hover:bg-kenya-green/90 text-white",
-        className
+        className,
       )}
     >
       {isProcessing ? (

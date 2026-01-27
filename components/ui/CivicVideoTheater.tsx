@@ -1,8 +1,8 @@
+/* cSpell:ignore supabase */
 "use client";
 
 import { useState, useEffect } from "react";
 import { X, ThumbsUp, ThumbsDown, Share2, Send, MessageSquare, MoreHorizontal } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { CivicVideoPlayer } from "@/components/ui/CivicVideoPlayer";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase";
