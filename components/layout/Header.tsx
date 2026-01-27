@@ -9,9 +9,10 @@ import { Button } from '@/components/ui/button';
 import { UserMenu } from '@/components/layout/UserMenu';
 import { createClient } from '@/lib/supabase';
 import { NotificationsPopover } from '@/components/layout/NotificationsPopover';
+import type { User } from '@supabase/supabase-js';
 
 export function Header() {
-  const [user, setUser] = React.useState<any>(null);
+  const [user, setUser] = React.useState<User | null>(null);
   const supabase = createClient();
 
   React.useEffect(() => {
