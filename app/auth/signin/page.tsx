@@ -2,8 +2,8 @@ import { SigninForm } from "@/components/auth/AuthForms";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Sign In | Unify",
-  description: "Sign in to your account",
+  title: "Sign In | PoliFy",
+  description: "Sign in to access your platform dashboard",
 };
 
 export default function SigninPage() {

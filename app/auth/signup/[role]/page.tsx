@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { role } = await params;
   const titleRole = role.charAt(0).toUpperCase() + role.slice(1);
   return {
-    title: `Sign Up as ${titleRole} | Unify`,
+    title: `Sign Up as ${titleRole} | PoliFy`,
   };
 }
 

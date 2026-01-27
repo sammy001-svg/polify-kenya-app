@@ -2,8 +2,10 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Search, Bell, Video, Menu, User } from 'lucide-react';
+import { Search, Video, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { UserMenu } from '@/components/layout/UserMenu';
+import { NotificationsPopover } from '@/components/layout/NotificationsPopover';
 
 export function Header() {
   return (
@@ -14,11 +16,13 @@ export function Header() {
         <Button variant="ghost" size="icon" className="md:hidden">
           <Menu className="w-6 h-6" />
         </Button>
-        <Link href="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-kenya-red rounded-lg flex items-center justify-center">
-            <span className="font-bold text-white text-lg">P</span>
+        <Link href="/" className="flex items-center gap-2 group">
+          <div className="w-10 h-10 overflow-hidden rounded-full shadow-sm border border-white/10 group-hover:scale-105 transition-transform bg-white">
+            <img src="/polify-logo.jpg" alt="PoliFy Logo" className="w-full h-full object-cover scale-110" />
           </div>
-          <span className="font-bold text-lg tracking-tight hidden sm:block">Political Intell.</span>
+          <span className="font-black text-2xl tracking-tighter hidden sm:block bg-linear-to-r from-[#922529] via-white to-[#008C51] bg-clip-text text-transparent ml-1">
+            PoliFy
+          </span>
         </Link>
       </div>
 
@@ -38,18 +42,16 @@ export function Header() {
 
       {/* Right: Actions */}
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon" className="hidden sm:inline-flex">
-          <Video className="w-6 h-6" />
-        </Button>
-        <Button variant="ghost" size="icon">
-          <Bell className="w-6 h-6" />
-        </Button>
+        <Link href="/shorts">
+          <Button variant="ghost" size="icon" className="hidden sm:inline-flex" title="Bunge Bites (Shorts)">
+            <Video className="w-6 h-6" />
+          </Button>
+        </Link>
+        <NotificationsPopover />
         
         <div className="w-px h-6 bg-border mx-1" />
         
-        <Button variant="ghost" size="icon" className="rounded-full overflow-hidden bg-brand-highlight">
-           <User className="w-5 h-5 text-brand-text" />
-        </Button>
+        <UserMenu />
       </div>
     </header>
   );

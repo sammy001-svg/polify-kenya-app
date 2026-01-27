@@ -6,8 +6,11 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: "Political Intelligence & Civic Engagement System",
-  description: "The next-generation platform for Kenyan political transparency and civic education.",
+  title: "PoliFy | Political Intelligence & Civic Engagement",
+  description: "PoliFy: The next-generation platform for Kenyan political transparency and civic education.",
+  icons: {
+    icon: "/polify-logo.jpg",
+  },
 };
 
 export default function RootLayout({

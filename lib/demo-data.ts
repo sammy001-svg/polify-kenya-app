@@ -15,6 +15,7 @@ export interface StreamItem {
   politicalLeaning: "Government" | "Opposition" | "Independent" | "Civil Society";
   contentType?: ContentType;
   creatorId?: string;
+  videoUrl?: string;
 }
 
 export interface LearningItem {
@@ -112,7 +113,8 @@ export const DEMO_STREAMS: StreamItem[] = [
     verificationStatus: "Pending",
     isVerifiedChannel: true,
     recommendationReason: "Trending in your county",
-    politicalLeaning: "Government"
+    politicalLeaning: "Government",
+    videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
   },
   {
     id: 3,
@@ -126,7 +128,8 @@ export const DEMO_STREAMS: StreamItem[] = [
     verificationStatus: "Verified",
     isVerifiedChannel: true,
     recommendationReason: "From verified source you follow",
-    politicalLeaning: "Independent"
+    politicalLeaning: "Independent",
+    videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
   },
   {
     id: 4,
@@ -140,7 +143,8 @@ export const DEMO_STREAMS: StreamItem[] = [
     verificationStatus: "Context Added",
     isVerifiedChannel: false,
     recommendationReason: "High engagement quality",
-    politicalLeaning: "Independent"
+    politicalLeaning: "Independent",
+    videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"
   },
   {
     id: 5,
@@ -154,7 +158,8 @@ export const DEMO_STREAMS: StreamItem[] = [
     verificationStatus: "Verified",
     isVerifiedChannel: true,
     recommendationReason: "Relevant to your interests",
-    politicalLeaning: "Government"
+    politicalLeaning: "Government",
+    videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"
   },
   {
     id: 6,
@@ -182,7 +187,8 @@ export const DEMO_STREAMS: StreamItem[] = [
     verificationStatus: "Pending",
     isVerifiedChannel: true,
     recommendationReason: "Diverse viewpoint",
-    politicalLeaning: "Opposition"
+    politicalLeaning: "Opposition",
+    videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4"
   },
   {
     id: 8,
@@ -196,8 +202,9 @@ export const DEMO_STREAMS: StreamItem[] = [
     verificationStatus: "Verified",
     isVerifiedChannel: false,
     recommendationReason: "Balanced coverage",
-    politicalLeaning: "Opposition"
-  }
+    politicalLeaning: "Opposition",
+    videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4"
+  },
 ];
 
 export const DEMO_CHAT = [

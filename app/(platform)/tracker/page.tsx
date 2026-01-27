@@ -2,7 +2,7 @@ import { TrackerDashboard } from "@/components/tracker/TrackerDashboard";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Development Tracker | Political Intelligence",
+  title: "Development Tracker | PoliFy",
   description: "Track constituency projects, CDF usage, and development initiatives.",
 };
 

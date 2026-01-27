@@ -3,7 +3,7 @@ import { MyActivity } from "@/components/profile/MyActivity";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "My Profile | Unify",
+  title: "My Profile | PoliFy",
   description: "Manage your account and contributions.",
 };
 

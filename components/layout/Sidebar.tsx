@@ -62,7 +62,7 @@ export function Sidebar() {
 
       <div className="h-px bg-border mx-2" />
 
-      {/* Section 2: Political Intelligence */}
+      {/* Section 2: Political Intelligence Hub */}
       <div className="space-y-1">
         <h3 className="px-3 text-xs font-semibold text-brand-text-muted uppercase tracking-wider mb-2">
           Knowledge Base
@@ -108,7 +108,7 @@ export function Sidebar() {
       </div>
       
       <div className="mt-auto px-3 py-4 text-xs text-brand-text-muted">
-        <p>© 2026 P.I.C.E.S Kenya</p>
+        <p>© 2026 PoliFy Kenya</p>
         <p>Transparency. Accountability. Truth.</p>
       </div>
     </aside>
