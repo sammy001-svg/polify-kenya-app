@@ -3,6 +3,9 @@
 import { PoliticianProfile } from "@/lib/representatives";
 import { BadgeCheck, Phone, Mail, MapPin, TrendingUp, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { useState, useEffect } from "react";
+import { createClient } from "@/lib/supabase";
+import { FollowButton } from "@/components/ui/FollowButton";
 
 interface PoliticianCardProps {
   politician: PoliticianProfile;
@@ -10,6 +13,24 @@ interface PoliticianCardProps {
 }
 
 export function PoliticianCard({ politician, showPosition = true }: PoliticianCardProps) {
+  const [followers, setFollowers] = useState<number | null>(null);
+  const supabase = createClient();
+
+  useEffect(() => {
+    async function fetchStats() {
+      const { data } = await supabase
+        .from('politician_stats')
+        .select('followers_count')
+        .eq('politician_id', politician.id)
+        .single();
+      
+      if (data) {
+        setFollowers(data.followers_count);
+      }
+    }
+    fetchStats();
+  }, [politician.id, supabase]);
+
   const getPositionColor = (position: string) => {
     switch (position) {
       case 'President':
@@ -146,8 +167,22 @@ export function PoliticianCard({ politician, showPosition = true }: PoliticianCa
               <p className="text-[10px] text-brand-text-muted uppercase">Bills</p>
             </div>
             <div className="text-center">
-              <p className="text-lg font-bold text-brand-text">{politician.trackRecord.attendanceRate}%</p>
-              <p className="text-[10px] text-brand-text-muted uppercase">Attendance</p>
+              <p className="text-lg font-bold text-brand-text">
+                {followers !== null ? followers : (politician.followers || 0)}
+              </p>
+              <p className="text-[10px] text-brand-text-muted uppercase">Followers</p>
+            </div>
+          </div>
+        )}
+        
+        {/* If not incumbent, still show followers */}
+        {!politician.isIncumbent && (
+          <div className="flex items-center justify-center py-3 border-t border-border">
+            <div className="text-center">
+               <p className="text-lg font-bold text-brand-text">
+                {followers !== null ? followers : (politician.followers || 0)}
+              </p>
+              <p className="text-[10px] text-brand-text-muted uppercase tracking-widest">Followers</p>
             </div>
           </div>
         )}
@@ -167,9 +202,16 @@ export function PoliticianCard({ politician, showPosition = true }: PoliticianCa
             )}
           </div>
           
-          <div className="flex items-center gap-1 text-sm font-semibold text-kenya-gold group-hover:text-kenya-red transition-colors">
-            <span>View Full Profile</span>
-            <ArrowRight className="w-4 h-4" />
+          <div className="flex items-center gap-3">
+             <FollowButton 
+                targetId={politician.id} 
+                targetType="politician" 
+                onFollowChange={(active: boolean) => setFollowers(prev => (prev || 0) + (active ? 1 : -1))}
+             />
+             <div className="flex items-center gap-1 text-sm font-semibold text-kenya-gold group-hover:text-kenya-red transition-colors">
+                <span>View</span>
+                <ArrowRight className="w-4 h-4" />
+             </div>
           </div>
         </div>
       </div>

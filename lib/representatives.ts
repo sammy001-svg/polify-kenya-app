@@ -69,6 +69,7 @@ export interface PoliticianProfile {
   // Meta
   dateJoined: string;
   verified: boolean;
+  followers?: number;
 }
 
 // All 47 Counties (basic structure - constituencies can be expanded as needed)

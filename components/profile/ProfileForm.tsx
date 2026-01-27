@@ -16,39 +16,53 @@ export function ProfileForm() {
   const [fullName, setFullName] = useState("");
   const [role, setRole] = useState("");
   const [email, setEmail] = useState("");
+  const [followersCount, setFollowersCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
 
   useEffect(() => {
-    getProfile();
-  }, []);
-
-  async function getProfile() {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (user) {
-        setEmail(user.email || "");
+    async function getProfile() {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
         
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
+        if (user) {
+          setEmail(user.email || "");
+          
+          // Fetch basic profile
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single();
 
-        if (error && error.code !== 'PGRST116') {
-          throw error;
-        }
+          if (error && error.code !== 'PGRST116') {
+            throw error;
+          }
 
-        if (data) {
-          setFullName(data.full_name || "");
-          setRole(data.role || "voter");
+          if (data) {
+            setFullName(data.full_name || "");
+            setRole(data.role || "voter");
+          }
+
+          // Fetch stats from view
+          const { data: stats } = await supabase
+            .from('profile_stats')
+            .select('*')
+            .eq('profile_id', user.id)
+            .single();
+          
+          if (stats) {
+            setFollowersCount(stats.followers_count || 0);
+            setFollowingCount(stats.following_count || 0);
+          }
         }
+      } catch (error) {
+        console.error("Error loading user data:", error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Error loading user data:", error);
-    } finally {
-      setLoading(false);
     }
-  }
+    getProfile();
+  }, [supabase]);
 
   async function updateProfile() {
     try {
@@ -97,6 +111,17 @@ export function ProfileForm() {
            <div className="p-2 border border-border rounded-md bg-brand-bg text-sm capitalize">
               {role}
            </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4 pb-4 border-b border-border">
+          <div className="text-center p-3 bg-brand-bg rounded-lg border border-border">
+            <p className="text-2xl font-black text-brand-text">{followersCount}</p>
+            <p className="text-[10px] text-brand-text-muted uppercase tracking-widest font-bold">Followers</p>
+          </div>
+          <div className="text-center p-3 bg-brand-bg rounded-lg border border-border">
+            <p className="text-2xl font-black text-brand-text">{followingCount}</p>
+            <p className="text-[10px] text-brand-text-muted uppercase tracking-widest font-bold">Following</p>
+          </div>
         </div>
 
         <div className="space-y-2">

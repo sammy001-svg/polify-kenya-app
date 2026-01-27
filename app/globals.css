@@ -2,8 +2,6 @@
 
 :root {
   /* Kenyan Identity Palette - Premium Dark Mode Adaptation */
-
-  /* Backgrounds: Deep, rich darks similar to premium media apps */
   --background: #0a0a0b;
   --surface-primary: #121214;
   --surface-secondary: #18181b;
@@ -14,20 +12,14 @@
   --foreground-muted: #a1a1aa;
 
   /* Accents - Inspired by the Flag 🇰🇪 */
-  /* Black (People) is represented by the deep backgrounds */
-
-  /* Red (Struggle/Action) - Used for Live badges, Alerts, 'Watch' actions */
   --accent-red: #dc2626;
   --accent-red-hover: #b91c1c;
 
-  /* Green (Land/Growth) - Used for Verification, Positive trends, Success */
   --accent-green: #16a34a;
   --accent-green-hover: #15803d;
 
-  /* White (Peace) - Used for Primary Text & Dividers */
   --accent-white: #ffffff;
 
-  /* Orange (Wealth/Energy) - Used for 'Premium' features, Highlights */
   --accent-gold: #f97316;
   --accent-gold-hover: #ea580c;
 

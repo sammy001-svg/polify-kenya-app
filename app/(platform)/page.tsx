@@ -10,6 +10,7 @@ import { DEMO_STREAMS } from "@/lib/demo-data";
 import { ViewpointBalance } from "@/components/feed/ViewpointBalance";
 import { PolifyPlayIcon } from "@/components/ui/PolifyPlayIcon";
 import { CivicVideoPlayer } from "@/components/ui/CivicVideoPlayer";
+import { CivicVideoTheater } from "@/components/ui/CivicVideoTheater";
 import {
   HoverCard,
   HoverCardContent,
@@ -17,11 +18,23 @@ import {
 } from "@/components/ui/hover-card";
 
 export default function Home() {
-  const [playingId, setPlayingId] = useState<number | null>(null);
   const [isHeroPlaying, setIsHeroPlaying] = useState(false);
+  const [theaterVideo, setTheaterVideo] = useState<typeof DEMO_STREAMS[0] | null>(null);
 
   return (
     <div className="space-y-8 pb-10">
+      {/* Video Theater Modal */}
+      <CivicVideoTheater 
+        isOpen={!!theaterVideo}
+        onClose={() => setTheaterVideo(null)}
+        videoId={theaterVideo?.id.toString() || ""}
+        videoUrl={theaterVideo?.videoUrl || ""}
+        title={theaterVideo?.title || ""}
+        host={theaterVideo?.host || ""}
+        views={theaterVideo?.views || ""}
+        timeAgo={theaterVideo?.timeAgo || ""}
+      />
+
       {/* Hero / Featured */}
       <section className="relative rounded-2xl overflow-hidden bg-brand-surface-secondary aspect-video md:aspect-21/9 flex items-end shadow-2xl transition-all duration-500">
          <div className={cn("absolute inset-0 z-10 pointer-events-none transition-opacity duration-700", isHeroPlaying ? "opacity-40" : "opacity-80 bg-linear-to-t from-black to-transparent")} />
@@ -83,34 +96,25 @@ export default function Home() {
             <Card 
               key={item.id} 
               className="border-0 bg-transparent shadow-none group cursor-pointer"
-              onClick={() => setPlayingId(item.id)}
+              onClick={() => setTheaterVideo(item)}
             >
               <div className="relative aspect-video rounded-xl bg-brand-surface-highlight mb-3 overflow-hidden border border-white/5 shadow-lg group-hover:border-kenya-red/30 transition-all">
-                 {playingId === item.id ? (
-                   <CivicVideoPlayer 
-                      src={item.videoUrl || ""} 
-                      autoPlay 
-                      className="w-full h-full" 
-                   />
-                 ) : (
-                   <>
-                    <Image 
-                      src={item.thumbnailUrl} 
-                      alt={item.title} 
-                      fill
-                      className="object-cover group-hover:scale-110 transition-transform duration-700" 
-                    />
-                    
-                    {/* Branded Play Button Overlay */}
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors opacity-0 group-hover:opacity-100 duration-300">
-                        <PolifyPlayIcon size="md" />
-                    </div>
+                 <Image 
+                    src={item.thumbnailUrl} 
+                    alt={item.title} 
+                    fill
+                    className="object-cover group-hover:scale-110 transition-transform duration-700" 
+                 />
+                 
+                 {/* Branded Play Button Overlay */}
+                 <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors opacity-0 group-hover:opacity-100 duration-300">
+                     <PolifyPlayIcon size="md" />
+                 </div>
 
-                    <div className="absolute bottom-2 right-2 px-1.5 py-0.5 bg-black/80 rounded text-xs font-medium text-white z-10">
-                      {item.duration}
-                    </div>
-                   </>
-                 )}
+                 <div className="absolute bottom-2 right-2 px-1.5 py-0.5 bg-black/80 rounded text-xs font-medium text-white z-10">
+                   {item.duration}
+                 </div>
+
                  
                  {/* Truth Layer Badge */}
                  <div className={`absolute top-2 left-2 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider backdrop-blur-md z-10
