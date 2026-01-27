@@ -185,9 +185,8 @@ export function SignupForm({ role }: SignupFormProps) {
 
       if (error) throw error;
 
-      // Auto sign in or redirect to confirmation
-      // For this demo/dev env where email confirmation might be off or simulated
-      router.push("/");
+      // Redirect to sign in after successful registration
+      router.push("/auth/signin?message=Registration successful! Please sign in.");
       router.refresh();
     } catch (err: unknown) {
       if (err instanceof Error) {

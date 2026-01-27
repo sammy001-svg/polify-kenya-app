@@ -10,13 +10,23 @@ interface CivicVideoPlayerProps {
   poster?: string;
   className?: string;
   autoPlay?: boolean;
+  loop?: boolean;
+  muted?: boolean;
   onPlayToggle?: (isPlaying: boolean) => void;
 }
 
-export function CivicVideoPlayer({ src, poster, className, autoPlay = false, onPlayToggle }: CivicVideoPlayerProps) {
+export function CivicVideoPlayer({ 
+  src, 
+  poster, 
+  className, 
+  autoPlay = false, 
+  loop = false,
+  muted = true,
+  onPlayToggle 
+}: CivicVideoPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [isMuted, setIsMuted] = useState(true);
+  const [isMuted, setIsMuted] = useState(muted);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
@@ -120,6 +130,7 @@ export function CivicVideoPlayer({ src, poster, className, autoPlay = false, onP
         className="w-full h-full object-cover cursor-pointer"
         playsInline
         muted={isMuted}
+        loop={loop}
         onPlay={() => {
           setIsPlaying(true);
           onPlayToggle?.(true);

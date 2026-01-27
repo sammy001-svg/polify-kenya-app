@@ -1,5 +1,6 @@
-import { SigninForm } from "@/components/auth/AuthForms";
 import { Metadata } from "next";
+import { Suspense } from "react";
+import { SigninPageContent } from "./SigninPageContent";
 
 export const metadata: Metadata = {
   title: "Sign In | PoliFy",
@@ -8,8 +9,8 @@ export const metadata: Metadata = {
 
 export default function SigninPage() {
   return (
-    <div className="container mx-auto flex flex-col items-center justify-center space-y-6">
-      <SigninForm />
-    </div>
+    <Suspense fallback={<div className="container mx-auto flex items-center justify-center h-screen text-brand-text-muted">Loading...</div>}>
+      <SigninPageContent />
+    </Suspense>
   );
 }

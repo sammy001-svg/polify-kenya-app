@@ -1,25 +1,70 @@
-"use client";
-
 import { PolicyIdea } from "@/lib/gamification";
-import { ThumbsUp, MessageSquare, CheckCircle2, Clock } from "lucide-react";
-import { useState } from "react";
-
+import { ThumbsUp, MessageSquare, CheckCircle2, Clock, Sparkles } from "lucide-react";
+import { useState, useEffect } from "react";
+import { createClient } from "@/lib/supabase";
 
 interface PolicyIdeaCardProps {
-  idea: PolicyIdea;
+  idea: PolicyIdea & { 
+    ai_analysis?: {
+      feasibility: number;
+      cost_index: number;
+      impact_score: number;
+      analyst_notes: string;
+      ai_status: string;
+    } 
+  };
 }
 
 export function PolicyIdeaCard({ idea }: PolicyIdeaCardProps) {
   const [voted, setVoted] = useState(false);
   const [voteCount, setVoteCount] = useState(idea.votes);
+  const [userId, setUserId] = useState<string | null>(null);
+  const supabase = createClient();
   
-  const handleVote = () => {
-    if (voted) {
-      setVoteCount(voteCount - 1);
-    } else {
-      setVoteCount(voteCount + 1);
+  useEffect(() => {
+    const checkVote = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserId(user.id);
+        const { data } = await supabase
+          .from('policy_votes')
+          .select('id')
+          .eq('policy_id', idea.id)
+          .eq('user_id', user.id)
+          .single();
+        if (data) setVoted(true);
+      }
+    };
+    checkVote();
+  }, [idea.id, supabase]);
+
+  const handleVote = async () => {
+    if (!userId) {
+      alert("Please sign in to vote.");
+      return;
     }
-    setVoted(!voted);
+
+    if (voted) {
+      const { error } = await supabase
+        .from('policy_votes')
+        .delete()
+        .eq('policy_id', idea.id)
+        .eq('user_id', userId);
+      
+      if (!error) {
+        setVoteCount(prev => prev - 1);
+        setVoted(false);
+      }
+    } else {
+      const { error } = await supabase
+        .from('policy_votes')
+        .insert({ policy_id: idea.id, user_id: userId });
+      
+      if (!error) {
+        setVoteCount(prev => prev + 1);
+        setVoted(true);
+      }
+    }
   };
   
   const statusConfig = {
@@ -30,7 +75,7 @@ export function PolicyIdeaCard({ idea }: PolicyIdeaCardProps) {
     implemented: { color: 'bg-green-500', label: 'Implemented' },
   };
   
-  const status = statusConfig[idea.status];
+  const status = statusConfig[idea.status as keyof typeof statusConfig] || statusConfig.submitted;
   
   return (
     <div className="bg-brand-surface-secondary border border-border rounded-xl p-6 space-y-4 hover:border-kenya-gold/50 transition-all">
@@ -72,6 +117,32 @@ export function PolicyIdeaCard({ idea }: PolicyIdeaCardProps) {
         {idea.description}
       </p>
       
+      {/* AI Analysis View (if exists) */}
+      {idea.ai_analysis && idea.ai_analysis.ai_status === 'complete' && (
+        <div className="bg-brand-surface p-4 rounded-xl border border-brand-primary/20 space-y-3 relative overflow-hidden group">
+           <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-30 transition-opacity">
+              <Sparkles className="w-12 h-12 text-brand-primary" />
+           </div>
+           <h4 className="text-[10px] font-black uppercase tracking-widest text-brand-primary flex items-center gap-2">
+              <Sparkles className="w-3 h-3" /> Bunge AI Scorecard
+           </h4>
+           <div className="grid grid-cols-3 gap-3 text-center">
+              <div className="space-y-1">
+                 <p className="text-[9px] font-bold text-brand-text-muted uppercase">Feasibility</p>
+                 <p className="text-sm font-black text-brand-primary">{idea.ai_analysis.feasibility}%</p>
+              </div>
+              <div className="space-y-1 border-x border-border">
+                 <p className="text-[9px] font-bold text-brand-text-muted uppercase">Social Impact</p>
+                 <p className="text-sm font-black text-kenya-green">{idea.ai_analysis.impact_score}%</p>
+              </div>
+              <div className="space-y-1">
+                 <p className="text-[9px] font-bold text-brand-text-muted uppercase">Fiscal Load</p>
+                 <p className="text-sm font-black text-kenya-red">{idea.ai_analysis.cost_index}/100</p>
+              </div>
+           </div>
+        </div>
+      )}
+      
       {/* Impact Statement */}
       <div className="bg-brand-surface-highlight rounded-lg p-3">
         <p className="text-xs font-bold uppercase tracking-wider text-brand-text-muted mb-1">
@@ -86,7 +157,7 @@ export function PolicyIdeaCard({ idea }: PolicyIdeaCardProps) {
           Target Audience
         </p>
         <div className="flex flex-wrap gap-2">
-          {idea.targetAudience.map((audience, index) => (
+          {(idea.targetAudience || []).map((audience, index) => (
             <span 
               key={index}
               className="px-2 py-1 bg-kenya-green/20 text-kenya-green text-xs font-medium rounded"
@@ -101,8 +172,8 @@ export function PolicyIdeaCard({ idea }: PolicyIdeaCardProps) {
       <div className="flex items-center justify-between pt-4 border-t border-border">
         {/* Author */}
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-linear-to-br from-kenya-red to-kenya-gold flex items-center justify-center text-xs font-bold text-white">
-            {idea.author.name.split(' ').map(n => n[0]).join('')}
+          <div className="w-8 h-8 rounded-full bg-linear-to-br from-kenya-red to-kenya-gold flex items-center justify-center text-xs font-bold text-white uppercase">
+            {idea.author.name.split(' ').map((n: string) => n[0]).join('')}
           </div>
           <div>
             <p className="text-sm font-semibold text-brand-text">{idea.author.name}</p>
@@ -125,3 +196,4 @@ export function PolicyIdeaCard({ idea }: PolicyIdeaCardProps) {
     </div>
   );
 }
+

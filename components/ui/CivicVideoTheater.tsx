@@ -1,4 +1,4 @@
-/* cSpell:ignore supabase */
+/* cSpell:ignore supabase PoliFy */
 "use client";
 
 import { useState, useEffect } from "react";

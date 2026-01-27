@@ -1,3 +1,4 @@
+/* cSpell:ignore PoliFy maandamano */
 "use client";
 
 import React from 'react';
@@ -6,9 +7,29 @@ import Image from 'next/image';
 import { Search, Video, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { UserMenu } from '@/components/layout/UserMenu';
+import { createClient } from '@/lib/supabase';
 import { NotificationsPopover } from '@/components/layout/NotificationsPopover';
 
 export function Header() {
+  const [user, setUser] = React.useState<any>(null);
+  const supabase = createClient();
+
+  React.useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    fetchUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+      supabase.auth.getUser().then(({ data: { user } }) => {
+        setUser(user ?? null);
+      });
+    });
+
+    return () => subscription.unsubscribe();
+  }, [supabase]);
+
   return (
     <header className="fixed top-0 left-0 right-0 h-16 bg-brand-bg/95 backdrop-blur-md border-b border-border flex items-center justify-between px-4 z-50">
       
@@ -53,11 +74,20 @@ export function Header() {
             <Video className="w-6 h-6" />
           </Button>
         </Link>
-        <NotificationsPopover />
         
-        <div className="w-px h-6 bg-border mx-1" />
-        
-        <UserMenu />
+        {user ? (
+          <>
+            <NotificationsPopover />
+            <div className="w-px h-6 bg-border mx-1" />
+            <UserMenu />
+          </>
+        ) : (
+          <Link href="/auth/signin">
+            <Button className="bg-kenya-red hover:bg-kenya-red/90 text-white rounded-full px-6">
+              Sign In
+            </Button>
+          </Link>
+        )}
       </div>
     </header>
   );

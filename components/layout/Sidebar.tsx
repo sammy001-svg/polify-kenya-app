@@ -15,7 +15,6 @@ import {
   MessageSquare,
   Sparkles,
   Award,
-  Lightbulb,
   Flag,
   User
 } from 'lucide-react';
@@ -57,6 +56,7 @@ export function Sidebar() {
         <SidebarItem icon={Tv} label="Bunge Bites (Shorts)" href="/shorts" isActive={pathname === '/shorts'} />
         <SidebarItem icon={Radio} label="Mashinani (Town Halls)" href="/live" isActive={pathname === '/live'} />
         <SidebarItem icon={Flag} label="Campaign HQ" href="/campaign" isActive={pathname.startsWith('/campaign')} />
+        <SidebarItem icon={Sparkles} label="Bunge AI (Analysts)" href="/policy-ideas" isActive={pathname.startsWith('/policy-ideas')} />
         <SidebarItem icon={Users} label="My Representative" href="/representatives" isActive={pathname.startsWith('/representatives')} />
       </div>
 
@@ -92,7 +92,6 @@ export function Sidebar() {
         </h3>
         <SidebarItem icon={Award} label="My Progress" href="/participate" isActive={pathname === '/participate'} />
         <SidebarItem icon={BookOpen} label="Learning Paths" href="/learn" isActive={pathname.startsWith('/learn')} />
-        <SidebarItem icon={Lightbulb} label="Policy Ideas" href="/policy-ideas" isActive={pathname.startsWith('/policy-ideas')} />
       </div>
 
       <div className="h-px bg-border mx-2" />
