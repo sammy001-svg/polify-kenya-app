@@ -56,7 +56,7 @@ export default function PolicyIdeasPage() {
           badges: []
         },
         votes: idea.votes_count,
-        commentCount: 0,
+        commentCount: idea.comments_count || 0,
         status: idea.status,
         submittedDate: idea.created_at,
         impactStatement: idea.impact_statement,

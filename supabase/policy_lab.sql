@@ -21,6 +21,11 @@ CREATE TABLE IF NOT EXISTS public.policy_ideas (
     }'::jsonb,
     
     votes_count INTEGER DEFAULT 0,
+    comments_count INTEGER DEFAULT 0,
+    
+    -- AI Bill Drafting Data
+    ai_draft_bill JSONB DEFAULT NULL, -- Structured draft bill data
+    
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -59,8 +64,45 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- 6. TRIGGER FOR VOTE COUNT
+-- 6. COMMENTS TABLE
+CREATE TABLE IF NOT EXISTS public.policy_comments (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    policy_id UUID REFERENCES public.policy_ideas(id) ON DELETE CASCADE NOT NULL,
+    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 7. ENABLE RLS FOR COMMENTS
+ALTER TABLE public.policy_comments ENABLE ROW LEVEL SECURITY;
+
+-- 8. RLS POLICIES FOR COMMENTS
+CREATE POLICY "Anyone can view comments" ON public.policy_comments FOR SELECT USING (true);
+CREATE POLICY "Authenticated users can comment" ON public.policy_comments FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+CREATE POLICY "Users can delete their own comments" ON public.policy_comments FOR DELETE USING (auth.uid() = user_id);
+
+-- 9. FUNCTION TO HANDLE COMMENT COUNT
+CREATE OR REPLACE FUNCTION public.handle_policy_comment()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF (TG_OP = 'INSERT') THEN
+        UPDATE public.policy_ideas SET comments_count = comments_count + 1 WHERE id = NEW.policy_id;
+    ELSIF (TG_OP = 'DELETE') THEN
+        UPDATE public.policy_ideas SET comments_count = comments_count - 1 WHERE id = OLD.policy_id;
+    END IF;
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 10. TRIGGER FOR COMMENT COUNT
+DROP TRIGGER IF EXISTS on_policy_comment ON public.policy_comments;
+CREATE TRIGGER on_policy_comment
+AFTER INSERT OR DELETE ON public.policy_comments
+FOR EACH ROW EXECUTE FUNCTION public.handle_policy_comment();
+
+-- 11. TRIGGER FOR VOTE COUNT (Existing)
 DROP TRIGGER IF EXISTS on_policy_vote ON public.policy_votes;
 CREATE TRIGGER on_policy_vote
 AFTER INSERT OR DELETE ON public.policy_votes
 FOR EACH ROW EXECUTE FUNCTION public.handle_policy_vote();
+
