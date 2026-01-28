@@ -32,14 +32,17 @@ function SidebarItem({ icon: Icon, label, href, isActive }: SidebarItemProps) {
     <Link 
       href={href}
       className={cn(
-        "flex items-center gap-4 px-3 py-3 rounded-lg text-sm font-medium transition-colors",
+        "group flex items-center gap-4 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 relative overflow-hidden",
         isActive 
-          ? "bg-brand-surface-secondary text-brand-text font-bold" 
-          : "text-brand-text-muted hover:bg-brand-surface-secondary/50 hover:text-brand-text"
+          ? "bg-white/5 text-white shadow-[0_0_15px_rgba(255,255,255,0.05)]" 
+          : "text-brand-text-muted hover:bg-white/5 hover:text-white"
       )}
     >
-      <Icon className={cn("w-5 h-5", isActive ? "text-kenya-red" : "text-current")} />
-      <span>{label}</span>
+      {isActive && (
+        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-kenya-red rounded-r-full glow-red" />
+      )}
+      <Icon className={cn("w-5 h-5 transition-transform duration-300 group-hover:scale-110", isActive ? "text-kenya-red" : "text-current")} />
+      <span className="relative z-10">{label}</span>
     </Link>
   );
 }
@@ -48,7 +51,7 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 fixed left-0 top-16 bottom-0 overflow-y-auto bg-brand-bg border-r border-border p-3 hidden md:flex flex-col gap-6">
+    <aside className="w-64 fixed left-0 top-16 bottom-0 overflow-y-auto bg-brand-bg/80 glass-dark border-r border-white/5 p-3 hidden md:flex flex-col gap-6 z-40">
       
       {/* Section 1: Core Navigation */}
       <div className="space-y-1">

@@ -22,7 +22,7 @@ export default function Home() {
   const [theaterVideo, setTheaterVideo] = useState<typeof DEMO_STREAMS[0] | null>(null);
 
   return (
-    <div className="space-y-8 pb-10">
+    <div className="space-y-8 pb-10 page-transition">
       {/* Video Theater Modal */}
       <CivicVideoTheater 
         isOpen={!!theaterVideo}
@@ -36,10 +36,10 @@ export default function Home() {
       />
 
       {/* Hero / Featured */}
-      <section className="relative rounded-2xl overflow-hidden bg-brand-surface-secondary aspect-video md:aspect-21/9 flex items-end shadow-2xl transition-all duration-500">
-         <div className={cn("absolute inset-0 z-10 pointer-events-none transition-opacity duration-700", isHeroPlaying ? "opacity-40" : "opacity-80 bg-linear-to-t from-black to-transparent")} />
+      <section className="relative rounded-3xl overflow-hidden bg-brand-surface-secondary aspect-video md:aspect-21/9 flex items-end shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] transition-all duration-700 border border-white/5 group/hero">
+         <div className={cn("absolute inset-0 z-10 pointer-events-none transition-opacity duration-1000", isHeroPlaying ? "opacity-20" : "opacity-90 bg-linear-to-t from-background via-background/40 to-transparent")} />
          
-         <div className="absolute inset-0 bg-neutral-900 border border-white/5">
+         <div className="absolute inset-0 bg-neutral-900 overflow-hidden">
             <CivicVideoPlayer 
               src="https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
               poster="/thumbnails/hero-poster.png"

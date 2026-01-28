@@ -13,6 +13,8 @@ export const metadata: Metadata = {
   },
 };
 
+import { BackgroundGrain } from "@/components/ui/BackgroundGrain";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -20,7 +22,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.variable} antialiased bg-brand-bg text-brand-text min-h-screen`}>
+      <body className={`${inter.variable} antialiased bg-brand-bg text-brand-text min-h-screen relative`}>
+        <BackgroundGrain />
         {children}
       </body>
     </html>
