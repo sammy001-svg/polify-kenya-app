@@ -11,6 +11,7 @@ import {
 } from "@/lib/gamification";
 import { Sparkles, Trophy, Award } from "lucide-react";
 
+// Leaderboard Page Component
 export default function LeaderboardPage() {
   const [userProgress] = useState(MOCK_USER_PROGRESS);
 
