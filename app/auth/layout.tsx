@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { EnvStatus } from "@/components/auth/EnvStatus";
 
 export default function AuthLayout({
   children,
@@ -7,6 +8,7 @@ export default function AuthLayout({
 }) {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-black">
+      <EnvStatus />
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <Image
