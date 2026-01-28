@@ -44,6 +44,8 @@
     "tar": "7.5.7",
     "supabase": {
       "tar": "7.5.7"
-    }
+    },
+    "fetch-blob": "^4.0.0",
+    "node-domexception": "^2.0.2"
   }
 }
