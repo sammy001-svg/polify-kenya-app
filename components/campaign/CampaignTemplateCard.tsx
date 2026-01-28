@@ -49,19 +49,6 @@ export function CampaignTemplateCard({ template, onSelect, isSelected }: Campaig
             </ul>
         </div>
 
-        {/* Focus Areas Preview */}
-        <div>
-            <h4 className="text-xs font-bold uppercase text-brand-text-muted mb-2 flex items-center gap-1">
-                <Target className="w-3 h-3" /> Key Focus
-            </h4>
-             <div className="flex flex-wrap gap-2">
-                {template.keyFocusAreas.slice(0, 3).map((area, i) => (
-                    <span key={i} className="text-xs px-2 py-1 rounded bg-brand-surface-secondary border border-border">
-                        {area}
-                    </span>
-                ))}
-             </div>
-        </div>
       </CardContent>
     </Card>
   );

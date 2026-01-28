@@ -1,192 +1,144 @@
-import { LucideIcon, MapPin, Building2, Gavel, Users, Scale, HeartHandshake } from 'lucide-react';
+export interface WardSentiment {
+  id: string;
+  name: string;
+  sentimentScore: number; // 0-100
+  topIssue: string;
+  voterCount: number;
+  trend: 'up' | 'down' | 'stable';
+}
 
-export type OfficeType = 'President' | 'Governor' | 'Senator' | 'MP' | 'Woman Rep' | 'MCA';
+export interface CampaignMetric {
+  label: string;
+  value: string;
+  change: string;
+  isPositive: boolean;
+  icon: 'users' | 'trending-up' | 'thumbs-up' | 'activity';
+}
+
+export const MOCK_WARD_DATA: WardSentiment[] = [
+  { id: 'ward-1', name: 'Central Ward', sentimentScore: 78, topIssue: 'Road Repairs', voterCount: 12500, trend: 'up' },
+  { id: 'ward-2', name: 'Westlands', sentimentScore: 45, topIssue: 'Water Shortage', voterCount: 8900, trend: 'down' },
+  { id: 'ward-3', name: 'Market District', sentimentScore: 62, topIssue: 'Sanitation', voterCount: 15200, trend: 'stable' },
+  { id: 'ward-4', name: 'Industrial Area', sentimentScore: 30, topIssue: 'Youth Jobs', voterCount: 10100, trend: 'down' },
+  { id: 'ward-5', name: 'Green Estate', sentimentScore: 88, topIssue: 'Security', voterCount: 6500, trend: 'up' },
+];
+
+export const CAMPAIGN_METRICS: CampaignMetric[] = [
+  { label: 'Total Reach', value: '45.2K', change: '+12%', isPositive: true, icon: 'users' },
+  { label: 'Sentiment Score', value: '64/100', change: '+5%', isPositive: true, icon: 'thumbs-up' },
+  { label: 'Engagement', value: '18.5%', change: '-2%', isPositive: false, icon: 'activity' },
+  { label: 'Predicted Votes', value: '32,450', change: '+8%', isPositive: true, icon: 'trending-up' },
+];
+
+export const CAMPAIGN_ALERTS = [
+  { id: 3, type: 'info', message: 'Town Hall scheduled for Friday is 85% fully booked.' },
+];
+
+// --- Restored Templates Data ---
+
+import { LucideIcon, Building2, Gavel, Users, Scale } from 'lucide-react';
 
 export interface CampaignTemplate {
-  office: OfficeType;
+  office: string;
   title: string;
   description: string;
   icon: LucideIcon;
   mandate: string[];
-  keyFocusAreas: string[];
   requiredDocs: string[];
-  stepByStep: {
-    title: string;
-    description: string;
-  }[];
+  stepByStep: { title: string; description: string }[];
 }
 
 export const CAMPAIGN_TEMPLATES: CampaignTemplate[] = [
   {
-    office: 'President',
-    title: 'Presidential Campaign',
-    description: 'Running for the higest office in the land. National unity and economic stewardship.',
-    icon: Building2,
-    mandate: [
-      'Head of State and Government',
-      'Commander-in-Chief of the Kenya Defence Forces',
-      'Symbol of National Unity',
-      'Protecting the Constitution and Sovereignty'
-    ],
-    keyFocusAreas: [
-      'National Economy & Debt Management',
-      'National Security',
-      'International Relations',
-      'Devolution Support',
-      'Infrastructure Development'
-    ],
-    requiredDocs: [
-      'Kenyan Citizenship',
-      'University Degree',
-      'Clearance from EACC',
-      'Nomination by a Political Party or Independent (2000 signatures from majority of counties)'
-    ],
-    stepByStep: [
-      { title: 'Party Nomination', description: 'Secure the ticket of a major coalition or register as an independent.' },
-      { title: 'Manifesto Launch', description: 'Outline your vision for the country (The Plan).' },
-      { title: 'National Campaign', description: 'Tour all 47 counties to sell your agenda.' },
-      { title: 'Debates', description: 'Face off with opponents on live TV.' }
-    ]
-  },
-  {
-    office: 'Governor',
-    title: 'Gubernatorial Campaign',
-    description: 'The CEO of the County. Focusing on service delivery and local development.',
-    icon: MapPin,
-    mandate: [
-      'Chief Executive of the County',
-      'Implement County Legislation',
-      'Manage County Resources',
-      'Deliver Services (Health, Water, Agriculture, Early Education)'
-    ],
-    keyFocusAreas: [
-      'Healthcare (County Hospitals)',
-      'Agriculture & Markets',
-      'County Roads & Infrastructure',
-      'Early Childhood Education (ECDE)',
-      'Water & Sanitation'
-    ],
-    requiredDocs: [
-      'University Degree',
-      'Registered Voter in the County',
-      'Clearance from EACC',
-      'Integrity Clearance (Chapter 6)'
-    ],
-    stepByStep: [
-      { title: 'Community Listening', description: 'Identify pressing local issues (roads, hospitals).' },
-      { title: 'Running Mate Selection', description: 'Choose a deputy who balances your ticket (regional/gender balance).' },
-      { title: 'Ward Tours', description: 'Visit every ward to connect with grassroots voters.' }
-    ]
-  },
-  {
-    office: 'Senator',
-    title: 'Senatorial Campaign',
-    description: 'The Protector of Devolution. Oversighting county funds.',
-    icon: Scale,
-    mandate: [
-      'Represent the County at National Level',
-      'Protect the Interests of the County',
-      'Oversight of County Revenue',
-      'Determine Revenue Allocation to Counties'
-    ],
-    keyFocusAreas: [
-      'Revenue Allocation Formula',
-      'Oversight of Governor\'s Spending',
-      'Defending Devolution',
-      'Impeachment Proceedings (if necessary)'
-    ],
-    requiredDocs: [
-      'University Degree',
-      'Registered Voter',
-      'Clearance from EACC'
-    ],
-    stepByStep: [
-      { title: 'Audit Review', description: 'Highlight gaps in current county spending.' },
-      { title: 'Public Barazas', description: 'Sensitize residents on their rights and county budget.' },
-      { title: 'Media Engagement', description: 'Debate national issues affecting the county.' }
-    ]
-  },
-  {
-    office: 'MP',
-    title: 'Member of Parliament (MP)',
-    description: 'Representing the Constituency. Legislation and NG-CDF management.',
-    icon: Gavel,
-    mandate: [
-      'Legislation (Making Laws)',
-      'Representation of Constituency',
-      'Oversight of National Government',
-      'Management of NG-CDF (Development Fund)'
-    ],
-    keyFocusAreas: [
-      'School Infrastructure (NG-CDF)',
-      'Security (Police Posts)',
-      'Bursaries for Students',
-      'National Legislation'
-    ],
-    requiredDocs: [
-      'Post-Secondary Qualification (Degree not mandatory currently but recommended)',
-      'Registered Voter',
-      'Clearance from EACC'
-    ],
-    stepByStep: [
-      { title: 'Project Identification', description: 'Identify schools and stations needing renovation.' },
-      { title: 'Bursary Plan', description: 'Propose a fair distribution model for education funds.' },
-      { title: 'Town Halls', description: 'Engage directly with constituents on legislative priorities.' }
-    ]
-  },
-  {
-    office: 'Woman Rep',
-    title: 'Woman Representative',
-    description: 'Affirmative Action position. Promoting gender equity and marginalized groups.',
-    icon: HeartHandshake,
-    mandate: [
-      'Promote interests of women, youth, and PWDs',
-      'Manage NGAAF (Affirmative Action Fund)',
-      'Legislation on social issues'
-    ],
-    keyFocusAreas: [
-      'Women Empowerment Projects',
-      'Table Banking & Saccos',
-      'Gender-Based Violence Awareness',
-      'Girl Child Education'
-    ],
-    requiredDocs: [
-      'Post-Secondary Qualification',
-      'Registered Voter',
-      'Clearance from EACC'
-    ],
-    stepByStep: [
-      { title: 'Group Mobilization', description: 'Meet with women groups and chamas.' },
-      { title: 'Empowerment Workshops', description: 'Host training on economic independence.' },
-      { title: 'Advocacy', description: 'Champion legislation protecting women and children.' }
-    ]
-  },
-  {
-    office: 'MCA',
+    office: 'mca',
     title: 'Member of County Assembly (MCA)',
-    description: 'The closest leader to the people. Ward-level representation.',
+    description: 'Targeting Ward Level Leadership & Legislation',
     icon: Users,
     mandate: [
-      'Legislation at County Assembly',
-      'Representation of the Ward',
-      'Oversight of County Executive (Governor)',
-      'Approve County Budget and Plans (CIDP)'
-    ],
-    keyFocusAreas: [
-      'Ward-level Access Roads',
-      'Bursaries (Ward Fund)',
-      'Local Dispensaries',
-      'Street Lighting'
+      'Representation of Ward residents',
+      'Legislation in County Assembly',
+      'Oversight of County Eecutive'
     ],
     requiredDocs: [
-      'Post-Secondary Qualification',
-      'Registered Voter in the Ward',
-      'Clearance from EACC'
+      'IEBC Clearance Certificate',
+      'Party Nomination Certificate',
+      'Self-Declaration Form (EACC)',
+      'Certified Copies of ID/Passport'
     ],
     stepByStep: [
-      { title: 'Door-to-Door', description: 'Meet voters in their homes.' },
-      { title: 'Problem Solving', description: 'Fix small local issues (drainage, lighting) to show initiative.' },
-      { title: 'Market Visits', description: 'Engage with small traders and mama mbogas.' }
+      { title: 'Community Mapping', description: 'Identify key influencers and ward-specific issues.' },
+      { title: 'Voter Registration Drive', description: 'Ensure your supporters are registered.' },
+      { title: 'Door-to-Door Campaign', description: 'Personal engagement is key at ward level.' },
+      { title: 'Town Hall Meetings', description: 'Address community concerns directly.' }
+    ]
+  },
+  {
+    office: 'mp',
+    title: 'Member of Parliament (MP)',
+    description: 'Targeting Constituency Legislation & NG-CDF',
+    icon: Building2,
+    mandate: [
+      'National Legislation',
+      'Representation of Constituency',
+      'Oversight of National Revenue',
+      'Management of NG-CDF'
+    ],
+    requiredDocs: [
+      'University Degree (Required)',
+      'IEBC & Party Clearance',
+      'Tax Compliance Certificate',
+      'Certificate of Good Conduct'
+    ],
+    stepByStep: [
+      { title: 'Constituency Needs Analysis', description: 'Analyze development gaps for NG-CDF.' },
+      { title: 'Stakeholder Engagement', description: 'Meet with elders, youth, and women groups.' },
+      { title: 'Media Strategy', description: 'Local radio and social media presence.' },
+      { title: 'Manifesto Launch', description: 'Present your legislative agenda.' }
+    ]
+  },
+  {
+    office: 'senator',
+    title: 'Senator',
+    description: 'Targeting County Oversight & Devolution Protection',
+    icon: Scale,
+    mandate: [
+      'Representing County Interests',
+      'Oversight of County Revenue',
+      ' Legislation on Counties',
+      'Impeachment Hearings'
+    ],
+    requiredDocs: [
+      'University Degree',
+      'Clearance Certificates',
+      'Political Party Certificate'
+    ],
+    stepByStep: [
+      { title: 'County-Wide Tour', description: 'Visit all constituencies in the county.' },
+      { title: 'Policy Debates', description: 'Engage in debates on devolution protection.' },
+      { title: 'Oversight Agenda', description: 'Highlight gaps in current county governance.' }
+    ]
+  },
+  {
+    office: 'governor',
+    title: 'Governor',
+    description: 'Targeting County Executive Leadership',
+    icon: Gavel,
+    mandate: [
+      'Chief Executive of County',
+      'Management of County Resources',
+      'Implementation of County Laws',
+      'Development Planning'
+    ],
+    requiredDocs: [
+      'University Degree',
+      'Wait Deputy Governor Nominee',
+      'High Clearance Thresholds'
+    ],
+    stepByStep: [
+      { title: 'Running Mate Selection', description: 'Balance regional and ethnic arithmetic.' },
+      { title: 'Detailed Manifesto', description: 'Comprehensive development plan for 5 years.' },
+      { title: 'Resource Mobilization', description: 'High-budget campaign fundraising.' },
+      { title: 'County Rallies', description: 'Large scale mobilization events.' }
     ]
   }
 ];
