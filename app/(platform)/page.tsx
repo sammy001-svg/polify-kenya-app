@@ -72,6 +72,46 @@ export default function Home() {
                 </div>
             </div>
          )}
+
+         {isHeroPlaying && (
+            <div className="absolute inset-0 z-30 pointer-events-none p-6 flex flex-col justify-between">
+               {/* HUD Top: Truth Verification Status */}
+               <div className="flex justify-between items-start animate-in fade-in slide-in-from-top-4 duration-500">
+                  <div className="bg-black/60 glass rounded-xl p-3 px-4 border border-white/10 flex items-center gap-3">
+                     <div className="w-2 h-2 rounded-full bg-kenya-red animate-pulse" />
+                     <span className="text-[10px] font-black uppercase tracking-widest text-white">Live AI Fact-Checking</span>
+                  </div>
+                  
+                  <div className="bg-kenya-green/20 glass rounded-xl p-3 border border-kenya-green/30 flex items-center gap-3">
+                    <BadgeCheck className="w-4 h-4 text-kenya-green" />
+                    <span className="text-[10px] font-black uppercase tracking-widest text-white">Trust Score: 98%</span>
+                  </div>
+               </div>
+
+               {/* HUD Bottom: Real-time Context Banner */}
+               <div className="space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
+                  <div className="bg-black/80 glass-dark rounded-2xl p-4 border-l-4 border-kenya-gold max-w-md shadow-2xl">
+                     <div className="flex items-center gap-2 mb-1">
+                        <Info className="w-3 h-3 text-kenya-gold" />
+                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-kenya-gold">Legislative Context</span>
+                     </div>
+                     <p className="text-sm font-bold text-white leading-snug">
+                       Clause 47(b) proposes a 16% VAT on bread. Financial experts project this will impact 85% of households.
+                     </p>
+                  </div>
+                  
+                  {/* Floating Micro-data */}
+                  <div className="flex gap-2">
+                     <div className="bg-white/10 glass rounded-full px-3 py-1 border border-white/10 text-[9px] font-bold text-white/70">
+                       MP VOTES: YES (42) / NO (12)
+                     </div>
+                     <div className="bg-white/10 glass rounded-full px-3 py-1 border border-white/10 text-[9px] font-bold text-white/70">
+                       FISCAL IMPACT: +KSH 2.4B
+                     </div>
+                  </div>
+               </div>
+            </div>
+         )}
       </section>
 
       {/* Feed Filters */}

@@ -16,6 +16,7 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase";
 import { PolicyComments } from "./PolicyComments";
 import { AIDraftBill } from "./AIDraftBill";
+import { AIAnalystSheet } from "./AIAnalystSheet";
 import { Button } from "@/components/ui/button";
 
 /* cSpell:ignore supabase */
@@ -46,6 +47,7 @@ export function PolicyIdeaCard({ idea }: PolicyIdeaCardProps) {
   const [showComments, setShowComments] = useState(false);
   const [showBill, setShowBill] = useState(false);
   const [isDrafting, setIsDrafting] = useState(false);
+  const [isAnalystOpen, setIsAnalystOpen] = useState(false);
   const [draftedBill, setDraftedBill] = useState(idea.ai_draft_bill);
   const [currentUser, setCurrentUser] = useState<{ id: string } | null>(null);
   const supabase = createClient();
@@ -240,10 +242,7 @@ export function PolicyIdeaCard({ idea }: PolicyIdeaCardProps) {
            </Button>
          )}
          <Button 
-            onClick={() => {
-              const feedback = `Based on current legislative trends in ${idea.category}, this proposal has high social resonance but requires a clearer implementation roadmap for rural sectors.`;
-              alert(`Bunge AI Feedback: ${feedback}`);
-            }}
+            onClick={() => setIsAnalystOpen(true)}
             variant="ghost" 
             className="text-[10px] font-black uppercase text-brand-text-muted hover:text-brand-primary h-10"
          >
@@ -306,6 +305,14 @@ export function PolicyIdeaCard({ idea }: PolicyIdeaCardProps) {
           <PolicyComments policyId={idea.id} />
         )}
       </div>
+
+      <AIAnalystSheet 
+        isOpen={isAnalystOpen}
+        onClose={() => setIsAnalystOpen(false)}
+        ideaTitle={idea.title}
+        category={idea.category}
+        analysis={idea.ai_analysis}
+      />
     </div>
   );
 }
