@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 60">
+  <rect width="90" height="60" fill="#fff"/>
+  <rect width="90" height="20" fill="#000"/>
+  <rect y="40" width="90" height="20" fill="#008C51"/>
+  <rect y="19" width="90" height="22" fill="#922529"/>
+  <rect y="17" width="90" height="2" fill="#fff"/>
+  <rect y="41" width="90" height="2" fill="#fff"/>
+  <g transform="translate(45 30)">
+    <path d="M-9-15c4 5 4 25 0 30 4-5 4-25 0-30zM9-15c-4 5-4 25 0 30-4-5-4-25 0-30z" fill="#fff"/>
+    <path d="M-7-15c4 5 4 25 0 30s0 30-0 30 4-5 4-25 0-30z" fill="#922529" transform="translate(7 0)"/>
+    <path d="M-7-15c4 5 4 25 0 30 4-5 4-25 0-30z" fill="#922529" transform="translate(-7 0)"/>
+    <ellipse ry="15" rx="8" fill="#922529"/>
+    <path d="M-1-15c2 5 2 25 0 30-2-5-2-25 0-30zM1-15c-2 5-2 25 0 30 2-5 2-25 0-30z" fill="#000"/>
+    <circle r="2.5" fill="#000"/>
+    <path d="M-5-12l10 24M5-12l-10 24" stroke="#fff" stroke-width="0.8"/>
+  </g>
+</svg>
