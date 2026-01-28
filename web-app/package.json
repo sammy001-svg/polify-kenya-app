@@ -41,6 +41,6 @@
   },
   "overrides": {
     "tar": "7.5.7",
-    "node-domexception": "file:./.hacks/node-domexception"
+    "node-fetch": "^2.6.7"
   }
 }
