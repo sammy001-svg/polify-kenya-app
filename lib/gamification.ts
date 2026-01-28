@@ -856,3 +856,12 @@ export function getXPForNextLevel(currentLevel: UserLevel): number {
   const nextLevel = (currentLevel + 1) as UserLevel;
   return LEVEL_THRESHOLDS[nextLevel];
 }
+
+// Demo Leaderboard Data
+export const DEMO_LEADERBOARD = [
+  { rank: 1, name: 'Sarah Kimani', level: 6, xp: 14500, avatar: 'S', badge: 'Champion', isTrendUp: true },
+  { rank: 2, name: 'David Omondi', level: 5, xp: 9800, avatar: 'D', badge: 'Advocate', isTrendUp: true },
+  { rank: 3, name: 'Grace Wanjiru', level: 5, xp: 8200, avatar: 'G', badge: 'Advocate', isTrendUp: false },
+  { rank: 4, name: 'You', level: 3, xp: 2100, avatar: 'Y', badge: 'Contributor', isTrendUp: true, highlight: true },
+  { rank: 5, name: 'John Kamau', level: 3, xp: 1950, avatar: 'J', badge: 'Contributor', isTrendUp: false }
+];
