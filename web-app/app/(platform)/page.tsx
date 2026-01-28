@@ -36,7 +36,7 @@ export default function Home() {
 
   // Poll for AI Updates
   useEffect(() => {
-    // Initial load on mount
+    // Initial load on mount (Real-time YouTube Feeds)
     const loadInitialFeeds = async () => {
       setIsScanning(true);
       const newItems = await FeedService.scanForUpdates();
