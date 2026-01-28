@@ -1,6 +1,6 @@
 "use client";
 
-import { Trophy, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { Trophy, TrendingUp, Minus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DEMO_LEADERBOARD } from "@/lib/gamification";
 
@@ -19,21 +19,26 @@ export function CivicLeaderboard() {
 
       <div className="divide-y divide-white/5">
         {DEMO_LEADERBOARD.map((user, index) => (
-          <div 
+          <div
             key={index}
             className={cn(
               "flex items-center gap-4 p-4 transition-colors hover:bg-white/5",
-              user.highlight && "bg-kenya-gold/5 border-l-2 border-kenya-gold"
+              user.highlight && "bg-kenya-gold/5 border-l-2 border-kenya-gold",
             )}
           >
             {/* Rank */}
-            <div className={cn(
-              "w-6 h-6 flex items-center justify-center rounded-full text-[10px] font-black shrink-0",
-              index === 0 ? "bg-kenya-gold text-black" :
-              index === 1 ? "bg-gray-300 text-black" :
-              index === 2 ? "bg-amber-700 text-white" :
-              "bg-white/5 text-brand-text-muted"
-            )}>
+            <div
+              className={cn(
+                "w-6 h-6 flex items-center justify-center rounded-full text-[10px] font-black shrink-0",
+                index === 0
+                  ? "bg-kenya-gold text-black"
+                  : index === 1
+                    ? "bg-gray-300 text-black"
+                    : index === 2
+                      ? "bg-amber-700 text-white"
+                      : "bg-white/5 text-brand-text-muted",
+              )}
+            >
               {user.rank}
             </div>
 
@@ -44,14 +49,18 @@ export function CivicLeaderboard() {
 
             {/* Info */}
             <div className="flex-1 min-w-0">
-              <p className={cn(
-                "text-sm font-bold truncate",
-                user.highlight ? "text-kenya-gold" : "text-brand-text"
-              )}>
+              <p
+                className={cn(
+                  "text-sm font-bold truncate",
+                  user.highlight ? "text-kenya-gold" : "text-brand-text",
+                )}
+              >
                 {user.name}
               </p>
               <div className="flex items-center gap-2 text-[10px] text-brand-text-muted">
-                <span className="bg-white/5 px-1.5 rounded uppercase tracking-wider">{user.badge}</span>
+                <span className="bg-white/5 px-1.5 rounded uppercase tracking-wider">
+                  {user.badge}
+                </span>
                 <span>Lvl {user.level}</span>
               </div>
             </div>
@@ -72,7 +81,7 @@ export function CivicLeaderboard() {
           </div>
         ))}
       </div>
-      
+
       <div className="p-3 text-center border-t border-white/5 bg-black/20">
         <button className="text-[10px] font-bold uppercase tracking-widest text-brand-text-muted hover:text-white transition-colors">
           View Full Rankings
