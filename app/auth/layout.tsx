@@ -1,15 +1,27 @@
+import Image from "next/image";
+
 export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-br from-brand-bg to-brand-surface">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-brand-primary/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-brand-accent/10 rounded-full blur-3xl" />
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-black">
+      {/* Background Image */}
+      <div className="absolute inset-0 z-0">
+        <Image
+          src="/images/nairobi-auth-bg.png"
+          alt="Nairobi City Skyline"
+          fill
+          className="object-cover opacity-80"
+          priority
+        />
+        {/* Cinematic Overlay - Gradient to emphasize center content */}
+        <div className="absolute inset-0 bg-radial-[circle_at_center,var(--tw-gradient-stops)] from-black/40 via-black/70 to-black/90 backdrop-blur-[2px]" />
       </div>
-      <div className="w-full relative z-10">
+      
+      {/* Content */}
+      <div className="w-full relative z-10 animate-in fade-in zoom-in-95 duration-700">
         {children}
       </div>
     </div>
