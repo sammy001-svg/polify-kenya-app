@@ -25,7 +25,6 @@
     "react-dropzone": "^14.3.8",
     "socket.io-client": "^4.8.3",
     "tailwind-merge": "^3.4.0",
-    "tar": "^7.5.6",
     "video.js": "^8.23.4"
   },
   "devDependencies": {
@@ -40,7 +39,9 @@
     "typescript": "^5"
   },
   "overrides": {
-    "tar": "^7.5.6",
-    "node-domexception": "stop-using-this-deprecated-package"
+    "tar": "7.5.7",
+    "supabase": {
+      "tar": "7.5.7"
+    }
   }
 }
