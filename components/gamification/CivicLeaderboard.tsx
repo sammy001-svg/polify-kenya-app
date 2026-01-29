@@ -4,7 +4,9 @@ import { Trophy, TrendingUp, Minus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DEMO_LEADERBOARD } from "@/lib/gamification";
 
-export function CivicLeaderboard() {
+export function CivicLeaderboard({ users }: { users?: any[] }) {
+  const displayUsers = users || DEMO_LEADERBOARD;
+  
   return (
     <div className="bg-brand-surface border border-white/5 rounded-2xl overflow-hidden backdrop-blur-xl">
       <div className="p-4 border-b border-white/5 flex items-center justify-between bg-black/20">
@@ -18,7 +20,7 @@ export function CivicLeaderboard() {
       </div>
 
       <div className="divide-y divide-white/5">
-        {DEMO_LEADERBOARD.map((user, index) => (
+        {displayUsers.map((user, index) => (
           <div
             key={index}
             className={cn(
