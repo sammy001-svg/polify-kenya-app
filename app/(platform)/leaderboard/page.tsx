@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Sparkles, Trophy, Award } from "lucide-react";
+import { createClient } from "@/utils/supabase/client";
 import { CivicLeaderboard } from "@/components/gamification/CivicLeaderboard";
 import { BadgeShowcase } from "@/components/gamification/BadgeShowcase";
 import { UserLevelProgress } from "@/components/gamification/UserLevelProgress";
@@ -10,8 +12,6 @@ import {
   LEARNING_PATHS,
   GamificationService,
 } from "@/lib/gamification";
-import { createClient } from "@/utils/supabase/client";
-import { Sparkles, Trophy, Award } from "lucide-react";
 
 export default function LeaderboardPage() {
   const [leaderboard, setLeaderboard] = useState<
