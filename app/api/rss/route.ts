@@ -56,14 +56,18 @@ export async function GET() {
     });
 
     const results = await Promise.all(promises);
-    const flattened = results
-      .flat()
-      .sort(
-        (a, b) =>
-          new Date(b.published).getTime() - new Date(a.published).getTime(),
-      );
+    const flattened = results.flat();
 
-    return NextResponse.json({ videos: flattened });
+    // Type guard to ensure flattened list is non-null for TypeScript
+    const validVideos = flattened.filter((v): v is NonNullable<typeof v> => v !== null);
+
+    validVideos.sort((a, b) => {
+      const timeA = new Date(a.published).getTime() || 0;
+      const timeB = new Date(b.published).getTime() || 0;
+      return timeB - timeA;
+    });
+
+    return NextResponse.json({ videos: validVideos });
   } catch (error) {
     console.error("RSS API Error:", error);
     return NextResponse.json(
