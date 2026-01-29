@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from 'react';
-import { SHORTS_DATA } from '@/lib/shorts-data';
-import { ShortCard } from './ShortCard';
+import React, { useState, useRef, useEffect } from "react";
+import { SHORTS_DATA } from "@/lib/shorts-data";
+import { ShortCard } from "./ShortCard";
 
 export function ShortsFeed() {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -21,26 +21,26 @@ export function ShortsFeed() {
 
     const feedElement = feedRef.current;
     if (feedElement) {
-      feedElement.addEventListener('scroll', handleScroll);
+      feedElement.addEventListener("scroll", handleScroll);
     }
 
     return () => {
       if (feedElement) {
-        feedElement.removeEventListener('scroll', handleScroll);
+        feedElement.removeEventListener("scroll", handleScroll);
       }
     };
   }, [activeIndex]);
 
   return (
-    <div 
+    <div
       ref={feedRef}
-      className="w-full max-w-md mx-auto h-[calc(100vh-64px)] overflow-y-auto snap-y snap-mandatory bg-black scrollbar-none"
+      className="w-full h-full overflow-y-auto snap-y snap-mandatory bg-black scrollbar-none overscroll-y-contain"
     >
       {SHORTS_DATA.map((video, index) => (
-        <ShortCard 
-          key={video.id} 
-          video={video} 
-          isActive={index === activeIndex} 
+        <ShortCard
+          key={video.id}
+          video={video}
+          isActive={index === activeIndex}
         />
       ))}
     </div>

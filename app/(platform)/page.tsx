@@ -26,13 +26,25 @@ import {
 // Actually, let's use the layout's XPNotification concept or a simple local state for "New Updates" badge.
 
 export default function Home() {
-  const [isHeroPlaying, setIsHeroPlaying] = useState(false);
-  const [theaterVideo, setTheaterVideo] = useState<FeedItem | null>(null);
+  const [activeHeroVideo, setActiveHeroVideo] = useState<FeedItem | null>(null);
+  const [isHeroPlaying, setIsHeroPlaying] = useState(false); // Kept for CivicVideoPlayer callback compatibility, though mostly unused now
+  const [theaterVideo, setTheaterVideo] = useState<FeedItem | null>(null); // Keeping just in case, but we will bypass it for main interactions
   const [feedItems, setFeedItems] = useState<FeedItem[]>(
     DEMO_STREAMS as unknown as FeedItem[],
   ); // Cast initial demo data
   const [isScanning, setIsScanning] = useState(false);
   const [newUpdateCount, setNewUpdateCount] = useState(0);
+
+  const handleVideoClick = (item: FeedItem) => {
+    setActiveHeroVideo(item);
+    // Smooth scroll to top
+    const heroElement = document.getElementById('hero-player');
+    if (heroElement) {
+        heroElement.scrollIntoView({ behavior: 'smooth' });
+    } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   // Poll for AI Updates
   useEffect(() => {
@@ -83,7 +95,7 @@ export default function Home() {
   };
 
   return (
-    <div className="space-y-8 pb-10 page-transition">
+    <div className="flex flex-col h-[calc(100vh-64px)] overflow-hidden page-transition">
       {/* Video Theater Modal */}
       <CivicVideoTheater
         isOpen={!!theaterVideo}
@@ -96,113 +108,74 @@ export default function Home() {
         timeAgo={theaterVideo?.timeAgo || ""}
       />
 
-      {/* Hero / Featured */}
-      <section className="relative rounded-3xl overflow-hidden bg-brand-surface-secondary aspect-video md:aspect-21/9 flex items-end shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] transition-all duration-700 border border-white/5 group/hero">
-        <div
-          className={cn(
-            "absolute inset-0 z-10 pointer-events-none transition-opacity duration-1000",
-            isHeroPlaying
-              ? "opacity-20"
-              : "opacity-90 bg-linear-to-t from-background via-background/40 to-transparent",
+      {/* Hero / Featured / Active Player - STATIC */}
+      <div className="shrink-0 p-4 pb-0 z-10 bg-background/95 backdrop-blur-md border-b border-white/5 shadow-md">
+        <section className="relative rounded-3xl overflow-hidden bg-brand-surface-secondary aspect-video md:aspect-21/9 flex items-end shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] transition-all duration-700 border border-white/5 group/hero" id="hero-player">
+          <div className="absolute inset-0 bg-neutral-900 overflow-hidden">
+            {activeHeroVideo && activeHeroVideo.videoUrl ? (
+             activeHeroVideo.videoUrl.includes("youtube") || activeHeroVideo.videoUrl.includes("youtu.be") ? (
+               <iframe
+                 src={
+                   activeHeroVideo.videoUrl.includes("embed")
+                     ? `${activeHeroVideo.videoUrl}${activeHeroVideo.videoUrl.includes("?") ? "&" : "?"}autoplay=1&modestbranding=1&rel=0`
+                     : `https://www.youtube.com/embed/${activeHeroVideo.videoUrl.split("v=")[1]?.split("&")[0] || activeHeroVideo.videoUrl.split("/").pop()}?autoplay=1&modestbranding=1&rel=0`
+                 }
+                 title={activeHeroVideo.title}
+                 className="w-full h-full"
+                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                 allowFullScreen
+               />
+             ) : (
+                <CivicVideoPlayer
+                  src={activeHeroVideo.videoUrl}
+                  poster={activeHeroVideo.thumbnailUrl}
+                  className="w-full h-full"
+                  autoPlay={true}
+                  onPlayToggle={(playing) => setIsHeroPlaying(playing)}
+                />
+             )
+          ) : (
+            <iframe 
+              src="https://www.youtube.com/embed/live_stream?channel=UCk5iR0Y0x1z4QZ6x8x8x8x&autoplay=1&mute=1" 
+              title="Citizen TV Live" 
+              className="w-full h-full" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+              allowFullScreen 
+            />
           )}
-        />
-
-        <div className="absolute inset-0 bg-neutral-900 overflow-hidden">
-          <CivicVideoPlayer
-            src="https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
-            poster="/thumbnails/hero-poster.png"
-            className="w-full h-full"
-            onPlayToggle={(playing: boolean) => setIsHeroPlaying(playing)}
-          />
         </div>
 
-        {!isHeroPlaying && (
-          <div className="relative z-20 p-8 space-y-4 pointer-events-none">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-kenya-red text-white text-xs font-bold uppercase tracking-wide">
-              <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-              Live Now
-            </div>
-            <h1 className="text-4xl font-bold max-w-2xl text-white drop-shadow-lg">
-              National Assembly: The Finance Bill Second Reading
-            </h1>
-            <p className="text-lg text-gray-200 max-w-xl drop-shadow-md">
-              Watch live as MPs debate the proposed tax amendments. Get
-              real-time fact-checking and historical context overlay.
-            </p>
-            <div className="flex gap-4 pointer-events-auto">
-              <Button
-                size="lg"
-                className="bg-white text-black hover:bg-gray-200"
-                onClick={() => setIsHeroPlaying(true)}
-              >
-                <PolifyPlayIcon
-                  size="sm"
-                  className="mr-2 bg-transparent border-0 h-6 w-6"
-                />
-                Watch Broadcast
-              </Button>
-              <Button
-                size="lg"
-                variant="secondary"
-                className="backdrop-blur-md bg-white/10 text-white border-white/20"
-              >
-                <CheckCircle className="mr-2 w-5 h-5 text-kenya-green" />
-                Read Fact Sheet
-              </Button>
-            </div>
-          </div>
+        {/* Dynamic Overlay Info (Only shown if we have an active item AND it's not the default stream, OR we custom handle default stream overlay) */}
+        {activeHeroVideo ? (
+           <div className="relative z-20 p-8 space-y-4 pointer-events-none w-full bg-linear-to-t from-black/90 to-transparent">
+             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-kenya-red text-white text-xs font-bold uppercase tracking-wide">
+               <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+               Now Playing
+             </div>
+             <h1 className="text-2xl md:text-4xl font-bold max-w-4xl text-white drop-shadow-lg line-clamp-2">
+               {activeHeroVideo.title}
+             </h1>
+              <div className="flex items-center gap-3 text-sm text-gray-200">
+                  <span className="font-bold">{activeHeroVideo.host}</span>
+                  <span>• {activeHeroVideo.views}</span>
+              </div>
+           </div>
+        ) : (
+           <div className="relative z-20 p-8 space-y-4 pointer-events-none w-full bg-linear-to-t from-black/90 to-transparent">
+               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-kenya-red text-white text-xs font-bold uppercase tracking-wide">
+                 <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+                 Live Stream
+               </div>
+               <h1 className="text-3xl font-bold text-white drop-shadow-lg">Citizen TV Kenya Live</h1>
+           </div>
         )}
+        </section>
+      </div>
 
-        {isHeroPlaying && (
-          <div className="absolute inset-0 z-30 pointer-events-none p-6 flex flex-col justify-between">
-            {/* HUD Top: Truth Verification Status */}
-            <div className="flex justify-between items-start animate-in fade-in slide-in-from-top-4 duration-500">
-              <div className="bg-black/60 glass rounded-xl p-3 px-4 border border-white/10 flex items-center gap-3">
-                <div className="w-2 h-2 rounded-full bg-kenya-red animate-pulse" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-white">
-                  Live AI Fact-Checking
-                </span>
-              </div>
-
-              <div className="bg-kenya-green/20 glass rounded-xl p-3 border border-kenya-green/30 flex items-center gap-3">
-                <BadgeCheck className="w-4 h-4 text-kenya-green" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-white">
-                  Trust Score: 98%
-                </span>
-              </div>
-            </div>
-
-            {/* HUD Bottom: Real-time Context Banner */}
-            <div className="space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
-              <div className="bg-black/80 glass-dark rounded-2xl p-4 border-l-4 border-kenya-gold max-w-md shadow-2xl">
-                <div className="flex items-center gap-2 mb-1">
-                  <Info className="w-3 h-3 text-kenya-gold" />
-                  <span className="text-[9px] font-black uppercase tracking-[0.2em] text-kenya-gold">
-                    Legislative Context
-                  </span>
-                </div>
-                <p className="text-sm font-bold text-white leading-snug">
-                  Clause 47(b) proposes a 16% VAT on bread. Financial experts
-                  project this will impact 85% of households.
-                </p>
-              </div>
-
-              {/* Floating Micro-data */}
-              <div className="flex gap-2">
-                <div className="bg-white/10 glass rounded-full px-3 py-1 border border-white/10 text-[9px] font-bold text-white/70">
-                  MP VOTES: YES (42) / NO (12)
-                </div>
-                <div className="bg-white/10 glass rounded-full px-3 py-1 border border-white/10 text-[9px] font-bold text-white/70">
-                  FISCAL IMPACT: +KSH 2.4B
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </section>
-
-      {/* Feed Filters */}
-      <div className="flex items-center justify-between gap-4">
+      {/* SCROLLABLE FEED SECTION */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-8 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+        {/* Feed Filters */}
+        <div className="flex items-center justify-between gap-4">
         <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none">
           {[
             "All",
@@ -256,7 +229,7 @@ export default function Home() {
                   ? "animate-in slide-in-from-top-10 fade-in order-first"
                   : "",
               )}
-              onClick={() => setTheaterVideo(item)}
+              onClick={() => handleVideoClick(item)}
             >
               <div className="relative aspect-video rounded-xl bg-brand-surface-highlight mb-3 overflow-hidden border border-white/5 shadow-lg group-hover:border-kenya-red/30 transition-all">
                 <Image
@@ -372,6 +345,7 @@ export default function Home() {
             </a>
           </Card>
         </div>
+      </div>
       </div>
     </div>
   );

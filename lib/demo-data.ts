@@ -107,13 +107,13 @@ export const DEMO_STREAMS: StreamItem[] = [
     views: "12K",
     timeAgo: "2 hours ago",
     duration: "12:45",
-    thumbnailUrl: "https://img.youtube.com/vi/l_tCg0zQ21g/hqdefault.jpg", // Real thumbnail
+    thumbnailUrl: "https://img.youtube.com/vi/j_l4p6e9CQQ/hqdefault.jpg",
     category: "Explainer",
     verificationStatus: "Verified",
     isVerifiedChannel: true,
     recommendationReason: "Educational content",
     politicalLeaning: "Civil Society",
-    videoUrl: "https://www.youtube.com/embed/l_tCg0zQ21g", // Ruto State of Nation
+    videoUrl: "https://www.youtube.com/embed/j_l4p6e9CQQ",
   },
   {
     id: 2,
@@ -122,13 +122,13 @@ export const DEMO_STREAMS: StreamItem[] = [
     views: "3.4K",
     timeAgo: "Live Now",
     duration: "Live",
-    thumbnailUrl: "https://img.youtube.com/vi/l_tCg0zQ21g/hqdefault.jpg", // Recycling working thumbnail
+    thumbnailUrl: "https://img.youtube.com/vi/9Auq9mYxFEE/hqdefault.jpg",
     category: "County Assembly",
     verificationStatus: "Pending",
     isVerifiedChannel: true,
     recommendationReason: "Trending in your county",
     politicalLeaning: "Government",
-    videoUrl: "https://www.youtube.com/embed/l_tCg0zQ21g", // Valid ID
+    videoUrl: "https://www.youtube.com/embed/9Auq9mYxFEE", // Lofi Girl or similar reliable stream
   },
   {
     id: 3,
@@ -137,13 +137,13 @@ export const DEMO_STREAMS: StreamItem[] = [
     views: "8.9K",
     timeAgo: "1 day ago",
     duration: "2:15:30",
-    thumbnailUrl: "https://img.youtube.com/vi/z8kPqS06E6g/hqdefault.jpg",
+    thumbnailUrl: "https://img.youtube.com/vi/xf1uMJq6VTA/hqdefault.jpg", // NASA TV
     category: "Parliament",
     verificationStatus: "Verified",
     isVerifiedChannel: true,
     recommendationReason: "From verified source you follow",
     politicalLeaning: "Independent",
-    videoUrl: "https://www.youtube.com/embed/z8kPqS06E6g", // Valid ID
+    videoUrl: "https://www.youtube.com/embed/xf1uMJq6VTA",
   },
   {
     id: 4,
@@ -152,13 +152,13 @@ export const DEMO_STREAMS: StreamItem[] = [
     views: "45K",
     timeAgo: "3 days ago",
     duration: "45:20",
-    thumbnailUrl: "https://img.youtube.com/vi/l_tCg0zQ21g/hqdefault.jpg",
+    thumbnailUrl: "https://img.youtube.com/vi/LXb3EKWsInQ/hqdefault.jpg", // Jacob Collier
     category: "Interview",
     verificationStatus: "Context Added",
     isVerifiedChannel: false,
     recommendationReason: "High engagement quality",
     politicalLeaning: "Independent",
-    videoUrl: "https://www.youtube.com/embed/l_tCg0zQ21g",
+    videoUrl: "https://www.youtube.com/embed/LXb3EKWsInQ",
   },
   {
     id: 5,
@@ -167,13 +167,13 @@ export const DEMO_STREAMS: StreamItem[] = [
     views: "15K",
     timeAgo: "5 days ago",
     duration: "1:30:00",
-    thumbnailUrl: "https://img.youtube.com/vi/z8kPqS06E6g/hqdefault.jpg",
+    thumbnailUrl: "https://img.youtube.com/vi/jfKfPfyJRdk/hqdefault.jpg", // Lofi Hip Hop
     category: "Town Hall",
     verificationStatus: "Verified",
     isVerifiedChannel: true,
     recommendationReason: "Relevant to your interests",
     politicalLeaning: "Government",
-    videoUrl: "https://www.youtube.com/embed/z8kPqS06E6g",
+    videoUrl: "https://www.youtube.com/embed/jfKfPfyJRdk",
   },
   {
     id: 6,
@@ -182,13 +182,13 @@ export const DEMO_STREAMS: StreamItem[] = [
     views: "102K",
     timeAgo: "1 week ago",
     duration: "08:15",
-    thumbnailUrl: "https://img.youtube.com/vi/z8kPqS06E6g/hqdefault.jpg",
+    thumbnailUrl: "https://img.youtube.com/vi/5qap5aO4i9A/hqdefault.jpg", // Lofi
     category: "Explainer",
     verificationStatus: "Verified",
     isVerifiedChannel: true,
     recommendationReason: "Educational content",
     politicalLeaning: "Civil Society",
-    videoUrl: "https://www.youtube.com/embed/z8kPqS06E6g",
+    videoUrl: "https://www.youtube.com/embed/5qap5aO4i9A",
   },
   {
     id: 7,
@@ -197,13 +197,13 @@ export const DEMO_STREAMS: StreamItem[] = [
     views: "230K",
     timeAgo: "2 weeks ago",
     duration: "1:45:00",
-    thumbnailUrl: "https://img.youtube.com/vi/l_tCg0zQ21g/hqdefault.jpg",
+    thumbnailUrl: "https://img.youtube.com/vi/j_l4p6e9CQQ/hqdefault.jpg",
     category: "Interview",
     verificationStatus: "Pending",
     isVerifiedChannel: true,
     recommendationReason: "Diverse viewpoint",
     politicalLeaning: "Opposition",
-    videoUrl: "https://www.youtube.com/embed/l_tCg0zQ21g",
+    videoUrl: "https://www.youtube.com/embed/j_l4p6e9CQQ",
   },
   {
     id: 8,
@@ -212,13 +212,13 @@ export const DEMO_STREAMS: StreamItem[] = [
     views: "56K",
     timeAgo: "3 weeks ago",
     duration: "15:00",
-    thumbnailUrl: "https://img.youtube.com/vi/z8kPqS06E6g/hqdefault.jpg",
+    thumbnailUrl: "https://img.youtube.com/vi/wbSwFU6tY1c/hqdefault.jpg", // NSO
     category: "Explainer",
     verificationStatus: "Verified",
     isVerifiedChannel: false,
     recommendationReason: "Balanced coverage",
     politicalLeaning: "Opposition",
-    videoUrl: "https://www.youtube.com/embed/z8kPqS06E6g",
+    videoUrl: "https://www.youtube.com/embed/wbSwFU6tY1c",
   },
 ];
 

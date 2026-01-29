@@ -28,7 +28,7 @@ export function ShortCard({ video, isActive }: ShortCardProps) {
   const [showDescription, setShowDescription] = useState(false);
   
   return (
-    <div className="relative w-full h-[calc(100vh-64px)] bg-black flex items-center justify-center snap-start overflow-hidden">
+    <div className="relative w-full h-full bg-black flex items-center justify-center snap-start snap-always overflow-hidden">
       {/* Background Video */}
       <div className="absolute inset-0 z-0">
         <CivicVideoPlayer 
