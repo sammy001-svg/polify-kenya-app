@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Sparkles, Trophy, Award } from "lucide-react";
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/lib/supabase";
 import { CivicLeaderboard } from "@/components/gamification/CivicLeaderboard";
 import { BadgeShowcase } from "@/components/gamification/BadgeShowcase";
 import { UserLevelProgress } from "@/components/gamification/UserLevelProgress";
@@ -10,8 +10,8 @@ import {
   MOCK_USER_PROGRESS,
   ACHIEVEMENT_BADGES,
   LEARNING_PATHS,
-  GamificationService,
 } from "@/lib/gamification";
+import { GamificationService } from "@/lib/gamification-service";
 
 export default function LeaderboardPage() {
   const [leaderboard, setLeaderboard] = useState<
