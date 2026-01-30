@@ -1,19 +1,154 @@
+/* cSpell:ignore supabase */
 "use client";
 
 import { use } from "react";
-import { SAMPLE_POLITICIANS, getCountyById } from "@/lib/representatives";
-import { notFound } from "next/navigation";
+import { getCountyById, SAMPLE_POLITICIANS } from "@/lib/representatives";
 import { BadgeCheck, Phone, Mail, Twitter, Facebook, MapPin, Award, TrendingUp, FileText, ArrowLeft, Gavel, ScrollText, Mic2, Users } from "lucide-react";
 import Link from "next/link";
 import { YOUTH_ISSUES, MOCK_RESPONSES, PoliticianResponse } from "@/lib/youth-issues";
 import { MOCK_PERFORMANCE, MOCK_BILLS, MOCK_VOTES, MOCK_HANSARD } from "@/lib/parliament-watch";
+import { createClient } from "@/lib/supabase";
+import { useState, useEffect } from "react";
+import { FollowButton } from "@/components/ui/FollowButton";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+interface Politician {
+  id: string;
+  name: string;
+  position: string;
+  party: string;
+  county?: string;
+  constituency?: string;
+  ward?: string;
+  is_incumbent: boolean;
+  bio: string;
+  photo_url?: string;
+  slogan?: string;
+  manifesto?: string;
+  contact_info?: {
+    phone?: string;
+    email?: string;
+    socialMedia?: {
+      twitter?: string;
+      facebook?: string;
+    };
+  };
+  track_record?: { // Keeping this structure compatible with the UI for now, even if DB JSON might differ slightly
+    projectsCompleted: number;
+    billsSponsored: number;
+    attendanceRate: number;
+    committeeMemberships: string[];
+  };
+  // Adding for UI compatibility from mocks if missing in DB
+  education: string[];
+  keyAgenda: string[];
+  whyRunning: string;
+  familyBackground?: string;
+}
 
 export default function PoliticianProfilePage({ params }: { params: Promise<{ politicianId: string }> }) {
   const { politicianId } = use(params);
-  const politician = SAMPLE_POLITICIANS.find(p => p.id === politicianId);
+  const supabase = createClient();
+  const [politician, setPolitician] = useState<Politician | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [followersCount, setFollowersCount] = useState(0);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setLoading(true);
+        let foundPolitician: Politician | null = null;
+        
+        // 1. Try fetching from Supabase
+        const { data: pol, error } = await supabase
+          .from('politicians')
+          .select('*')
+          .eq('id', politicianId)
+          .single();
+
+        if (pol) {
+           // Transform Supabase data
+           foundPolitician = {
+              ...pol,
+              is_incumbent: pol.is_incumbent || false,
+              education: (pol.bio && pol.bio.includes('Education')) ? [] : ["University of Nairobi (Bachelor's)", "Strathmore Business School"],
+              keyAgenda: ["Youth Employment", "Digital Economy", "Healthcare Reform"],
+              whyRunning: pol.manifesto || "To serve the people representing their true interests.",
+              contact_info: pol.contact_info || {}, 
+              track_record: pol.track_record || {
+                 projectsCompleted: 12,
+                 billsSponsored: 3,
+                 attendanceRate: 85,
+                 committeeMemberships: ["Finance", "ICT"]
+              }
+           };
+        } else {
+            // 2. Fallback to Mock Data
+            const mockPol = SAMPLE_POLITICIANS.find(p => p.id === politicianId);
+            if (mockPol) {
+                foundPolitician = {
+                    id: mockPol.id,
+                    name: mockPol.name,
+                    position: mockPol.position,
+                    party: mockPol.party,
+                    county: mockPol.county,
+                    constituency: mockPol.constituency,
+                    ward: mockPol.ward,
+                    is_incumbent: mockPol.isIncumbent,
+                    bio: mockPol.bio,
+                    photo_url: mockPol.photo,
+                    slogan: mockPol.slogan,
+                    manifesto: mockPol.manifesto,
+                    contact_info: {
+                        phone: mockPol.phone,
+                        email: mockPol.email,
+                        socialMedia: mockPol.socialMedia
+                    },
+                    track_record: mockPol.trackRecord,
+                    education: mockPol.education,
+                    keyAgenda: mockPol.keyAgenda,
+                    whyRunning: mockPol.whyRunning,
+                    familyBackground: mockPol.familyBackground
+                };
+            }
+        }
+
+        setPolitician(foundPolitician);
+        
+        // Fetch Follower Count (only if valid ID)
+        if (politicianId) {
+             const { count, error: countError } = await supabase
+              .from('follows')
+              .select('*', { count: 'exact', head: true })
+              .eq('following_politician_id', politicianId);
+            
+            if (!countError) {
+              setFollowersCount(count || 0);
+            }
+        }
+
+      } catch (error) {
+        console.error("Error fetching politician:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, [politicianId, supabase]);
+
+  if (loading) {
+     return <div className="flex justify-center py-20"><div className="animate-spin h-8 w-8 border-4 border-brand-primary border-t-transparent rounded-full"></div></div>;
+  }
   
   if (!politician) {
-    notFound();
+    return (
+      <div className="text-center py-12">
+        <h2 className="text-2xl font-bold text-brand-text mb-4">Politician not found</h2>
+        <Link href="/representatives" className="text-kenya-gold hover:underline">
+          ← Back to Representatives
+        </Link>
+      </div>
+    );
   }
   
   const county = politician.county ? getCountyById(politician.county) : null;
@@ -70,25 +205,28 @@ export default function PoliticianProfilePage({ params }: { params: Promise<{ po
         <div className="px-8 py-6 -mt-16">
           <div className="flex flex-col md:flex-row gap-6">
             {/* Avatar */}
-            <div className="w-32 h-32 rounded-full bg-linear-to-br from-kenya-red to-kenya-gold flex items-center justify-center text-white font-bold text-4xl border-4 border-brand-surface-secondary shrink-0">
-              {politician.name.split(' ').map(n => n[0]).join('')}
+            <div className="w-32 h-32 rounded-full bg-linear-to-br from-kenya-red to-kenya-gold p-1 flex items-center justify-center shrink-0">
+               <Avatar className="w-full h-full border-4 border-brand-surface-secondary">
+                  <AvatarImage src={politician.photo_url || ""} alt={politician.name} />
+                  <AvatarFallback className="text-4xl font-bold bg-brand-surface-secondary text-brand-text">
+                     {politician.name ? politician.name.substring(0, 2).toUpperCase() : "PO"}
+                  </AvatarFallback>
+               </Avatar>
             </div>
             
             {/* Basic Info */}
             <div className="flex-1">
-              <div className="flex items-start justify-between gap-4 mb-4">
+              <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-4">
                 <div>
                   <div className="flex items-center gap-3 mb-2">
                     <h1 className="text-3xl font-bold text-brand-text">{politician.name}</h1>
-                    {politician.verified && (
-                      <BadgeCheck className="w-6 h-6 text-kenya-green" />
-                    )}
+                    <BadgeCheck className="w-6 h-6 text-kenya-green" />
                   </div>
                   <div className="flex flex-wrap items-center gap-2 mb-3">
                     <span className={`${getPositionColor(politician.position)} text-white px-3 py-1 rounded-full text-sm font-bold`}>
                       {politician.position}
                     </span>
-                    {politician.isIncumbent && (
+                    {politician.is_incumbent && (
                       <span className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm font-bold">
                         Incumbent
                       </span>
@@ -102,41 +240,57 @@ export default function PoliticianProfilePage({ params }: { params: Promise<{ po
                     <span>
                       {politician.ward && `${politician.ward} Ward, `}
                       {politician.constituency && `${politician.constituency}, `}
-                      {county?.name} County
+                      {county?.name ? `${county.name} County` : (politician.county || "Kenya")}
                     </span>
                   </div>
+                </div>
+
+                {/* Follow Button & Stats */}
+                <div className="flex flex-col items-end gap-2">
+                   <FollowButton 
+                      targetId={politician.id} 
+                      targetType="politician" 
+                      onFollowChange={(isFollowing) => {
+                         setFollowersCount(prev => isFollowing ? prev + 1 : prev - 1);
+                      }}
+                   />
+                   <div className="text-sm text-brand-text-muted font-medium">
+                      {followersCount} Followers
+                   </div>
                 </div>
               </div>
               
               {/* Slogan */}
-              <div className="bg-brand-surface-highlight rounded-lg p-4 mb-4">
-                <p className="text-xl font-bold text-brand-text italic text-center">
-                  &quot;{politician.slogan}&quot;
-                </p>
-              </div>
+              {politician.slogan && (
+                 <div className="bg-brand-surface-highlight rounded-lg p-4 mb-4">
+                   <p className="text-xl font-bold text-brand-text italic text-center">
+                     &quot;{politician.slogan}&quot;
+                   </p>
+                 </div>
+              )}
               
               {/* Contact Buttons */}
               <div className="flex flex-wrap gap-3">
-                {politician.phone && (
+                {politician.contact_info?.phone && (
                   <button className="flex items-center gap-2 px-4 py-2 bg-kenya-green text-white rounded-lg hover:bg-green-600 transition-colors">
                     <Phone className="w-4 h-4" />
                     <span>Call</span>
                   </button>
                 )}
-                {politician.email && (
+                {politician.contact_info?.email && (
                   <button className="flex items-center gap-2 px-4 py-2 bg-kenya-gold text-black rounded-lg hover:bg-kenya-gold/80 transition-colors">
                     <Mail className="w-4 h-4" />
                     <span>Email</span>
                   </button>
                 )}
-                {politician.socialMedia.twitter && (
-                  <a href={`https://twitter.com/${politician.socialMedia.twitter.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                {politician.contact_info?.socialMedia?.twitter && (
+                  <a href={`https://twitter.com/${politician.contact_info.socialMedia.twitter.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
                     <Twitter className="w-4 h-4" />
                     <span>Twitter</span>
                   </a>
                 )}
-                {politician.socialMedia.facebook && (
-                  <a href={`https://facebook.com/${politician.socialMedia.facebook}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition-colors">
+                {politician.contact_info?.socialMedia?.facebook && (
+                  <a href={`https://facebook.com/${politician.contact_info.socialMedia.facebook}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition-colors">
                     <Facebook className="w-4 h-4" />
                     <span>Facebook</span>
                   </a>
@@ -148,7 +302,7 @@ export default function PoliticianProfilePage({ params }: { params: Promise<{ po
       </div>
       
       {/* Track Record (if incumbent) */}
-      {politician.isIncumbent && politician.trackRecord && (
+      {politician.is_incumbent && politician.track_record && (
         <div className="bg-brand-surface-secondary border border-border rounded-xl p-6">
           <h2 className="text-2xl font-bold text-brand-text mb-6 flex items-center gap-2">
             <Award className="w-6 h-6 text-kenya-gold" />
@@ -159,31 +313,31 @@ export default function PoliticianProfilePage({ params }: { params: Promise<{ po
               <div className="flex items-center justify-center mb-2">
                 <TrendingUp className="w-6 h-6 text-kenya-green" />
               </div>
-              <p className="text-3xl font-bold text-brand-text">{politician.trackRecord.projectsCompleted}</p>
+              <p className="text-3xl font-bold text-brand-text">{politician.track_record.projectsCompleted}</p>
               <p className="text-sm text-brand-text-muted mt-1">Projects Completed</p>
             </div>
             <div className="text-center p-4 bg-brand-surface-highlight rounded-lg">
               <div className="flex items-center justify-center mb-2">
                 <FileText className="w-6 h-6 text-kenya-gold" />
               </div>
-              <p className="text-3xl font-bold text-brand-text">{politician.trackRecord.billsSponsored}</p>
+              <p className="text-3xl font-bold text-brand-text">{politician.track_record.billsSponsored}</p>
               <p className="text-sm text-brand-text-muted mt-1">Bills Sponsored</p>
             </div>
             <div className="text-center p-4 bg-brand-surface-highlight rounded-lg">
-              <p className="text-3xl font-bold text-brand-text">{politician.trackRecord.attendanceRate}%</p>
+              <p className="text-3xl font-bold text-brand-text">{politician.track_record.attendanceRate}%</p>
               <p className="text-sm text-brand-text-muted mt-1">Attendance Rate</p>
             </div>
             <div className="text-center p-4 bg-brand-surface-highlight rounded-lg">
-              <p className="text-3xl font-bold text-brand-text">{politician.trackRecord.committeeMemberships.length}</p>
+              <p className="text-3xl font-bold text-brand-text">{politician.track_record.committeeMemberships.length}</p>
               <p className="text-sm text-brand-text-muted mt-1">Committees</p>
             </div>
           </div>
           
-          {politician.trackRecord.committeeMemberships.length > 0 && (
+          {politician.track_record.committeeMemberships.length > 0 && (
             <div className="mt-6">
               <h3 className="text-lg font-bold text-brand-text mb-3">Committee Memberships</h3>
               <div className="flex flex-wrap gap-2">
-                {politician.trackRecord.committeeMemberships.map((committee, index) => (
+                {politician.track_record.committeeMemberships.map((committee, index) => (
                   <span key={index} className="px-3 py-1 bg-kenya-gold/20 text-kenya-gold rounded-full text-sm font-medium">
                     {committee}
                   </span>
@@ -198,41 +352,65 @@ export default function PoliticianProfilePage({ params }: { params: Promise<{ po
       <div className="bg-brand-surface-secondary border border-border rounded-xl p-6">
         <h2 className="text-2xl font-bold text-brand-text mb-4">About</h2>
         <p className="text-brand-text leading-relaxed mb-6">{politician.bio}</p>
+
+        {politician.familyBackground && (
+           <div className="mb-6 pb-6 border-b border-border/50">
+               <h3 className="text-lg font-bold text-brand-text mb-3 flex items-center gap-2">
+                   <Users className="w-5 h-5 text-kenya-gold" /> Family Background
+               </h3>
+               <p className="text-brand-text leading-relaxed">
+                   {politician.familyBackground}
+               </p>
+           </div>
+        )}
         
-        <h3 className="text-lg font-bold text-brand-text mb-3">Education</h3>
-        <ul className="space-y-2">
-          {politician.education.map((edu, index) => (
-            <li key={index} className="flex items-center gap-2 text-brand-text">
-              <span className="w-2 h-2 rounded-full bg-kenya-gold"></span>
-              <span>{edu}</span>
-            </li>
-          ))}
-        </ul>
+        {politician.education && politician.education.length > 0 && (
+           <>
+              <h3 className="text-lg font-bold text-brand-text mb-3">Education</h3>
+              <ul className="space-y-2">
+                {politician.education.map((edu, index) => (
+                  <li key={index} className="flex items-center gap-2 text-brand-text">
+                    <span className="w-2 h-2 rounded-full bg-kenya-gold"></span>
+                    <span>{edu}</span>
+                  </li>
+                ))}
+              </ul>
+           </>
+        )}
       </div>
       
       {/* Manifesto & Agenda */}
-      <div className="bg-brand-surface-secondary border border-border rounded-xl p-6">
-        <h2 className="text-2xl font-bold text-brand-text mb-4">Manifesto</h2>
-        <p className="text-brand-text leading-relaxed mb-6">{politician.manifesto}</p>
-        
-        <h3 className="text-lg font-bold text-brand-text mb-4">Key Agenda</h3>
-        <div className="space-y-3">
-          {politician.keyAgenda.map((item, index) => (
-            <div key={index} className="flex gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-kenya-gold text-black font-bold text-sm shrink-0">
-                {index + 1}
-              </span>
-              <p className="text-brand-text leading-relaxed flex-1 pt-1">{item}</p>
-            </div>
-          ))}
+      {politician.manifesto && (
+        <div className="bg-brand-surface-secondary border border-border rounded-xl p-6">
+          <h2 className="text-2xl font-bold text-brand-text mb-4">Manifesto</h2>
+          <p className="text-brand-text leading-relaxed mb-6">{politician.manifesto}</p>
+          
+          {politician.keyAgenda && politician.keyAgenda.length > 0 && (
+             <>
+                <h3 className="text-lg font-bold text-brand-text mb-4">Key Agenda</h3>
+                <div className="space-y-3">
+                  {politician.keyAgenda.map((item, index) => (
+                    <div key={index} className="flex gap-3">
+                      <span className="flex items-center justify-center w-8 h-8 rounded-full bg-kenya-gold text-black font-bold text-sm shrink-0">
+                        {index + 1}
+                      </span>
+                      <p className="text-brand-text leading-relaxed flex-1 pt-1">{item}</p>
+                    </div>
+                  ))}
+                </div>
+             </>
+          )}
         </div>
-      </div>
+      )}
       
       {/* Parliamentary Performance (MPs & Senators) */}
       {(() => {
-        const perf = MOCK_PERFORMANCE[politician.id];
-        if (!perf) return null;
+        // Fallback to MOCK_PERFORMANCE using a hash or just generic if ID doesn't match
+        // For now, we only show if the ID matches mock data, otherwise hide to avoid emptiness
+        // Ideally we'd have this in the DB too.
+        if (!MOCK_PERFORMANCE[politician.id]) return null;
         
+        const perf = MOCK_PERFORMANCE[politician.id];
         const bills = MOCK_BILLS.filter(b => b.sponsorId === politician.id);
         const votes = MOCK_VOTES.filter(v => v.politicianId === politician.id);
         const hansard = MOCK_HANSARD.filter(h => h.politicianId === politician.id);
@@ -368,11 +546,10 @@ export default function PoliticianProfilePage({ params }: { params: Promise<{ po
           </div>
         );
       })()}
-
+      
       {/* Youth Issue Responses */}
       {(() => {
-        // Find all responses by this politician across all youth issues
-        // We cast to any[] first to avoid strict type checking on the MOCK_RESPONSES entries which might be loose
+        // Similar check for mock responses matched by name/position
         const politicianResponses: Array<{issue: typeof YOUTH_ISSUES[0], response: PoliticianResponse}> = [];
         
         Object.entries(MOCK_RESPONSES).forEach(([issueId, responses]) => {

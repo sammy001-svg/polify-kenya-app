@@ -16,7 +16,8 @@ import {
   Sparkles,
   Award,
   Flag,
-  User
+  User,
+  Megaphone
 } from 'lucide-react';
 import { cn } from '@/components/ui/button';
 
@@ -60,6 +61,7 @@ export function Sidebar() {
         <SidebarItem icon={Radio} label="Mashinani (Town Halls)" href="/live" isActive={pathname === '/live'} />
         <SidebarItem icon={Flag} label="Campaign HQ" href="/campaign" isActive={pathname.startsWith('/campaign')} />
         <SidebarItem icon={Sparkles} label="Bunge AI (Analysts)" href="/policy-ideas" isActive={pathname.startsWith('/policy-ideas')} />
+        <SidebarItem icon={Megaphone} label="Political Parties" href="/parties" isActive={pathname.startsWith('/parties')} />
         <SidebarItem icon={Users} label="My Representative" href="/representatives" isActive={pathname.startsWith('/representatives')} />
       </div>
 

@@ -36,7 +36,7 @@ export const CAMPAIGN_ALERTS = [
 
 // --- Restored Templates Data ---
 
-import { LucideIcon, Building2, Gavel, Users, Scale } from 'lucide-react';
+import { LucideIcon, Building2, Gavel, Users, Scale, Crown } from 'lucide-react';
 
 export interface CampaignTemplate {
   office: string;
@@ -49,6 +49,30 @@ export interface CampaignTemplate {
 }
 
 export const CAMPAIGN_TEMPLATES: CampaignTemplate[] = [
+  {
+    office: 'president',
+    title: 'President of the Republic',
+    description: 'Targeting National Executive Leadership',
+    icon: Crown,
+    mandate: [
+      'Head of State & Government',
+      'Commander-in-Chief of Defence Forces',
+      'Symbol of National Unity',
+      'Protection of Constitution'
+    ],
+    requiredDocs: [
+      'University Degree (Recognized)',
+      '2,000 Signatures from Majority of Counties',
+      'EACC & Police Clearance',
+      'Nomination by Political Party / Independent'
+    ],
+    stepByStep: [
+      { title: 'National Coalition Building', description: 'Form alliances across regions.' },
+      { title: 'Grand Manifesto Launch', description: 'Televised launch of national agenda.' },
+      { title: '47-County Tour', description: 'Massive logistical mobilization.' },
+      { title: 'Presidential Debates', description: 'National media engagement.' }
+    ]
+  },
   {
     office: 'mca',
     title: 'Member of County Assembly (MCA)',

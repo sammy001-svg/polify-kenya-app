@@ -9,6 +9,8 @@ import { cn } from '@/lib/utils';
 import { ShieldCheck, FileCheck, ArrowRight, Flag, Users, FileText, Target, BarChart3, Calendar, Wallet, LayoutDashboard } from 'lucide-react';
 import Link from 'next/link';
 
+import { ContestingPoliticians } from '@/components/campaign/ContestingPoliticians';
+
 export default function CampaignPage() {
   const [selectedTemplate, setSelectedTemplate] = useState<CampaignTemplate | null>(null);
   const [isVerified, setIsVerified] = useState(false);
@@ -193,6 +195,13 @@ export default function CampaignPage() {
                             </div>
                         </div>
                     </div>
+                    
+                    {/* Contesting Politicians Section */}
+                    <div className="mt-8 pt-8 border-t border-border/50">
+                       <ContestingPoliticians office={selectedTemplate.office} />
+                    </div>
+
+
                    </div>
                </div>
             </div>

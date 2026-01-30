@@ -5,7 +5,8 @@ export type PositionType =
   | 'Senator' 
   | 'Governor' 
   | 'President' 
-  | 'Deputy President';
+  | 'Deputy President'
+  | 'Opposition Leader';
 
 export type PartyAffiliation = 
   | 'UDA' 
@@ -70,6 +71,7 @@ export interface PoliticianProfile {
   dateJoined: string;
   verified: boolean;
   followers?: number;
+  familyBackground?: string;
 }
 
 // All 47 Counties (basic structure - constituencies can be expanded as needed)
@@ -328,6 +330,130 @@ export const SAMPLE_POLITICIANS: PoliticianProfile[] = [
     dateJoined: '2017-08-31',
     verified: true,
   },
+  {
+    id: 'pres-1',
+    name: 'Dr. Mukhisa Kituyi',
+    position: 'President',
+    party: 'Independent',
+    isIncumbent: false,
+    bio: 'Former UNCTAD Secretary-General and Minister for Trade. Champion of economic diplomacy and global trade.',
+    education: ['University of Nairobi', 'Makerere University (PhD)'],
+    slogan: 'Economic Liberation',
+    manifesto: 'Restoring Kenya\'s economy through industrialization, trade, and debt restructuring.',
+    keyAgenda: [
+      'Revitalize manufacturing sector',
+      'Renegotiate national debt',
+      'Zero tolerance on corruption',
+      'Universal healthcare reform',
+      'Digital economy expansion'
+    ],
+    whyRunning: 'To bring global experience and integrity to national leadership.',
+    socialMedia: { twitter: '@DrMukhisaKituyi' },
+    dateJoined: '2026-01-01',
+    verified: true,
+    photo: '/avatars/kituyi.jpg'
+  },
+  {
+    id: 'pres-2',
+    name: 'Prof. Kivutha Kibwana',
+    position: 'President',
+    party: 'Other',
+    isIncumbent: false,
+    bio: 'Former Governor of Makueni County and constitutional law expert. Known for public participation model.',
+    education: ['University of Nairobi', 'Harvard University (SJD)'],
+    slogan: 'Wanjiku First',
+    manifesto: 'Empowering citizens through direct resource allocation and strict constitutional adherence.',
+    keyAgenda: [
+      'Full devolution of resources (45%)',
+      'Youth employment guarantee',
+      'Agrarian revolution',
+      'Protecting the constitution',
+      'Judicial independence'
+    ],
+    whyRunning: 'To protect the 2010 Constitution and empower the ordinary citizen.',
+    socialMedia: { twitter: '@gobKibwana' },
+    dateJoined: '2026-01-10',
+    verified: true,
+    photo: '/avatars/kibwana.jpg'
+  },
+  {
+      id: 'pol-ruto',
+      name: 'H.E. William Samoei Ruto',
+      position: 'President',
+      party: 'UDA',
+      isIncumbent: true,
+      bio: 'The 5th President of the Republic of Kenya. A self-made politician who rose from a chicken seller to the highest office in the land, championing the "Hustler Nation".',
+      education: ['University of Nairobi - PhD in Plant Ecology', 'University of Nairobi - MSc', 'University of Nairobi - BSc'],
+      slogan: 'Kazi ni Kazi',
+      manifesto: 'The Bottom-Up Economic Transformation Agenda (BETA) focuses on Agriculture, MSMEs, Housing and Healthcare, and the Digital Superhighway.',
+      keyAgenda: [
+          'Affordable Housing Programme',
+          'Universal Health Coverage (SHIF)',
+          'Digital Superhighway',
+          'Bottom-up Economics',
+          'Fertilizer Subsidy'
+      ],
+      whyRunning: 'To transform the economic fortunes of the ordinary Kenyan.',
+      socialMedia: { twitter: '@WilliamsRuto', facebook: 'WilliamsRuto' },
+      trackRecord: {
+          projectsCompleted: 150,
+          billsSponsored: 0,
+          attendanceRate: 100,
+          committeeMemberships: []
+      },
+      dateJoined: '2013-04-09',
+      verified: true,
+      photo: '/avatars/ruto.jpg',
+      familyBackground: 'Born in Sambut village, Kamagut, Uasin Gishu County to Daniel Cheruiyot and Sarah Cheruiyot. Married to Rachel Ruto with children.'
+  },
+  {
+      id: 'pol-raila',
+      name: 'Rt. Hon. Raila Amolo Odinga',
+      position: 'Opposition Leader',
+      party: 'ODM',
+      isIncumbent: false,
+      bio: 'Former Prime Minister of Kenya and long-serving opposition leader. A veteran champion of democracy and multi-party politics in Kenya.',
+      education: ['Magdeburg - MSc in Mechanical Engineering'],
+      slogan: 'Azimio la Umoja',
+      manifesto: 'Social Protection, Universal Healthcare (BabaCare), and Manufacturing.',
+      keyAgenda: [
+          'Social Protection Fund (KES 6,000)',
+          'Manufacturing & Industrialization',
+          'Universal Health Coverage',
+          'Education for All',
+          'Fighting Corruption'
+      ],
+      whyRunning: 'To ensure the "Third Liberation" of economic empowerment is achieved.',
+      socialMedia: { twitter: '@RailaOdinga', facebook: 'RailaOdingaKE' },
+      dateJoined: '1992-01-01',
+      verified: true,
+      photo: '/avatars/raila.jpg',
+      familyBackground: 'Son of the first Vice President of Kenya, Jaramogi Oginga Odinga. Married to Ida Odinga.'
+  },
+  {
+      id: 'pol-kalonzo',
+      name: 'Dr. Stephen Kalonzo Musyoka',
+      position: 'Opposition Leader',
+      party: 'Wiper',
+      isIncumbent: false,
+      bio: 'Former Vice President of Kenya and long-serving diplomat. Known for his peace mediation efforts in the region.',
+      education: ['University of Nairobi - LLB', 'Mediterranean Institute of Management - Business Admin'],
+      slogan: 'Kazi Kwanza',
+      manifesto: 'A 24-hour economy and free secondary education for all.',
+      keyAgenda: [
+          'Free Secondary Education',
+          '24-Hour Economy',
+          'Diplomacy & Peace',
+          'Integrity in Leadership',
+          'Tax Reduction'
+      ],
+      whyRunning: 'To restore integrity and lower the cost of living.',
+      socialMedia: { twitter: '@skmusyoka' },
+      dateJoined: '1985-01-01',
+      verified: true,
+      photo: '/avatars/kalonzo.jpg',
+      familyBackground: 'Born in Tseikuru, Kitui County. Married to the late Pauline Musyoka.'
+  }
 ];
 
 // Utility function to get politicians by county

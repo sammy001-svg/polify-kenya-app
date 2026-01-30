@@ -13,7 +13,8 @@ export interface StreamItem {
     | "County Assembly"
     | "Explainer"
     | "Interview"
-    | "Town Hall";
+    | "Town Hall"
+    | "News";
   verificationStatus: "Verified" | "Pending" | "Context Added";
   isVerifiedChannel: boolean;
   recommendationReason: string;
@@ -100,6 +101,21 @@ export interface PoliticalMeme {
 }
 
 export const DEMO_STREAMS: StreamItem[] = [
+  {
+    id: "live-citizen",
+    title: "LIVE: Citizen TV Kenya - News & Politics",
+    host: "Citizen TV Kenya",
+    views: "45.2K",
+    timeAgo: "Live Now",
+    duration: "LIVE",
+    thumbnailUrl: "https://img.youtube.com/vi/j_l4p6e9CQQ/hqdefault.jpg", // Valid placeholder or dynamic
+    category: "News",
+    verificationStatus: "Verified",
+    isVerifiedChannel: true,
+    recommendationReason: "Major National News",
+    politicalLeaning: "Independent",
+    videoUrl: "https://www.youtube.com/embed/live_stream?channel=UChBQgieUidXV1CmDxSdRm3g"
+  },
   {
     id: 1,
     title: "Understanding Article 43: Economic and Social Rights in Kenya",

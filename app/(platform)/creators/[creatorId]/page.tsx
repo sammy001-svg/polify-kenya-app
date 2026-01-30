@@ -1,180 +1,39 @@
+/* cSpell:ignore supabase */
 "use client";
 
 import { use } from "react";
-import { CIVIC_CREATORS, COHOSTED_DISCUSSIONS } from "@/lib/creators";
-import { ContentTypeBadge } from "@/components/creators/ContentTypeBadge";
-import { CoHostedCard } from "@/components/creators/CoHostedCard";
-import { BadgeCheck, Video, Eye, Users, ArrowLeft, Play, Clock } from "lucide-react";
+import { createClient } from "@/lib/supabase";
+import { BadgeCheck, Video, Eye, Users, ArrowLeft, Play, Clock, Globe, MapPin } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { FollowButton } from "@/components/ui/FollowButton";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-interface ContentItem {
+interface CreatorProfile {
+  id: string;
+  full_name: string;
+  username: string;
+  avatar_url: string;
+  bio: string;
+  role: string;
+  website: string;
+  location: string;
+}
+
+interface ShortVideo {
   id: string;
   title: string;
   description: string;
-  contentType: 'fact' | 'opinion' | 'satire';
-  duration: string;
-  views: string;
-  timeAgo: string;
-  thumbnailUrl: string;
+  video_url: string;
+  verification_status: string;
+  likes_count: number;
+  comments_count: number;
+  created_at: string;
+  // Simulated fields for now until schema supports them fully
+  duration?: string;
+  views?: string;
 }
-
-// Mock content for each creator
-const CREATOR_CONTENT: Record<string, ContentItem[]> = {
-  "siasa-decoded": [
-    {
-      id: "1",
-      title: "Article 43 Explained: Your Economic Rights in 60 Seconds",
-      description: "Quick breakdown of constitutional economic and social rights every Kenyan should know.",
-      contentType: "fact",
-      duration: "1:05",
-      views: "45K",
-      timeAgo: "2 days ago",
-      thumbnailUrl: "/thumbnails/explainer.png",
-    },
-    {
-      id: "2",
-      title: "Why the BBI Failed: A Constitutional Analysis",
-      description: "My take on the constitutional amendments that didn't make it past the courts.",
-      contentType: "opinion",
-      duration: "12:30",
-      views: "89K",
-      timeAgo: "1 week ago",
-      thumbnailUrl: "/thumbnails/interview.png",
-    },
-    {
-      id: "3",
-      title: "When Politicians Quote the Constitution Wrong 😂",
-      description: "A compilation of MPs misquoting constitutional provisions during debates.",
-      contentType: "satire",
-      duration: "8:15",
-      views: "156K",
-      timeAgo: "3 days ago",
-      thumbnailUrl: "/thumbnails/parliament.png",
-    },
-  ],
-  "civic-millennial": [
-    {
-      id: "4",
-      title: "Finance Bill 2026: The Numbers They Don't Want You to See",
-      description: "Data-driven analysis of tax changes and their real impact on young workers.",
-      contentType: "fact",
-      duration: "15:45",
-      views: "78K",
-      timeAgo: "5 days ago",
-      thumbnailUrl: "/thumbnails/explainer.png",
-    },
-    {
-      id: "5",
-      title: "Why I Think the Hustler Fund is Misguided",
-      description: "My analysis of why microloans won't solve youth unemployment.",
-      contentType: "opinion",
-      duration: "18:20",
-      views: "112K",
-      timeAgo: "1 week ago",
-      thumbnailUrl: "/thumbnails/townhall.png",
-    },
-  ],
-  "bunge-roaster": [
-    {
-      id: "6",
-      title: "MPs Sleeping During Budget Reading: A Montage",
-      description: "When the most important financial discussion of the year becomes nap time.",
-      contentType: "satire",
-      duration: "4:30",
-      views: "234K",
-      timeAgo: "1 day ago",
-      thumbnailUrl: "/thumbnails/parliament.png",
-    },
-    {
-      id: "7",
-      title: "How Bills Actually Become Laws (The Real Process)",
-      description: "Behind the comedy: the actual legislative process explained.",
-      contentType: "fact",
-      duration: "10:15",
-      views: "67K",
-      timeAgo: "4 days ago",
-      thumbnailUrl: "/thumbnails/explainer.png",
-    },
-    {
-      id: "8",
-      title: "Today on Parliament Chronicles: The Drama Continues",
-      description: "This week's most entertaining moments from the National Assembly.",
-      contentType: "satire",
-      duration: "14:50",
-      views: "189K",
-      timeAgo: "2 days ago",
-      thumbnailUrl: "/thumbnails/parliament.png",
-    },
-  ],
-  "sheria-mtaani": [
-    {
-      id: "9",
-      title: "Know Your Rights: What Police Can and Cannot Do",
-      description: "Factual breakdown of your constitutional rights during police encounters.",
-      contentType: "fact",
-      duration: "11:30",
-      views: "145K",
-      timeAgo: "3 days ago",
-      thumbnailUrl: "/thumbnails/explainer.png",
-    },
-    {
-      id: "10",
-      title: "The Right to Peaceful Assembly: Chapter 4 Deep Dive",
-      description: "Understanding Article 37 and when the state can (and can't) stop protests.",
-      contentType: "fact",
-      duration: "16:45",
-      views: "92K",
-      timeAgo: "1 week ago",
-      thumbnailUrl: "/thumbnails/townhall.png",
-    },
-  ],
-  "budget-watchdog": [
-    {
-      id: "11",
-      title: "County Budget 2026: Where Your Money Actually Goes",
-      description: "Following the money trail through all 47 county budgets.",
-      contentType: "fact",
-      duration: "20:15",
-      views: "56K",
-      timeAgo: "6 days ago",
-      thumbnailUrl: "/thumbnails/explainer.png",
-    },
-    {
-      id: "12",
-      title: "Is the Government Cooking the Books? My Analysis",
-      description: "Questioning discrepancies in official revenue vs. expenditure reports.",
-      contentType: "opinion",
-      duration: "13:40",
-      views: "71K",
-      timeAgo: "2 weeks ago",
-      thumbnailUrl: "/thumbnails/interview.png",
-    },
-  ],
-  "devolution-diaries": [
-    {
-      id: "13",
-      title: "How Devolution Was Supposed to Work vs. How It Actually Works",
-      description: "Comparing the constitutional vision with reality on the ground.",
-      contentType: "opinion",
-      duration: "14:20",
-      views: "63K",
-      timeAgo: "5 days ago",
-      thumbnailUrl: "/thumbnails/townhall.png",
-    },
-    {
-      id: "14",
-      title: "County Government 101: Structure and Functions",
-      description: "Understanding the roles of Governor, MCAs, and County Executive.",
-      contentType: "fact",
-      duration: "9:50",
-      views: "48K",
-      timeAgo: "1 week ago",
-      thumbnailUrl: "/thumbnails/explainer.png",
-    },
-  ],
-};
 
 export default function CreatorProfilePage({
   params,
@@ -182,8 +41,67 @@ export default function CreatorProfilePage({
   params: Promise<{ creatorId: string }>;
 }) {
   const { creatorId } = use(params);
-  const creator = CIVIC_CREATORS.find(c => c.id === creatorId);
-  const [activeTab, setActiveTab] = useState<'all' | 'fact' | 'opinion' | 'satire'>('all');
+  const supabase = createClient();
+  const [creator, setCreator] = useState<CreatorProfile | null>(null);
+  const [content, setContent] = useState<ShortVideo[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'all' | 'Verified' | 'Pending' | 'Fact-Checked'>('all');
+  const [followersCount, setFollowersCount] = useState(0);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setLoading(true);
+        // 1. Fetch Creator Profile
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', creatorId)
+          .single();
+
+        if (profileError) throw profileError;
+        setCreator(profile);
+
+        // 2. Fetch Creator Content (Shorts)
+        const { data: shorts, error: shortsError } = await supabase
+          .from('shorts')
+          .select('*')
+          .eq('creator_id', creatorId)
+          .order('created_at', { ascending: false });
+
+        if (shortsError) throw shortsError;
+        
+        // Enrich shorts with mock data for missing fields if needed
+        const enrichedShorts = (shorts || []).map(short => ({
+           ...short,
+           duration: "1:00", // Default or random
+           views: (Math.floor(Math.random() * 5000) + 500).toString() // Mock views for now
+        }));
+        setContent(enrichedShorts);
+
+        // 3. Fetch Follower Count
+        const { count, error: countError } = await supabase
+          .from('follows')
+          .select('*', { count: 'exact', head: true })
+          .eq('following_profile_id', creatorId);
+        
+        if (!countError) {
+          setFollowersCount(count || 0);
+        }
+
+      } catch (error) {
+        console.error("Error fetching creator data:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, [creatorId, supabase]);
+
+  if (loading) {
+     return <div className="flex justify-center py-20"><div className="animate-spin h-8 w-8 border-4 border-brand-primary border-t-transparent rounded-full"></div></div>;
+  }
   
   if (!creator) {
     return (
@@ -196,18 +114,15 @@ export default function CreatorProfilePage({
     );
   }
   
-  const content = CREATOR_CONTENT[creatorId] || [];
-  const coHostedDiscussions = COHOSTED_DISCUSSIONS.filter(d => d.creatorId === creatorId);
-  
   const filteredContent = activeTab === 'all' 
     ? content 
-    : content.filter(c => c.contentType === activeTab);
+    : content.filter(c => c.verification_status === activeTab);
   
   const contentCounts = {
     all: content.length,
-    fact: content.filter(c => c.contentType === 'fact').length,
-    opinion: content.filter(c => c.contentType === 'opinion').length,
-    satire: content.filter(c => c.contentType === 'satire').length,
+    verified: content.filter(c => c.verification_status === 'Verified').length,
+    pending: content.filter(c => c.verification_status === 'Pending').length,
+    factChecked: content.filter(c => c.verification_status === 'Fact-Checked').length,
   };
   
   return (
@@ -230,46 +145,64 @@ export default function CreatorProfilePage({
         
         {/* Profile Content */}
         <div className="px-8 pb-8 -mt-16 relative">
-          {/* Avatar */}
-          <div className="relative w-32 h-32 rounded-full bg-linear-to-br from-kenya-red to-kenya-gold p-1 mb-4">
-            <div className="w-full h-full rounded-full bg-brand-surface-secondary flex items-center justify-center text-4xl font-bold text-brand-text">
-              {creator.name.split(' ').map(n => n[0]).join('')}
-            </div>
-            {creator.isVerified && (
-              <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-kenya-green flex items-center justify-center border-4 border-brand-surface-secondary">
-                <BadgeCheck className="w-6 h-6 text-white" />
-              </div>
-            )}
+          <div className="flex flex-col md:flex-row justify-between items-start gap-4">
+             {/* Avatar */}
+             <div className="relative w-32 h-32 rounded-full bg-linear-to-br from-kenya-red to-kenya-gold p-1 mb-4">
+               <Avatar className="w-full h-full border-4 border-brand-surface-secondary">
+                  <AvatarImage src={creator.avatar_url} alt={creator.full_name} />
+                  <AvatarFallback className="text-4xl font-bold bg-brand-surface-secondary text-brand-text">
+                     {creator.full_name ? creator.full_name.substring(0, 2).toUpperCase() : "CR"}
+                  </AvatarFallback>
+               </Avatar>
+               {/* Verified Badge - assuming all 'creators' role are verified for now or add a field */}
+               <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-kenya-green flex items-center justify-center border-4 border-brand-surface-secondary">
+                 <BadgeCheck className="w-6 h-6 text-white" />
+               </div>
+             </div>
+
+             {/* Follow Button */}
+             <div className="mt-16 md:mt-0">
+                <FollowButton 
+                   targetId={creator.id} 
+                   targetType="profile" 
+                   onFollowChange={(isFollowing) => {
+                      setFollowersCount(prev => isFollowing ? prev + 1 : prev - 1);
+                   }}
+                />
+             </div>
           </div>
           
           {/* Creator Info */}
           <div className="space-y-4">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-3xl font-bold text-brand-text">{creator.name}</h1>
-                {creator.isVerified && (
-                  <span className="px-3 py-1 bg-kenya-green/20 text-kenya-green text-xs font-bold uppercase tracking-wider rounded-full">
-                    Verified Civic Creator
-                  </span>
-                )}
+                <h1 className="text-3xl font-bold text-brand-text">{creator.full_name}</h1>
+                <span className="px-3 py-1 bg-kenya-green/20 text-kenya-green text-xs font-bold uppercase tracking-wider rounded-full">
+                  Verified Civic Creator
+                </span>
               </div>
-              <p className="text-lg text-brand-text-muted">{creator.username}</p>
+              {creator.username && <p className="text-lg text-brand-text-muted">@{creator.username}</p>}
             </div>
             
             <p className="text-brand-text leading-relaxed max-w-3xl">
-              {creator.bio}
+              {creator.bio || "No bio available."}
             </p>
-            
-            {/* Expertise Tags */}
-            <div className="flex flex-wrap gap-2">
-              {creator.expertise.map((tag, index) => (
-                <span 
-                  key={index}
-                  className="px-3 py-1.5 bg-brand-surface-highlight text-brand-text text-sm font-medium rounded-lg"
-                >
-                  {tag}
-                </span>
-              ))}
+
+            <div className="flex flex-wrap gap-4 text-sm text-brand-text-muted">
+               {creator.location && (
+                  <div className="flex items-center gap-1">
+                     <MapPin className="w-4 h-4" />
+                     {creator.location}
+                  </div>
+               )}
+               {creator.website && (
+                  <div className="flex items-center gap-1">
+                     <Globe className="w-4 h-4" />
+                     <a href={creator.website} target="_blank" rel="noopener noreferrer" className="hover:text-brand-primary underline">
+                        Website
+                     </a>
+                  </div>
+               )}
             </div>
             
             {/* Stats */}
@@ -277,9 +210,9 @@ export default function CreatorProfilePage({
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <Video className="w-5 h-5 text-brand-text-muted" />
-                  <span className="text-xs text-brand-text-muted uppercase tracking-wider">Videos</span>
+                  <span className="text-xs text-brand-text-muted uppercase tracking-wider">Shorts</span>
                 </div>
-                <p className="text-2xl font-bold text-brand-text">{creator.totalVideos}</p>
+                <p className="text-2xl font-bold text-brand-text">{content.length}</p>
               </div>
               
               <div>
@@ -288,7 +221,7 @@ export default function CreatorProfilePage({
                   <span className="text-xs text-brand-text-muted uppercase tracking-wider">Followers</span>
                 </div>
                 <p className="text-2xl font-bold text-brand-text">
-                  {(creator.followers / 1000).toFixed(0)}K
+                  {followersCount}
                 </p>
               </div>
               
@@ -297,15 +230,8 @@ export default function CreatorProfilePage({
                   <Eye className="w-5 h-5 text-brand-text-muted" />
                   <span className="text-xs text-brand-text-muted uppercase tracking-wider">Total Views</span>
                 </div>
-                <p className="text-2xl font-bold text-brand-text">{creator.totalViews}</p>
+                <p className="text-2xl font-bold text-brand-text">--</p>
               </div>
-            </div>
-            
-            {/* Signature */}
-            <div className="pt-4 border-t border-border">
-              <p className="text-sm text-brand-text-muted italic">
-                &quot;{creator.signature}&quot;
-              </p>
             </div>
           </div>
         </div>
@@ -322,31 +248,31 @@ export default function CreatorProfilePage({
             All Content ({contentCounts.all})
           </Button>
           <Button
-            onClick={() => setActiveTab('fact')}
-            variant={activeTab === 'fact' ? "primary" : "secondary"}
+            onClick={() => setActiveTab('Verified')}
+            variant={activeTab === 'Verified' ? "primary" : "secondary"}
             size="sm"
             className="gap-2"
           >
             <div className="w-2 h-2 rounded-full bg-green-500" />
-            Facts ({contentCounts.fact})
+            Verified ({contentCounts.verified})
           </Button>
           <Button
-            onClick={() => setActiveTab('opinion')}
-            variant={activeTab === 'opinion' ? "primary" : "secondary"}
-            size="sm"
-            className="gap-2"
-          >
-            <div className="w-2 h-2 rounded-full bg-blue-500" />
-            Opinions ({contentCounts.opinion})
-          </Button>
-          <Button
-            onClick={() => setActiveTab('satire')}
-            variant={activeTab === 'satire' ? "primary" : "secondary"}
+            onClick={() => setActiveTab('Pending')}
+            variant={activeTab === 'Pending' ? "primary" : "secondary"}
             size="sm"
             className="gap-2"
           >
             <div className="w-2 h-2 rounded-full bg-yellow-500" />
-            Satire ({contentCounts.satire})
+            Pending ({contentCounts.pending})
+          </Button>
+          <Button
+            onClick={() => setActiveTab('Fact-Checked')}
+            variant={activeTab === 'Fact-Checked' ? "primary" : "secondary"}
+            size="sm"
+            className="gap-2"
+          >
+             <div className="w-2 h-2 rounded-full bg-blue-500" />
+            Fact-Checked ({contentCounts.factChecked})
           </Button>
         </div>
       </div>
@@ -367,7 +293,13 @@ export default function CreatorProfilePage({
               </div>
               
               <div className="absolute top-3 left-3">
-                <ContentTypeBadge type={item.contentType} size="sm" />
+                 <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${
+                    item.verification_status === 'Verified' ? 'bg-green-500/20 text-green-500' : 
+                    item.verification_status === 'Fact-Checked' ? 'bg-blue-500/20 text-blue-500' : 
+                    'bg-yellow-500/20 text-yellow-500'
+                 }`}>
+                    {item.verification_status}
+                 </span>
               </div>
               
               <div className="absolute bottom-3 right-3 px-2 py-1 bg-black/80 rounded text-xs font-medium text-white flex items-center gap-1">
@@ -390,7 +322,7 @@ export default function CreatorProfilePage({
                   {item.views}
                 </div>
                 <span>•</span>
-                <span>{item.timeAgo}</span>
+                <span>{new Date(item.created_at).toLocaleDateString()}</span>
               </div>
             </div>
           </div>
@@ -404,18 +336,6 @@ export default function CreatorProfilePage({
           <p className="text-brand-text-muted">
             No {activeTab === 'all' ? 'content' : activeTab} content from this creator yet.
           </p>
-        </div>
-      )}
-      
-      {/* Co-Hosted Discussions */}
-      {coHostedDiscussions.length > 0 && (
-        <div className="space-y-4 pt-8 border-t border-border">
-          <h2 className="text-2xl font-bold text-brand-text">Co-Hosted Discussions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {coHostedDiscussions.map((discussion) => (
-              <CoHostedCard key={discussion.id} discussion={discussion} />
-            ))}
-          </div>
         </div>
       )}
     </div>
