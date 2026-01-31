@@ -2,12 +2,18 @@
 
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, XCircle, Scale, Clock, ShieldCheck, TrendingUp, Coins, Server } from "lucide-react";
+import { CheckCircle, XCircle, Scale, Clock, ShieldCheck, TrendingUp, Coins, Server, FileSignature } from "lucide-react";
 import { BudgetBreakdown } from "@/components/transparency/BudgetBreakdown";
+import { TaxCalculator } from "@/components/transparency/TaxCalculator";
+import { PetitionCenter } from "@/components/transparency/PetitionCenter";
+import { AuditorGeneralView } from "@/components/transparency/AuditorGeneralView";
+import { CountyDashboard } from "@/components/transparency/CountyDashboard";
+import { IntegrityHub } from "@/components/transparency/IntegrityHub";
 import { cn } from "@/lib/utils";
+import { MapPin } from "lucide-react";
 
 export default function TransparencyPage() {
-  const [activeTab, setActiveTab] = useState<'finance' | 'platform'>('finance');
+  const [activeTab, setActiveTab] = useState<'finance' | 'platform' | 'action' | 'local'>('finance');
 
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-8">
@@ -39,6 +45,24 @@ export default function TransparencyPage() {
              >
                 <Server className="w-4 h-4" /> Platform Algo
              </button>
+              <button
+                onClick={() => setActiveTab('local')}
+                className={cn(
+                  "px-4 py-2 rounded-md text-sm font-bold transition-all flex items-center gap-2",
+                  activeTab === 'local' ? "bg-brand-surface-highlight text-white shadow-sm" : "text-brand-text-muted hover:text-white"
+                )}
+              >
+                 <MapPin className="w-4 h-4" /> County & Integrity
+              </button>
+              <button
+                onClick={() => setActiveTab('action')}
+                className={cn(
+                  "px-4 py-2 rounded-md text-sm font-bold transition-all flex items-center gap-2",
+                  activeTab === 'action' ? "bg-brand-surface-highlight text-white shadow-sm" : "text-brand-text-muted hover:text-white"
+                )}
+              >
+                 <FileSignature className="w-4 h-4" /> Collective Action
+              </button>
           </div>
       </div>
 
@@ -56,7 +80,10 @@ export default function TransparencyPage() {
                     Audit General reports. High-risk flags indicate sectors with unresolved audit queries.
                  </p>
              </div>
-             <BudgetBreakdown />
+             <div className="grid grid-cols-1 gap-8">
+                <TaxCalculator />
+                <BudgetBreakdown />
+             </div>
         </div>
       )}
 
@@ -164,13 +191,43 @@ export default function TransparencyPage() {
                 </div>
                 </CardContent>
             </Card>
-
-            <div className="text-center text-sm text-brand-text-muted pt-4">
-                <p>This page is updated whenever we change our ranking algorithm.</p>
-                <p className="mt-1">Last updated: January 2026</p>
-            </div>
         </div>
       )}
+
+      {/* Tab Content: Collective Action */}
+      {activeTab === 'action' && (
+        <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+           <AuditorGeneralView />
+           <PetitionCenter />
+        </div>
+      )}
+
+      {/* Tab Content: County & Integrity */}
+      {activeTab === 'local' && (
+        <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+           <div className="mb-8 bg-brand-surface border border-kenya-red/30 rounded-xl p-6 relative overflow-hidden">
+               <div className="absolute top-0 right-0 p-4 opacity-10">
+                  <MapPin className="w-32 h-32 text-kenya-red" />
+               </div>
+               <h2 className="text-xl font-bold mb-2 text-white">Local Accountability Hub</h2>
+               <p className="text-sm text-brand-text-muted max-w-2xl leading-relaxed">
+                  Monitoring County budgets and MCA performance. Transparency at the grassroots level 
+                  is essential for direct impact on citizens. Data is refreshed based on County Assembly records.
+               </p>
+           </div>
+           
+           <CountyDashboard />
+           
+           <div className="h-px bg-white/5 w-full" />
+           
+           <IntegrityHub />
+        </div>
+      )}
+
+      <div className="text-center text-sm text-brand-text-muted pt-4">
+        <p>This page is updated whenever we change our ranking algorithm or new fiscal data is released.</p>
+        <p className="mt-1">Last updated: January 2026</p>
+      </div>
     </div>
   );
 }

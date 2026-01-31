@@ -7,6 +7,7 @@ export interface Project {
   sector: "Roads" | "Water" | "Health" | "Agriculture" | "Education";
   status: "Planned" | "In Progress" | "Completed" | "Stalled";
   budget: number;
+  released: number;
   spent: number;
   startDate: string;
   endDate?: string;
@@ -36,6 +37,7 @@ export const MOCK_PROJECTS: Project[] = [
     sector: "Roads",
     status: "In Progress",
     budget: 50000000,
+    released: 30000000,
     spent: 25000000,
     startDate: "2023-01-15",
     endDate: "2023-12-01",
@@ -54,6 +56,7 @@ export const MOCK_PROJECTS: Project[] = [
     sector: "Health",
     status: "Completed",
     budget: 120000000,
+    released: 120000000,
     spent: 118000000,
     startDate: "2022-06-01",
     endDate: "2023-08-15",
@@ -73,6 +76,7 @@ export const MOCK_PROJECTS: Project[] = [
     sector: "Water",
     status: "Planned",
     budget: 8000000,
+    released: 0,
     spent: 0,
     startDate: "2024-03-01",
     progress: 0,
@@ -86,6 +90,7 @@ export const MOCK_PROJECTS: Project[] = [
     sector: "Agriculture",
     status: "In Progress",
     budget: 15000000,
+    released: 12000000,
     spent: 10000000,
     startDate: "2023-09-10",
     progress: 75,

@@ -11,11 +11,13 @@ import { UserLevelProgress } from "@/components/gamification/UserLevelProgress";
 import { Shield, MapPin, ChevronRight, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProjectVerificationModal } from "@/components/tracker/ProjectVerificationModal";
+import { AccountabilityService } from "@/lib/accountability-service";
 
 export function CitizenDashboard() {
   const [user, setUser] = useState<User | null>(null);
   const [progress, setProgress] = useState(MOCK_USER_PROGRESS);
   const [loading, setLoading] = useState(true);
+  const [userVotes, setUserVotes] = useState<Record<string, "yay" | "nay">>(AccountabilityService.getUserVotes());
   const supabase = createClient();
 
   // Mock location for "My Representatives"
@@ -61,8 +63,15 @@ export function CitizenDashboard() {
 
     // Listen for XP gains to refresh local state
     const handleXPGain = () => fetchData();
+    const handleUserVoted = () => setUserVotes(AccountabilityService.getUserVotes());
+    
     window.addEventListener("xp-gained", handleXPGain);
-    return () => window.removeEventListener("xp-gained", handleXPGain);
+    window.addEventListener("user-voted", handleUserVoted);
+    
+    return () => {
+      window.removeEventListener("xp-gained", handleXPGain);
+      window.removeEventListener("user-voted", handleUserVoted);
+    };
   }, [supabase]);
 
   const handleVerifyClick = () => {
@@ -168,27 +177,40 @@ export function CitizenDashboard() {
         
         {myReps.length > 0 ? (
             <div className="space-y-2">
-                {myReps.map(rep => (
-                    <Link key={rep.id} href={`/representatives/${rep.id}`}>
-                        <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors group">
-                            <div className="w-10 h-10 rounded-full bg-brand-surface-highlight overflow-hidden border border-white/5 group-hover:border-kenya-red/50 transition-colors">
-                                {/* Placeholder for rep image if real one missing */}
-                                <div className="w-full h-full bg-linear-to-br from-gray-700 to-gray-800 flex items-center justify-center text-xs font-bold">
-                                    {rep.name.charAt(0)}
+                {myReps.map(rep => {
+                    const sync = AccountabilityService.calculateSyncScore(userVotes, rep.name);
+                    return (
+                        <Link key={rep.id} href={`/representatives/${rep.id}`}>
+                            <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors group">
+                                <div className="w-10 h-10 rounded-full bg-brand-surface-highlight overflow-hidden border border-white/5 group-hover:border-kenya-red/50 transition-colors shrink-0">
+                                    <div className="w-full h-full bg-linear-to-br from-gray-700 to-gray-800 flex items-center justify-center text-xs font-bold">
+                                        {rep.name.charAt(0)}
+                                    </div>
                                 </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-bold text-white truncate group-hover:text-kenya-red transition-colors">
+                                        {rep.name}
+                                    </p>
+                                    <div className="flex items-center gap-2">
+                                        <p className="text-[10px] text-brand-text-muted truncate">
+                                            {rep.position} • {rep.party}
+                                        </p>
+                                        {sync.totalCommonBills > 0 && (
+                                            <span className={`text-[9px] font-black px-1.5 py-0.5 rounded leading-none
+                                                ${sync.score > 70 ? 'bg-green-500/20 text-green-500' : 
+                                                  sync.score > 40 ? 'bg-kenya-gold/20 text-kenya-gold' : 
+                                                  'bg-red-500/20 text-red-500'}`}
+                                            >
+                                                {sync.score}% Sync
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                                <ChevronRight className="w-4 h-4 text-brand-text-muted group-hover:text-white transition-colors" />
                             </div>
-                            <div className="flex-1 min-w-0">
-                                <p className="text-sm font-bold text-white truncate group-hover:text-kenya-red transition-colors">
-                                    {rep.name}
-                                </p>
-                                <p className="text-xs text-brand-text-muted flex items-center gap-1">
-                                    {rep.position} • {rep.party}
-                                </p>
-                            </div>
-                            <ChevronRight className="w-4 h-4 text-brand-text-muted group-hover:text-white transition-colors" />
-                        </div>
-                    </Link>
-                ))}
+                        </Link>
+                    );
+                })}
             </div>
         ) : (
             <div className="p-4 rounded-lg bg-brand-surface-secondary text-center">

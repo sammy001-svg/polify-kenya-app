@@ -55,12 +55,35 @@ export function ProjectCard({ project }: ProjectCardProps) {
                 </div>
             </div>
 
-            <div className="space-y-1.5 pt-2">
-                <div className="flex justify-between text-xs">
-                    <span>Progress</span>
-                    <span className="font-medium">{project.progress}%</span>
+            <div className="space-y-1.5 pt-2 border-t border-white/5">
+                <div className="flex justify-between text-[10px] uppercase font-black tracking-widest text-brand-text-muted">
+                    <span>Physical Progress</span>
+                    <span>{project.progress}%</span>
                 </div>
-                <Progress value={project.progress} className="h-2" />
+                <Progress value={project.progress} className="h-1.5" />
+            </div>
+
+            <div className="space-y-2 pt-2 border-t border-white/5">
+                <div className="flex justify-between text-[10px] uppercase font-black tracking-widest text-brand-text-muted">
+                    <span>Money Trail</span>
+                    <span className="text-kenya-gold">{Math.round((project.spent / project.released) * 100 || 0)}% Absorbed</span>
+                </div>
+                <div className="flex gap-1 h-1.5 w-full bg-black/40 rounded-full overflow-hidden">
+                    <div 
+                        className="bg-brand-primary h-full transition-all" 
+                        style={{ width: `${Math.min(100, (project.released / project.budget) * 100)}%` }} 
+                        title="Released"
+                    />
+                    <div 
+                        className="bg-kenya-red h-full transition-all" 
+                        style={{ width: `${Math.min(100, (project.spent / project.budget) * 100)}%` }} 
+                        title="Spent"
+                    />
+                </div>
+                <div className="flex justify-between text-[9px] text-brand-text-muted">
+                    <span>Rel: KES {(project.released / 1e6).toFixed(1)}M</span>
+                    <span>Spent: KES {(project.spent / 1e6).toFixed(1)}M</span>
+                </div>
             </div>
         </div>
     </Card>

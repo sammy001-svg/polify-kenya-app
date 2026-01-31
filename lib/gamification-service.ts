@@ -37,13 +37,40 @@ export const GamificationService = {
     const supabase = createClient();
 
     // 1. Get current progress
-    const { data: current, error: fetchError } = await supabase
+    const result = await supabase
       .from("user_progress")
       .select("*")
       .eq("user_id", userId)
       .single();
+    
+    let current = result.data;
+    const fetchError = result.error;
 
-    if (fetchError || !current) {
+    // If no record exists, initialize a default one
+    if (fetchError && fetchError.code === 'PGRST116') {
+      const defaultProgress = {
+        user_id: userId,
+        level: 1,
+        current_xp: 0,
+        total_xp: 0,
+        badges: [],
+        completed_modules: [],
+        streak: 0,
+        updated_at: new Date().toISOString()
+      };
+      
+      const { data: inserted, error: insertError } = await supabase
+        .from("user_progress")
+        .insert(defaultProgress)
+        .select()
+        .single();
+        
+      if (insertError) {
+        console.error("Failed to initialize user progress:", insertError);
+        return { success: false };
+      }
+      current = inserted;
+    } else if (fetchError || !current) {
       console.error("Error fetching progress for XP award:", fetchError);
       return { success: false };
     }
@@ -125,18 +152,27 @@ export const GamificationService = {
       return [];
     }
 
-    return data.map((entry, index) => ({
-      rank: index + 1,
-      userId: entry.user_id,
-      name: entry.profiles?.full_name || "Anonymous Citizen",
-      avatar:
-        entry.profiles?.avatar_url ||
-        `https://api.dicebear.com/7.x/micah/svg?seed=${entry.user_id}`,
-      level: entry.level,
-      xp: entry.total_xp,
-      badges: entry.badges || [],
-      department: "Nairobi", // Placeholder
-    }));
+    return (data as unknown[]).map((row, index) => {
+      const entry = row as { 
+        user_id: string; 
+        level: number; 
+        total_xp: number; 
+        badges: string[];
+        profiles: { full_name: string; avatar_url: string } | null;
+      };
+      return {
+        rank: index + 1,
+        userId: entry.user_id,
+        name: entry.profiles?.full_name || "Anonymous Citizen",
+        avatar:
+          entry.profiles?.avatar_url ||
+          `https://api.dicebear.com/7.x/micah/svg?seed=${entry.user_id}`,
+        level: entry.level,
+        xp: entry.total_xp,
+        badges: entry.badges || [],
+        department: "Nairobi", // Placeholder
+      };
+    });
   },
 
   // Specific Civic Actions

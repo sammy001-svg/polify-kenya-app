@@ -6,14 +6,11 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: {
-    default: "PoliFy Kenya | Political Intelligence & Civic Engagement",
-    template: "%s | PoliFy Kenya"
-  },
-  description: "PoliFy is a next-generation platform for Kenyan political transparency, AI-powered fact-checking, and interactive civic education.",
-  keywords: ["Kenya", "Politics", "Civic Tech", "Transparency", "Parliament", "Elections", "AI Fact Checking", "Bunge", "Devolution"],
-  authors: [{ name: "PoliFy Kenya Team" }],
-  creator: "PoliFy Kenya",
+  title: "Polify Kenya | AI-Powered Civic Intelligence",
+  description: "Empowering Kenyan citizens with transparency, accountability, and grassroots AI crowdsourcing. Track budgets, monitor parliament, and report community issues.",
+  keywords: ["Kenya", "Politics", "Transparency", "Government", "Budget", "Parliament", "Grassroots", "AI"],
+  authors: [{ name: "Polify Kenya Team" }],
+  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0",
   openGraph: {
     type: "website",
     locale: "en_KE",

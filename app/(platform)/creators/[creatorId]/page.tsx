@@ -3,12 +3,13 @@
 
 import { use } from "react";
 import { createClient } from "@/lib/supabase";
-import { BadgeCheck, Video, Eye, Users, ArrowLeft, Play, Clock, Globe, MapPin } from "lucide-react";
+import { CIVIC_CREATORS } from "@/lib/creators";
+import { FollowButton } from "@/components/ui/FollowButton";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, MapPin, Globe, BadgeCheck, Video, Users, Eye, Play, Clock } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { FollowButton } from "@/components/ui/FollowButton";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface CreatorProfile {
   id: string;
@@ -52,41 +53,76 @@ export default function CreatorProfilePage({
     async function fetchData() {
       try {
         setLoading(true);
-        // 1. Fetch Creator Profile
-        const { data: profile, error: profileError } = await supabase
+        
+        // Check Mock Data First (Preferred source for our core creators)
+        const mockCreator = CIVIC_CREATORS.find(c => c.id === creatorId);
+        
+        // 1. Fetch Creator Profile from Supabase
+        const { data: profile } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', creatorId)
           .single();
 
-        if (profileError) throw profileError;
-        setCreator(profile);
+        if (profile) {
+          setCreator(profile);
+        } else if (mockCreator) {
+          // Map mock to profile interface
+          setCreator({
+            id: mockCreator.id,
+            full_name: mockCreator.name,
+            username: mockCreator.username,
+            avatar_url: mockCreator.avatarUrl,
+            bio: mockCreator.bio,
+            role: 'Civic Creator',
+            website: '',
+            location: 'Kenya'
+          });
+        }
 
         // 2. Fetch Creator Content (Shorts)
-        const { data: shorts, error: shortsError } = await supabase
+        const { data: shorts } = await supabase
           .from('shorts')
           .select('*')
           .eq('creator_id', creatorId)
           .order('created_at', { ascending: false });
 
-        if (shortsError) throw shortsError;
-        
-        // Enrich shorts with mock data for missing fields if needed
-        const enrichedShorts = (shorts || []).map(short => ({
-           ...short,
-           duration: "1:00", // Default or random
-           views: (Math.floor(Math.random() * 5000) + 500).toString() // Mock views for now
-        }));
-        setContent(enrichedShorts);
+        // Enrich shorts with mock data if none found
+        if (shorts && shorts.length > 0) {
+           const enrichedShorts = shorts.map(short => ({
+              ...short,
+              duration: "1:00",
+              views: (Math.floor(Math.random() * 5000) + 500).toString()
+           }));
+           setContent(enrichedShorts);
+        } else if (mockCreator) {
+           // Provide mock content
+           setContent([
+             {
+               id: `${mockCreator.id}-1`,
+               title: mockCreator.signature,
+               description: mockCreator.bio,
+               video_url: "#",
+               verification_status: 'Verified',
+               likes_count: 120,
+               comments_count: 45,
+               created_at: new Date().toISOString(),
+               duration: "0:45",
+               views: mockCreator.totalViews
+             }
+           ]);
+        }
 
         // 3. Fetch Follower Count
-        const { count, error: countError } = await supabase
+        const { count } = await supabase
           .from('follows')
           .select('*', { count: 'exact', head: true })
           .eq('following_profile_id', creatorId);
         
-        if (!countError) {
-          setFollowersCount(count || 0);
+        if (count !== null) {
+          setFollowersCount(count);
+        } else if (mockCreator) {
+          setFollowersCount(mockCreator.followers);
         }
 
       } catch (error) {

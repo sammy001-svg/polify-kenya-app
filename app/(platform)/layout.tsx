@@ -2,7 +2,7 @@ import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { XPNotification } from "@/components/gamification/XPNotification";
-import { PoliBot } from "@/components/ai/PoliBot";
+import { BungeAI } from "@/components/trust/BungeAI";
 
 export default function PlatformLayout({
   children,
@@ -20,7 +20,7 @@ export default function PlatformLayout({
       </div>
       <BottomNav />
       <XPNotification />
-      <PoliBot />
+      <BungeAI />
     </>
   );
 }

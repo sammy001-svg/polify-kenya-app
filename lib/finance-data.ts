@@ -2,6 +2,54 @@
 // 1. PUBLIC FINANCE TRACKER (Transparency Hub)
 // ==========================================
 
+export interface CDFProject {
+  id: string;
+  title: string;
+  constituency: string;
+  ward: string;
+  amountAllocated: number; // KES
+  amountReleased: number; // KES
+  amountSpent: number; // KES
+  fiscalYear: string;
+  status: "Planned" | "Ongoing" | "Completed" | "Stalled";
+}
+
+export const CDF_PROJECTS_2024: CDFProject[] = [
+  {
+    id: "cdf-1",
+    title: "Construction of 4 Classrooms at Hillview Primary",
+    constituency: "Kibra",
+    ward: "Lindi",
+    amountAllocated: 4500000,
+    amountReleased: 3200000,
+    amountSpent: 2800000,
+    fiscalYear: "2023/2024",
+    status: "Ongoing"
+  },
+  {
+    id: "cdf-2",
+    title: "Kibera Drive Security Lights Installation",
+    constituency: "Kibra",
+    ward: "Sarang'ombe",
+    amountAllocated: 2000000,
+    amountReleased: 2000000,
+    amountSpent: 1850000,
+    fiscalYear: "2023/2024",
+    status: "Completed"
+  },
+  {
+    id: "cdf-3",
+    title: "Construction of Toilets at Woodley Market",
+    constituency: "Kibra",
+    ward: "Woodley",
+    amountAllocated: 1500000,
+    amountReleased: 500000,
+    amountSpent: 450000,
+    fiscalYear: "2023/2024",
+    status: "Stalled"
+  }
+];
+
 export interface BudgetAllocation {
   id: string;
   sector: string;

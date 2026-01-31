@@ -2,7 +2,7 @@
 
 import { use } from "react";
 import { getCountyById, SAMPLE_POLITICIANS } from "@/lib/representatives";
-import { BadgeCheck, Phone, Mail, Twitter, Facebook, MapPin, Award, TrendingUp, FileText, ArrowLeft, Gavel, ScrollText, Mic2, Users } from "lucide-react";
+import { BadgeCheck, Phone, Mail, Twitter, Facebook, MapPin, Award, TrendingUp, FileText, ArrowLeft, Gavel, ScrollText, Mic2, Users, History } from "lucide-react";
 import Link from "next/link";
 import { YOUTH_ISSUES, MOCK_RESPONSES, PoliticianResponse } from "@/lib/youth-issues";
 import { MOCK_PERFORMANCE, MOCK_BILLS, MOCK_VOTES, MOCK_HANSARD } from "@/lib/parliament-watch";
@@ -10,6 +10,7 @@ import { createClient } from "@/lib/supabase";
 import { useState, useEffect } from "react";
 import { FollowButton } from "@/components/ui/FollowButton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { AccountabilityService, SyncScore } from "@/lib/accountability-service";
 
 interface Politician {
   id: string;
@@ -51,6 +52,7 @@ export default function PoliticianProfilePage({ params }: { params: Promise<{ po
   const [politician, setPolitician] = useState<Politician | null>(null);
   const [loading, setLoading] = useState(true);
   const [followersCount, setFollowersCount] = useState(0);
+  const [syncScore, setSyncScore] = useState<SyncScore | null>(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -125,6 +127,11 @@ export default function PoliticianProfilePage({ params }: { params: Promise<{ po
               setFollowersCount(count || 0);
             }
         }
+
+        // Calculate Sync Score
+        const userVotes = AccountabilityService.getUserVotes();
+        const score = AccountabilityService.calculateSyncScore(userVotes, foundPolitician?.name || "");
+        setSyncScore(score);
 
       } catch (error) {
         console.error("Error fetching politician:", error);
@@ -256,6 +263,21 @@ export default function PoliticianProfilePage({ params }: { params: Promise<{ po
                    <div className="text-sm text-brand-text-muted font-medium">
                       {followersCount} Followers
                    </div>
+                   
+                   {syncScore && syncScore.totalCommonBills > 0 && (
+                      <div className="mt-4 p-3 bg-brand-surface-highlight border border-white/5 rounded-xl text-center">
+                        <div className={`text-2xl font-black ${
+                          syncScore.score > 70 ? 'text-green-500' : 
+                          syncScore.score > 40 ? 'text-kenya-gold' : 
+                          'text-red-500'
+                        }`}>
+                          {syncScore.score}%
+                        </div>
+                        <div className="text-[10px] uppercase font-black text-brand-text-muted tracking-widest mt-1">
+                          Consensus Sync
+                        </div>
+                      </div>
+                   )}
                 </div>
               </div>
               
@@ -401,6 +423,68 @@ export default function PoliticianProfilePage({ params }: { params: Promise<{ po
           )}
         </div>
       )}
+
+      {/* Promises vs. Reality Timeline */}
+      <div className="bg-brand-surface-secondary border border-border rounded-xl p-6">
+        <h2 className="text-2xl font-bold text-brand-text mb-6 flex items-center gap-2">
+          <History className="w-6 h-6 text-brand-primary" />
+          Promises vs. Reality
+        </h2>
+        
+        <div className="space-y-8 relative before:absolute before:inset-0 before:left-4 before:w-0.5 before:bg-white/5">
+          {[
+            { 
+              promise: "200,000 Digital Jobs for Youth", 
+              reality: "45,000 verified jobs in 2024. Majority in gig economy.", 
+              status: "Ongoing", 
+              type: "Economy",
+              date: "2022 Manifesto"
+            },
+            { 
+              promise: "Universal Health Coverage for all households", 
+              reality: "SHIF implementation ongoing. Hospital empanelment at 60%.", 
+              status: "Context Added", 
+              type: "Health",
+              date: "2023 Policy Speech"
+            },
+            { 
+              promise: "50% Reduction in Fertilizer Prices", 
+              reality: "Subsidized prices achieved. Distribution challenges reported in Rift Valley.", 
+              status: "Verified", 
+              type: "Agriculture",
+              date: "Aug 2022 Slogan"
+            }
+          ].map((item, idx) => (
+            <div key={idx} className="relative pl-12">
+              <div className={`absolute left-2 top-0 w-4 h-4 rounded-full border-4 border-brand-surface-secondary ${
+                item.status === 'Verified' ? 'bg-green-500' : 
+                item.status === 'Ongoing' ? 'bg-kenya-gold' : 'bg-blue-400'
+              }`} />
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-4 bg-brand-primary/5 border border-brand-primary/10 rounded-xl">
+                  <span className="text-[9px] font-black uppercase tracking-widest text-brand-primary block mb-2">{item.date}</span>
+                  <h4 className="font-bold text-white mb-2 italic">&quot;{item.promise}&quot;</h4>
+                </div>
+                <div className="p-4 bg-white/5 border border-white/5 rounded-xl">
+                   <div className="flex justify-between items-start mb-2">
+                     <span className="text-[9px] font-black uppercase tracking-widest text-brand-text-muted">Verification Result</span>
+                     <span className={`text-[9px] font-bold px-2 py-0.5 rounded ${
+                        item.status === 'Verified' ? 'bg-green-500/10 text-green-500' : 
+                        item.status === 'Ongoing' ? 'bg-kenya-gold/10 text-kenya-gold' : 'bg-blue-400/10 text-blue-400'
+                     }`}>
+                        {item.status}
+                     </span>
+                   </div>
+                   <p className="text-sm text-brand-text leading-relaxed">
+                     {item.reality}
+                   </p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
       
       {/* Parliamentary Performance (MPs & Senators) */}
       {(() => {
