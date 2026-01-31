@@ -5,70 +5,92 @@ export interface Bill {
   title: string;
   sponsor: string;
   stage: BillStage;
+  status: string; // Compatibility for UI
   summary: string;
   voteDeadline: string;
+  lastUpdated: string; // Compatibility for UI
+  progress: number; // Compatibility for UI (0-100)
   supportCount: number;
   opposeCount: number;
   myVote?: 'yay' | 'nay' | 'abstain';
   tags: string[];
 }
 
-/*
-export const MOCK_BILLS: Bill[] = [
+export interface HansardRecord {
+  id: string;
+  date: string;
+  title: string;
+  summary: string;
+  speakers: string[];
+  tags: string[];
+}
+
+export interface Vote {
+  id: string;
+  billId: string;
+  mpName: string;
+  party: string;
+  constituency: string;
+  vote: "Yes" | "No" | "Abstain" | "Absent";
+  imageUrl?: string;
+}
+
+export const BILLS: Bill[] = [
   {
-    id: 'bill-001',
-    title: 'The Digital Economy Bill 2025',
-    sponsor: 'Hon. A. M. Ochieng',
-    stage: 'Second Reading',
-    summary: 'Aims to tax digital assets and regulate freelance platforms. Proposes a 1.5% levy on digital services.',
-    voteDeadline: 'Feb 15, 2026',
-    supportCount: 1450,
-    opposeCount: 3200,
-    tags: ['Finance', 'ICT', 'Tax']
+    id: "bill-finance-2024",
+    title: "The Finance Bill, 2024",
+    stage: "Presidential Assent",
+    status: "Assented",
+    sponsor: "Hon. Kuria Kimani",
+    summary: "A Bill to formulate the proposals announced in the Budget for 2024/2025 relating to revenue raising measures.",
+    voteDeadline: "June 20, 2024",
+    lastUpdated: "2024-06-26",
+    progress: 100,
+    supportCount: 195,
+    opposeCount: 106,
+    tags: ["Finance", "Taxation"]
   },
   {
-    id: 'bill-002',
-    title: 'County Revenue Allocation (Amendment) Bill',
-    sponsor: 'Sen. K. Mutua',
-    stage: 'Committee',
-    summary: 'Adjusts the formula for revenue sharing to prioritize population density over land mass.',
-    voteDeadline: 'Mar 01, 2026',
-    supportCount: 500,
-    opposeCount: 120,
-    tags: ['Devolution', 'Finance']
+    id: "bill-housing-2023",
+    title: "Affordable Housing Bill, 2023",
+    stage: "Presidential Assent",
+    status: "Assented",
+    sponsor: "Hon. Kimani Ichung'wah",
+    summary: "A Bill to provide a legal framework for the implementation of the Affordable Housing Policy.",
+    voteDeadline: "March 15, 2024",
+    lastUpdated: "2024-03-19",
+    progress: 100,
+    supportCount: 180,
+    opposeCount: 90,
+    tags: ["Housing", "Social Welfare"]
   },
   {
-    id: 'bill-003',
-    title: 'Universal Health Coverage (UHC) Enforcement Bill',
-    sponsor: 'Cabinet Secretary (Health)',
-    stage: 'Third Reading',
-    summary: 'Mandates NHIF registration for all adults and introduces a tiered contribution model.',
-    voteDeadline: 'Jan 30, 2026',
-    supportCount: 8900,
-    opposeCount: 450,
-    tags: ['Health', 'Social Services']
+    id: "bill-conflict-interest-2023",
+    title: "The Conflict of Interest Bill, 2023",
+    stage: "Second Reading",
+    status: "Second Reading",
+    sponsor: "Hon. Kimani Ichung'wah",
+    summary: "A Bill to provide for the management of conflict of interest in the discharge of official duties.",
+    voteDeadline: "August 10, 2024",
+    lastUpdated: "2024-02-28",
+    progress: 40,
+    supportCount: 45,
+    opposeCount: 12,
+    tags: ["Governance", "Ethics"]
   },
   {
-    id: 'bill-004',
-    title: 'Agricultural Subsidy Reform Bill',
-    sponsor: 'Hon. P. Njoroge',
-    stage: 'First Reading',
-    summary: 'Proposes direct mobile money transfers to farmers instead of fertilizer distribution.',
-    voteDeadline: 'Apr 10, 2026',
-    supportCount: 2100,
-    opposeCount: 800,
-    tags: ['Agriculture', 'Economy']
-  },
-  {
-    id: 'bill-005',
-    title: 'Cybersecurity & Data Protection Act 2026',
-    sponsor: 'Hon. S. Wanjiku',
-    stage: 'Presidential Assent',
-    summary: 'Establishes the National Cyber Command and mandates data localization for banks.',
-    voteDeadline: 'Passed',
-    supportCount: 12000,
-    opposeCount: 300,
-    tags: ['Security', 'ICT']
+    id: "bill-maandamano-2024",
+    title: "The Assembly and Demonstration Regulation Bill, 2024",
+    stage: "First Reading",
+    status: "First Reading",
+    sponsor: "Hon. Geoffrey Ruku",
+    summary: "A Bill to regulate public assemblies and demonstrations.",
+    voteDeadline: "October 12, 2024",
+    lastUpdated: "2024-07-01",
+    progress: 20,
+    supportCount: 20,
+    opposeCount: 85,
+    tags: ["Security", "Rights"]
   }
 ];
 
@@ -79,8 +101,19 @@ export const STAGES: BillStage[] = [
   'Third Reading', 
   'Presidential Assent'
 ];
-*/
 
-// Mock Data removed in favor of real-time API.
-export const MOCK_BILLS: Bill[] = [];
-export const STAGES: BillStage[] = [];
+export const HANSARD_RECORDS: HansardRecord[] = [
+  {
+    id: "hansard-2024-06-25",
+    date: "2024-06-25",
+    title: "Morning Sitting - Third Reading of Finance Bill",
+    summary: "Debate on the third reading of the Finance Bill 2024. Intense discussion on tax measures.",
+    speakers: ["Hon. Kimani Ichung'wah", "Hon. Opiyo Wandayi", "Hon. Ndindi Nyoro"],
+    tags: ["Finance Bill", "Taxation", "Budget"]
+  }
+];
+
+export const VOTING_RECORDS: Vote[] = [
+  { id: "v1", billId: "bill-finance-2024", mpName: "Hon. Kimani Ichung'wah", party: "UDA", constituency: "Kikuyu", vote: "Yes" },
+  { id: "v2", billId: "bill-finance-2024", mpName: "Hon. Opiyo Wandayi", party: "ODM", constituency: "Ugunja", vote: "No" }
+];

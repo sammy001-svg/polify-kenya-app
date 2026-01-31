@@ -1,12 +1,19 @@
+export type BillStage = 'First Reading' | 'Second Reading' | 'Committee' | 'Third Reading' | 'Presidential Assent';
+
 export interface Bill {
   id: string;
   title: string;
-  status: "First Reading" | "Second Reading" | "Committee Stage" | "Third Reading" | "Assented" | "Rejected" | "Withdrawn";
   sponsor: string;
+  stage: BillStage;
+  status: string; // Compatibility for UI
   summary: string;
-  dateIntroduced: string;
-  lastUpdated: string;
-  progress: number; // 0 to 100
+  voteDeadline: string;
+  lastUpdated: string; // Compatibility for UI
+  progress: number; // Compatibility for UI (0-100)
+  supportCount: number;
+  opposeCount: number;
+  myVote?: 'yay' | 'nay' | 'abstain';
+  tags: string[];
 }
 
 export interface HansardRecord {
@@ -32,43 +39,67 @@ export const BILLS: Bill[] = [
   {
     id: "bill-finance-2024",
     title: "The Finance Bill, 2024",
-    status: "Withdrawn",
-    sponsor: "Hon. Kuria Kimani (National Assembly Finance Committee)",
-    summary: "A Bill to formulate the proposals announced in the Budget for 2024/2025 relating to revenue raising measures. Withdrawn following public protests.",
-    dateIntroduced: "2024-05-09",
+    stage: "Presidential Assent",
+    status: "Assented",
+    sponsor: "Hon. Kuria Kimani",
+    summary: "A Bill to formulate the proposals announced in the Budget for 2024/2025 relating to revenue raising measures.",
+    voteDeadline: "June 20, 2024",
     lastUpdated: "2024-06-26",
-    progress: 100
+    progress: 100,
+    supportCount: 195,
+    opposeCount: 106,
+    tags: ["Finance", "Taxation"]
   },
   {
     id: "bill-housing-2023",
     title: "Affordable Housing Bill, 2023",
+    stage: "Presidential Assent",
     status: "Assented",
-    sponsor: "Hon. Kimani Ichung'wah (Majority Leader)",
+    sponsor: "Hon. Kimani Ichung'wah",
     summary: "A Bill to provide a legal framework for the implementation of the Affordable Housing Policy.",
-    dateIntroduced: "2023-12-04",
+    voteDeadline: "March 15, 2024",
     lastUpdated: "2024-03-19",
-    progress: 100
+    progress: 100,
+    supportCount: 180,
+    opposeCount: 90,
+    tags: ["Housing", "Social Welfare"]
   },
   {
     id: "bill-conflict-interest-2023",
     title: "The Conflict of Interest Bill, 2023",
+    stage: "Second Reading",
     status: "Second Reading",
-    sponsor: "Hon. Kimani Ichung'wah (Majority Leader)",
+    sponsor: "Hon. Kimani Ichung'wah",
     summary: "A Bill to provide for the management of conflict of interest in the discharge of official duties.",
-    dateIntroduced: "2023-02-15",
+    voteDeadline: "August 10, 2024",
     lastUpdated: "2024-02-28",
-    progress: 40
+    progress: 40,
+    supportCount: 45,
+    opposeCount: 12,
+    tags: ["Governance", "Ethics"]
   },
   {
     id: "bill-maandamano-2024",
     title: "The Assembly and Demonstration Regulation Bill, 2024",
+    stage: "First Reading",
     status: "First Reading",
-    sponsor: "Hon. Geoffrey Ruku (Mbeere North)",
+    sponsor: "Hon. Geoffrey Ruku",
     summary: "A Bill to regulate public assemblies and demonstrations.",
-    dateIntroduced: "2024-07-01",
+    voteDeadline: "October 12, 2024",
     lastUpdated: "2024-07-01",
-    progress: 20
+    progress: 20,
+    supportCount: 20,
+    opposeCount: 85,
+    tags: ["Security", "Rights"]
   }
+];
+
+export const STAGES: BillStage[] = [
+  'First Reading', 
+  'Second Reading', 
+  'Committee', 
+  'Third Reading', 
+  'Presidential Assent'
 ];
 
 export const HANSARD_RECORDS: HansardRecord[] = [
