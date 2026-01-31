@@ -4,8 +4,23 @@ import { Trophy, TrendingUp, Minus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DEMO_LEADERBOARD } from "@/lib/gamification";
 
-export function CivicLeaderboard({ users }: { users?: any[] }) {
-  const displayUsers = users || DEMO_LEADERBOARD;
+export interface LeaderboardUser {
+    id?: string;
+    userId?: string;
+    name: string;
+    score?: number; // mock
+    xp: number;     // real
+    avatar: string;
+    rank: number;
+    highlight?: boolean;
+    badge?: string; // mock uses single badge name
+    badges?: string[]; // real uses array of IDs
+    level?: number;
+    isTrendUp?: boolean;
+}
+
+export function CivicLeaderboard({ users }: { users?: LeaderboardUser[] }) {
+  const displayUsers = (users || DEMO_LEADERBOARD) as LeaderboardUser[];
   
   return (
     <div className="bg-brand-surface border border-white/5 rounded-2xl overflow-hidden backdrop-blur-xl">
@@ -61,16 +76,16 @@ export function CivicLeaderboard({ users }: { users?: any[] }) {
               </p>
               <div className="flex items-center gap-2 text-[10px] text-brand-text-muted">
                 <span className="bg-white/5 px-1.5 rounded uppercase tracking-wider">
-                  {user.badge}
+                  {user.badge || (user.badges && user.badges.length > 0 ? `${user.badges.length} Badges` : 'Citizen')}
                 </span>
-                <span>Lvl {user.level}</span>
+                <span>Lvl {user.level || 1}</span>
               </div>
             </div>
 
             {/* XP & Trend */}
             <div className="text-right">
               <p className="text-sm font-black text-brand-text tabular-nums">
-                {user.xp.toLocaleString()}
+                {(user.xp || user.score || 0).toLocaleString()}
               </p>
               <div className="flex justify-end">
                 {user.isTrendUp ? (

@@ -50,7 +50,7 @@ export default function PoliticalPartiesPage() {
       
       {filteredParties.length === 0 && (
           <div className="text-center py-12">
-              <p className="text-brand-text-muted">No parties found matching "{searchQuery}"</p>
+              <p className="text-brand-text-muted">No parties found matching &quot;{searchQuery}&quot;</p>
           </div>
       )}
     </div>

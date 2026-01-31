@@ -3,7 +3,7 @@
 import { CampaignTemplate } from '@/lib/campaign-data';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, Target } from 'lucide-react';
+import { BookOpen } from 'lucide-react';
 
 interface CampaignTemplateCardProps {
   template: CampaignTemplate;

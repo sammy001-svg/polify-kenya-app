@@ -4,12 +4,13 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Search, Video, Menu } from 'lucide-react';
+import { Video, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { UserMenu } from '@/components/layout/UserMenu';
 import { createClient } from '@/lib/supabase';
 import { NotificationsPopover } from '@/components/layout/NotificationsPopover';
 import type { User } from '@supabase/supabase-js';
+import { CommandCenter } from "@/components/search/CommandCenter";
 
 export function Header() {
   const [user, setUser] = React.useState<User | null>(null);
@@ -55,17 +56,8 @@ export function Header() {
       </div>
 
       {/* Center: Search */}
-      <div className="hidden md:flex flex-1 max-w-xl mx-4">
-        <div className="relative w-full group">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-brand-text-muted group-focus-within:text-brand-text" />
-          </div>
-          <input 
-            type="text"
-            className="w-full bg-brand-surface-secondary border border-border rounded-full py-2 pl-10 pr-4 text-brand-text placeholder-brand-text-muted focus:outline-none focus:ring-1 focus:ring-kenya-red/50 focus:border-kenya-red/50 transition-all"
-            placeholder="Search for policies, bills, or maandamano..."
-          />
-        </div>
+      <div className="hidden md:flex flex-1 max-w-xl mx-4 justify-center">
+         <CommandCenter />
       </div>
 
       {/* Right: Actions */}

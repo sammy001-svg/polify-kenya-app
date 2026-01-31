@@ -16,6 +16,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { GamificationService } from "@/lib/gamification-service";
+import { toast } from "@/components/ui/use-toast";
 
 interface Report {
   id: string;
@@ -111,6 +113,28 @@ export function ProjectWatchdog({ projectId, projectTitle }: ProjectWatchdogProp
     if (!error) {
       setNewReport("");
       setSentiment('Neutral');
+      
+      // Gamification: Award XP
+      try {
+        const result = await GamificationService.awardXP(userId, 50, 'watchdog_report');
+        
+        toast({
+            title: "+50 XP Earned!",
+            description: "Thank you for being a vigilant citizen.",
+            variant: "default",
+            className: "bg-kenya-gold text-black border-none"
+        });
+
+        if (result.leveledUp) {
+            toast({
+                title: "LEVEL UP!",
+                description: `Congratulations! You reached Level ${result.newLevel}.`,
+                className: "bg-purple-600 text-white border-none"
+            });
+        }
+      } catch (err) {
+        console.error("Error awarding XP:", err);
+      }
     }
     setLoading(false);
   };

@@ -1,4 +1,3 @@
-/* cSpell:ignore supabase */
 "use client";
 
 import { use } from "react";
@@ -60,7 +59,7 @@ export default function PoliticianProfilePage({ params }: { params: Promise<{ po
         let foundPolitician: Politician | null = null;
         
         // 1. Try fetching from Supabase
-        const { data: pol, error } = await supabase
+        const { data: pol } = await supabase
           .from('politicians')
           .select('*')
           .eq('id', politicianId)
@@ -117,12 +116,12 @@ export default function PoliticianProfilePage({ params }: { params: Promise<{ po
         
         // Fetch Follower Count (only if valid ID)
         if (politicianId) {
-             const { count, error: countError } = await supabase
+             const { count } = await supabase
               .from('follows')
               .select('*', { count: 'exact', head: true })
               .eq('following_politician_id', politicianId);
             
-            if (!countError) {
+            if (count !== null) {
               setFollowersCount(count || 0);
             }
         }

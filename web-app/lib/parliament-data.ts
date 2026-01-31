@@ -13,6 +13,7 @@ export interface Bill {
   tags: string[];
 }
 
+/*
 export const MOCK_BILLS: Bill[] = [
   {
     id: 'bill-001',
@@ -78,3 +79,8 @@ export const STAGES: BillStage[] = [
   'Third Reading', 
   'Presidential Assent'
 ];
+*/
+
+// Mock Data removed in favor of real-time API.
+export const MOCK_BILLS: Bill[] = [];
+export const STAGES: BillStage[] = [];

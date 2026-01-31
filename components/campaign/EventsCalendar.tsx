@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+// import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { ChevronLeft, ChevronRight, MapPin, Clock, Plus, Users } from "lucide-react";
+import { ChevronLeft, ChevronRight, MapPin, Clock, Plus } from "lucide-react";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MOCK_EVENTS = [
@@ -12,8 +12,6 @@ const MOCK_EVENTS = [
 ];
 
 export function EventsCalendar() {
-  const [currentDate, setCurrentDate] = useState(new Date());
-
   // Simple calendar grid generation
   const daysInMonth = 31; // Mocking for demo
   const startDay = 3; // Wednesday start for mock

@@ -3,10 +3,8 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 import Image from "next/image";
 import {
-  CheckCircle,
   BadgeCheck,
   Info,
   Sparkles,
@@ -14,21 +12,20 @@ import {
 } from "lucide-react";
 import { DEMO_STREAMS } from "@/lib/demo-data";
 import { FeedService, FeedItem } from "@/lib/feed-service";
-import { ViewpointBalance } from "@/components/feed/ViewpointBalance";
 import { PolifyPlayIcon } from "@/components/ui/PolifyPlayIcon";
 import { CivicVideoPlayer } from "@/components/ui/CivicVideoPlayer";
 import { CivicVideoTheater } from "@/components/ui/CivicVideoTheater";
-import { FeedSkeleton } from "@/components/feed/FeedSkeleton";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { AnimatePresence, motion } from "framer-motion";
+import { CitizenDashboard } from "@/components/dashboard/CitizenDashboard";
 
 export default function Home() {
   const [activeHeroVideo, setActiveHeroVideo] = useState<FeedItem | null>(null);
-  const [isHeroPlaying, setIsHeroPlaying] = useState(false);
+  // const [isHeroPlaying, setIsHeroPlaying] = useState(false);
   const [theaterVideo, setTheaterVideo] = useState<FeedItem | null>(null);
   const [feedItems, setFeedItems] = useState<FeedItem[]>(
     DEMO_STREAMS as unknown as FeedItem[],
@@ -140,7 +137,7 @@ export default function Home() {
                       poster={activeHeroVideo.thumbnailUrl}
                       className="w-full h-full"
                       autoPlay={true}
-                      onPlayToggle={(playing) => setIsHeroPlaying(playing)}
+                      // onPlayToggle={(playing) => setIsHeroPlaying(playing)}
                     />
                   )}
                 </motion.div>
@@ -364,30 +361,8 @@ export default function Home() {
           </motion.div>
         </div>
 
-        <div className="lg:col-span-1 space-y-6">
-          <ViewpointBalance />
-
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.5 }}
-          >
-            <Card className="border-kenya-green/30 bg-linear-to-br from-brand-surface to-kenya-green/5 p-5 shadow-inner group overflow-hidden relative">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-kenya-green/10 rounded-full blur-3xl -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-1000" />
-              <h3 className="font-black text-xl mb-2 relative z-10">
-                Running for Office?
-              </h3>
-              <p className="text-sm text-brand-text-muted mb-6 leading-relaxed relative z-10">
-                Access professional campaign tools, manage your team, and publish
-                verified content.
-              </p>
-              <a href="/campaign" className="relative z-10">
-                <Button className="w-full bg-kenya-green hover:bg-kenya-green/90 text-white font-bold py-6 group-hover:shadow-[0_0_20px_rgba(0,140,81,0.3)] transition-all">
-                  Enter Campaign HQ
-                </Button>
-              </a>
-            </Card>
-          </motion.div>
+        <div className="lg:col-span-1 h-[calc(100vh-140px)] sticky top-4">
+           <CitizenDashboard />
         </div>
       </div>
       </div>

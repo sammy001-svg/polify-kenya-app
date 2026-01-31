@@ -1,13 +1,14 @@
 "use client";
 
+import Link from "next/link";
 import { ConstitutionChat } from "@/components/constitution/ConstitutionChat";
 import { Book, Scale, ShieldCheck, FileText } from "lucide-react";
 
 const QUICK_LINKS = [
-  { title: "Bill of Rights", articles: "Art. 19-59", icon: ShieldCheck },
-  { title: "Devolution", articles: "Art. 174-200", icon: Scale },
-  { title: "Citizenship", articles: "Art. 12-18", icon: UserIcon },
-  { title: "Public Finance", articles: "Art. 201-231", icon: FileText }
+  { title: "Bill of Rights", articles: "Art. 19-59", icon: ShieldCheck, href: "/constitution/chapter-4" },
+  { title: "Devolution", articles: "Art. 174-200", icon: Scale, href: "/constitution/chapter-11" },
+  { title: "Citizenship", articles: "Art. 12-18", icon: UserIcon, href: "/constitution/chapter-3" },
+  { title: "Public Finance", articles: "Art. 201-231", icon: FileText, href: "/constitution/chapter-12" }
 ];
 
 function UserIcon({ className }: { className?: string }) {
@@ -47,8 +48,9 @@ export default function ConstitutionPage() {
                
                <div className="space-y-3">
                   {QUICK_LINKS.map((link) => (
-                     <button 
+                     <Link 
                        key={link.title}
+                       href={link.href}
                        className="w-full flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-brand-primary/30 transition-all text-left group"
                      >
                         <div className="w-10 h-10 rounded-lg bg-black/20 flex items-center justify-center text-brand-text-muted group-hover:text-white transition-colors">
@@ -60,7 +62,7 @@ export default function ConstitutionPage() {
                               {link.articles}
                            </div>
                         </div>
-                     </button>
+                     </Link>
                   ))}
                </div>
            </div>
@@ -72,9 +74,9 @@ export default function ConstitutionPage() {
               <p className="text-xs text-gray-300 leading-relaxed mb-4">
                  Article 1 states that all sovereign power belongs to the people. You exercise this power either directly or through elected representatives.
               </p>
-              <button className="w-full py-2 rounded-lg bg-kenya-green/20 text-kenya-green text-xs font-bold hover:bg-kenya-green hover:text-white transition-colors border border-kenya-green/30">
+              <Link href="/constitution/chapter-1" className="block text-center w-full py-2 rounded-lg bg-kenya-green/20 text-kenya-green text-xs font-bold hover:bg-kenya-green hover:text-white transition-colors border border-kenya-green/30">
                  Read Chapter 1
-              </button>
+              </Link>
            </div>
        </div>
     </div>

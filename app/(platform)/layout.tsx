@@ -1,6 +1,7 @@
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { XPNotification } from "@/components/gamification/XPNotification";
+import { PoliBot } from "@/components/ai/PoliBot";
 
 export default function PlatformLayout({
   children,
@@ -17,6 +18,7 @@ export default function PlatformLayout({
         </main>
       </div>
       <XPNotification />
+      <PoliBot />
     </>
   );
 }

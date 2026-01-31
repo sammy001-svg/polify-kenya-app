@@ -17,7 +17,8 @@ import {
   Award,
   Flag,
   User,
-  Megaphone
+  Megaphone,
+  FileCheck
 } from 'lucide-react';
 import { cn } from '@/components/ui/button';
 
@@ -73,6 +74,7 @@ export function Sidebar() {
           Knowledge Base
         </h3>
         <SidebarItem icon={Landmark} label="Parliament Watch" href="/parliament" isActive={pathname.startsWith('/parliament')} />
+        <SidebarItem icon={FileCheck} label="Auditor General" href="/auditor" isActive={pathname.startsWith('/auditor')} />
         <SidebarItem icon={Scale} label="Constitution" href="/constitution" isActive={pathname.startsWith('/constitution')} />
         <SidebarItem icon={BookOpen} label="Policy Decoded" href="/policies" isActive={pathname.startsWith('/policies')} />
       </div>

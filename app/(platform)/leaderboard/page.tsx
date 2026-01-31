@@ -22,7 +22,7 @@ export default function LeaderboardPage() {
       avatar: string;
       level: number;
       xp: number;
-      badges: any[];
+      badges: string[];
       department: string;
     }[]
   >([]);

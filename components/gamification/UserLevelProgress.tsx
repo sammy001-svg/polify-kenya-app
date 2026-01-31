@@ -11,13 +11,29 @@ interface UserLevelProgressProps {
   progress: UserProgress;
 }
 
-export function UserLevelProgress({ progress }: UserLevelProgressProps) {
+export function UserLevelProgress({ progress, compact = false }: UserLevelProgressProps & { compact?: boolean }) {
   const nextLevelTotal = getXPForNextLevel(progress.level);
-  // const currentLevelBase = 0; // Simplified for demo
   const percent = Math.min(
     100,
     Math.max(0, (progress.currentXP / nextLevelTotal) * 100),
   );
+
+  if (compact) {
+    return (
+        <div className="space-y-2">
+            <div className="flex justify-between items-end text-xs">
+                <span className="font-bold text-white">Lvl {progress.level}</span>
+                <span className="text-brand-text-muted">{progress.currentXP} / {nextLevelTotal} XP</span>
+            </div>
+            <div className="h-2 bg-black/40 rounded-full overflow-hidden border border-white/5">
+                <div
+                    className="h-full bg-kenya-green rounded-full transition-all duration-1000 ease-out"
+                    style={{ width: `${percent}%` }}
+                />
+            </div>
+        </div>
+    )
+  }
 
   return (
     <div className="bg-brand-surface border border-white/5 rounded-2xl p-5 relative overflow-hidden group">
