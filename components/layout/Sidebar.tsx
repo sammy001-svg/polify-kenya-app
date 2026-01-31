@@ -49,11 +49,18 @@ function SidebarItem({ icon: Icon, label, href, isActive }: SidebarItemProps) {
   );
 }
 
-export function Sidebar() {
+interface SidebarProps {
+  forceShow?: boolean;
+}
+
+export function Sidebar({ forceShow }: SidebarProps) {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 fixed left-0 top-16 bottom-0 overflow-y-auto bg-brand-bg/80 glass-dark border-r border-white/5 p-3 hidden md:flex flex-col gap-6 z-40">
+    <aside className={cn(
+      "w-64 fixed left-0 top-16 bottom-0 overflow-y-auto bg-brand-bg/80 glass-dark border-r border-white/5 p-3 flex flex-col gap-6 z-40",
+      !forceShow && "hidden md:flex"
+    )}>
       
       {/* Section 1: Core Navigation */}
       <div className="space-y-1">

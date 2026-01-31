@@ -3,19 +3,22 @@
 
 import React, { useState } from 'react';
 import { 
-  Heart, 
-  MessageSquare, 
-  Share2, 
   BadgeCheck, 
   Volume2, 
   VolumeX, 
   MoreHorizontal,
-  ChevronDown
+  ChevronDown,
+  ThumbsUp,
+  ThumbsDown,
+  Lightbulb
 } from 'lucide-react';
 import { CivicVideoPlayer } from "@/components/ui/CivicVideoPlayer";
 import { cn } from "@/lib/utils";
 import { ShortVideo } from "@/lib/shorts-data";
 import Image from "next/image";
+import { GamificationService } from "@/lib/gamification-service";
+import { TrustIndicator } from "@/components/trust/TrustIndicator";
+import { TruthReport } from "@/components/trust/TruthReport";
 
 interface ShortCardProps {
   video: ShortVideo;
@@ -23,9 +26,21 @@ interface ShortCardProps {
 }
 
 export function ShortCard({ video, isActive }: ShortCardProps) {
-  const [isLiked, setIsLiked] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [showDescription, setShowDescription] = useState(false);
+  const [reaction, setReaction] = useState<'yay' | 'nay' | null>(null);
+  const [isReportOpen, setIsReportOpen] = useState(false);
+
+  const handleReaction = async (type: 'yay' | 'nay') => {
+    if (reaction === type) return;
+    setReaction(type);
+    // In a real app we'd get the actual user ID
+    await GamificationService.reactToShort("current-user", video.id, type);
+  };
+
+  const handleShareInsight = async () => {
+    await GamificationService.shareInsight("current-user");
+  };
   
   return (
     <div className="relative w-full h-full bg-black flex items-center justify-center snap-start snap-always overflow-hidden">
@@ -44,15 +59,22 @@ export function ShortCard({ video, isActive }: ShortCardProps) {
       <div className="absolute inset-0 z-10 flex flex-col justify-between pointer-events-none p-4 pb-12">
         {/* Top Header */}
         <div className="flex justify-between items-center pointer-events-auto">
-          <div className="flex items-center gap-2">
-            <span className={cn(
-               "px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider backdrop-blur-md",
-               video.verificationStatus === 'Verified' ? 'bg-kenya-green text-white' : 
-               video.verificationStatus === 'Fact-Checked' ? 'bg-blue-500 text-white' : 
-               'bg-kenya-gold text-black'
-            )}>
-              {video.verificationStatus}
-            </span>
+          <div className="flex items-center gap-2 pointer-events-auto">
+            <div onClick={() => setIsReportOpen(true)}>
+              <TrustIndicator 
+                status={video.verificationStatus} 
+                citations={video.citations}
+                compact
+              />
+            </div>
+            {video.verificationStatus !== 'Pending' && (
+               <button 
+                onClick={() => setIsReportOpen(true)}
+                className="text-[9px] font-bold text-white/40 hover:text-white uppercase tracking-widest underline underline-offset-2"
+               >
+                 View Analysis
+               </button>
+            )}
           </div>
           <button className="p-2 bg-black/20 backdrop-blur-md rounded-full text-white pointer-events-auto">
              <MoreHorizontal className="w-5 h-5" />
@@ -102,36 +124,45 @@ export function ShortCard({ video, isActive }: ShortCardProps) {
       <div className="absolute right-4 bottom-24 z-20 flex flex-col items-center gap-6 pointer-events-auto">
          <div className="flex flex-col items-center gap-1">
             <button 
-               onClick={() => setIsLiked(!isLiked)}
+               onClick={() => handleReaction('yay')}
                className={cn(
-                  "p-3 rounded-full backdrop-blur-md transition-all",
-                  isLiked ? "bg-kenya-red text-white scale-110" : "bg-black/40 text-white hover:bg-black/60"
+                  "p-3 rounded-full backdrop-blur-md transition-all active:scale-95",
+                  reaction === 'yay' ? "bg-kenya-green text-black scale-110" : "bg-black/40 text-white hover:bg-black/60"
                )}
             >
-               <Heart className={cn("w-6 h-6", isLiked && "fill-current")} />
+               <ThumbsUp className={cn("w-6 h-6", reaction === 'yay' && "fill-current")} />
             </button>
-            <span className="text-white text-xs font-bold shadow-lg">{video.stats.likes}</span>
+            <span className="text-white text-[10px] font-bold uppercase tracking-tighter">Yay</span>
          </div>
 
          <div className="flex flex-col items-center gap-1">
-            <button className="p-3 rounded-full bg-black/40 backdrop-blur-md text-white hover:bg-black/60 transition-all">
-               <MessageSquare className="w-6 h-6" />
+            <button 
+               onClick={() => handleReaction('nay')}
+               className={cn(
+                  "p-3 rounded-full backdrop-blur-md transition-all active:scale-95",
+                  reaction === 'nay' ? "bg-kenya-red text-white scale-110" : "bg-black/40 text-white hover:bg-black/60"
+               )}
+            >
+               <ThumbsDown className={cn("w-6 h-6", reaction === 'nay' && "fill-current")} />
             </button>
-            <span className="text-white text-xs font-bold shadow-lg">{video.stats.comments}</span>
+            <span className="text-white text-[10px] font-bold uppercase tracking-tighter">Nay</span>
          </div>
 
          <div className="flex flex-col items-center gap-1">
-            <button className="p-3 rounded-full bg-black/40 backdrop-blur-md text-white hover:bg-black/60 transition-all">
-               <Share2 className="w-6 h-6" />
+            <button 
+               onClick={handleShareInsight}
+               className="p-3 rounded-full bg-black/40 backdrop-blur-md text-white hover:bg-white hover:text-black transition-all active:scale-95"
+            >
+               <Lightbulb className="w-6 h-6" />
             </button>
-            <span className="text-white text-xs font-bold shadow-lg">{video.stats.shares}</span>
+            <span className="text-white text-[10px] font-bold uppercase tracking-tighter">Insight</span>
          </div>
 
          <button 
             onClick={() => setIsMuted(!isMuted)}
-            className="p-3 rounded-full bg-black/40 backdrop-blur-md text-white hover:bg-black/60 transition-all mt-4"
+            className="p-2 rounded-full bg-black/40 backdrop-blur-md text-white hover:bg-black/60 transition-all mt-2"
          >
-            {isMuted ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
+            {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
          </button>
       </div>
 
@@ -139,6 +170,20 @@ export function ShortCard({ video, isActive }: ShortCardProps) {
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 animate-bounce">
          <ChevronDown className="w-6 h-6 text-white/50" />
       </div>
+
+      <TruthReport 
+        isOpen={isReportOpen}
+        onClose={() => setIsReportOpen(false)}
+        data={{
+          title: video.title,
+          verdict: video.verificationStatus,
+          analysis: video.detailedAnalysis || "Analysis pending full AI processing.",
+          citations: video.citations || [],
+          claims: [
+            { text: video.title, status: video.verificationStatus === 'Verified' ? 'True' : 'Unverified' as "True" | "False" | "Unverified" }
+          ]
+        }}
+      />
     </div>
   );
 }

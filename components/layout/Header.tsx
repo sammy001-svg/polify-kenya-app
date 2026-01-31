@@ -4,13 +4,14 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Video, Menu } from 'lucide-react';
+import { Video } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { UserMenu } from '@/components/layout/UserMenu';
 import { createClient } from '@/lib/supabase';
 import { NotificationsPopover } from '@/components/layout/NotificationsPopover';
 import type { User } from '@supabase/supabase-js';
 import { CommandCenter } from "@/components/search/CommandCenter";
+import { MobileSidebar } from "@/components/layout/MobileSidebar";
 
 export function Header() {
   const [user, setUser] = React.useState<User | null>(null);
@@ -37,9 +38,7 @@ export function Header() {
       
       {/* Left: Menu & Brand */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" className="md:hidden">
-          <Menu className="w-6 h-6" />
-        </Button>
+        <MobileSidebar />
         <Link href="/" className="flex items-center gap-2 group">
           <div className="w-10 h-10 overflow-hidden rounded-full shadow-sm border border-white/10 group-hover:scale-105 transition-transform bg-white relative">
             <Image 

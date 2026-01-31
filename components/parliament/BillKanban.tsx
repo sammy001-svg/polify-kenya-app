@@ -24,12 +24,12 @@ export function BillKanban({ bills, onVote }: BillKanbanProps) {
   return (
     <div className="relative h-full" ref={containerRef}>
       <ScrollArea className="w-full whitespace-nowrap rounded-md h-full">
-        <div className="flex w-max space-x-6 p-4">
+        <div className="flex w-max space-x-4 sm:space-x-6 p-4 snap-x snap-mandatory">
           {STAGES.map((stage, index) => {
             const stageBills = billsByStage[stage] || [];
             
             return (
-               <div key={stage} className="w-[300px] shrink-0 flex flex-col h-[600px] bg-brand-surface/30 rounded-2xl border border-white/5 overflow-hidden">
+                <div key={stage} className="w-[85vw] sm:w-[300px] shrink-0 flex flex-col h-[500px] sm:h-[600px] bg-brand-surface/30 rounded-2xl border border-white/5 overflow-hidden snap-center">
                   {/* Column Header */}
                   <div className={cn(
                     "p-4 border-b border-white/5 flex items-center justify-between sticky top-0 bg-brand-surface/90 backdrop-blur-md z-10",

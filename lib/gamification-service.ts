@@ -138,4 +138,25 @@ export const GamificationService = {
       department: "Nairobi", // Placeholder
     }));
   },
+
+  // Specific Civic Actions
+  async verifyProject(userId: string, projectId: string) {
+    return this.awardXP(userId, 50, `Verified project: ${projectId}`);
+  },
+
+  async voteOnBill(userId: string, billId: string) {
+    return this.awardXP(userId, 20, `Voted on bill: ${billId}`);
+  },
+
+  async shareInsight(userId: string) {
+    return this.awardXP(userId, 30, "Shared a civic insight");
+  },
+
+  async watchShort(userId: string, shortId: string) {
+    return this.awardXP(userId, 10, `Watched Bunge Bite: ${shortId}`);
+  },
+
+  async reactToShort(userId: string, shortId: string, reaction: 'yay' | 'nay') {
+    return this.awardXP(userId, 15, `Reacted ${reaction} to Bunge Bite: ${shortId}`);
+  }
 };

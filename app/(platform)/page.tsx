@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/hover-card";
 import { AnimatePresence, motion } from "framer-motion";
 import { CitizenDashboard } from "@/components/dashboard/CitizenDashboard";
+import { TrustIndicator } from "@/components/trust/TrustIndicator";
 
 export default function Home() {
   const [activeHeroVideo, setActiveHeroVideo] = useState<FeedItem | null>(null);
@@ -285,17 +286,12 @@ export default function Home() {
                         {item.duration}
                       </div>
 
-                      <div
-                        className={`absolute top-2 left-2 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider backdrop-blur-md z-10
-                          ${
-                            item.verificationStatus === "Verified"
-                              ? "bg-kenya-green text-black px-3"
-                              : item.verificationStatus === "Pending"
-                                ? "bg-kenya-gold/90 text-black"
-                                : "bg-kenya-gold/90 text-black"
-                          }`}
-                      >
-                        {item.verificationStatus}
+                      <div className="absolute top-2 left-2 z-10 pointer-events-auto" onClick={(e) => e.stopPropagation()}>
+                        <TrustIndicator 
+                          status={item.verificationStatus} 
+                          citations={item.citations}
+                          compact 
+                        />
                       </div>
 
                       {item.isNew && (

@@ -23,7 +23,11 @@ import { SAMPLE_POLITICIANS } from "@/lib/representatives";
 import { DECODED_POLICIES } from "@/lib/policy-data";
 import { CONSTITUTION_CHAPTERS } from "@/lib/constitution-data";
 
-export function CommandCenter() {
+interface CommandCenterProps {
+  isMobileTrigger?: boolean;
+}
+
+export function CommandCenter({ isMobileTrigger }: CommandCenterProps) {
   const [open, setOpen] = React.useState(false);
   const router = useRouter();
 
@@ -46,18 +50,28 @@ export function CommandCenter() {
 
   return (
     <>
-      <button
-        onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-2 whitespace-nowrap rounded-md border border-input bg-brand-surface-secondary px-4 py-2 text-sm font-medium text-brand-text-muted shadow-xs transition-colors hover:bg-brand-surface-highlight focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
-      >
-        <Search className="h-4 w-4" />
-        <span className="hidden lg:inline-flex">Search PoliFy...</span>
-        <span className="hidden lg:inline-flex text-xs text-brand-text-muted/60 ml-4">
-           <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-brand-surface px-1.5 font-mono text-[10px] font-medium text-brand-text-muted opacity-100">
-              <span className="text-xs">⌘</span>K
-           </kbd>
-        </span>
-      </button>
+      {isMobileTrigger ? (
+        <button
+          onClick={() => setOpen(true)}
+          className="flex flex-col items-center justify-center gap-1 text-brand-text-muted hover:text-white transition-colors"
+        >
+          <Search className="w-5 h-5" />
+          <span className="text-[10px] font-bold uppercase tracking-tighter">Search</span>
+        </button>
+      ) : (
+        <button
+          onClick={() => setOpen(true)}
+          className="inline-flex items-center gap-2 whitespace-nowrap rounded-md border border-input bg-brand-surface-secondary px-4 py-2 text-sm font-medium text-brand-text-muted shadow-xs transition-colors hover:bg-brand-surface-highlight focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+        >
+          <Search className="h-4 w-4" />
+          <span className="hidden lg:inline-flex">Search PoliFy...</span>
+          <span className="hidden lg:inline-flex text-xs text-brand-text-muted/60 ml-4">
+             <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-brand-surface px-1.5 font-mono text-[10px] font-medium text-brand-text-muted opacity-100">
+                <span className="text-xs">⌘</span>K
+             </kbd>
+          </span>
+        </button>
+      )}
 
       <CommandDialog open={open} onOpenChange={setOpen}>
         <CommandInput placeholder="Type a command or search..." />

@@ -15,7 +15,7 @@ export interface StreamItem {
     | "Interview"
     | "Town Hall"
     | "News";
-  verificationStatus: "Verified" | "Pending" | "Context Added";
+  verificationStatus: "Verified" | "Fact-Checked" | "True" | "False" | "Misleading" | "Context Needed" | "Context Added" | "Pending" | "Opinion";
   isVerifiedChannel: boolean;
   recommendationReason: string;
   politicalLeaning:

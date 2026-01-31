@@ -6,6 +6,7 @@ export interface FeedItem extends StreamItem {
   aiReasoning?: string;
   sourceChannelId: string;
   isNew?: boolean;
+  citations?: { label: string; url: string }[];
 }
 
 // 1. Define the Governance Dictionary
@@ -109,6 +110,9 @@ export const FeedService = {
             category:
               channelConfig.id === "parliament" ? "Parliament" : "Town Hall",
             verificationStatus: "Verified", // Trusted source
+            citations: [
+              { label: "Official YouTube Channel", url: `https://youtube.com/watch?v=${video.id}` }
+            ],
             isVerifiedChannel: true,
             recommendationReason: "AI Alert: " + reasoning,
             politicalLeaning:

@@ -10,6 +10,7 @@ import { SAMPLE_POLITICIANS } from "@/lib/representatives";
 import { UserLevelProgress } from "@/components/gamification/UserLevelProgress";
 import { Shield, MapPin, ChevronRight, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ProjectVerificationModal } from "@/components/tracker/ProjectVerificationModal";
 
 export function CitizenDashboard() {
   const [user, setUser] = useState<User | null>(null);
@@ -31,6 +32,13 @@ export function CitizenDashboard() {
     (p.ward === MOCK_USER_LOCATION.ward && p.position === "MCA")
   );
 
+  const [isVerificationOpen, setIsVerificationOpen] = useState(false);
+  const [selectedProject] = useState({
+      id: "road-ward-1",
+      title: `Road Upgrade in ${MOCK_USER_LOCATION.ward}`,
+      location: MOCK_USER_LOCATION.ward
+  });
+
   useEffect(() => {
     async function fetchData() {
       try {
@@ -50,7 +58,16 @@ export function CitizenDashboard() {
       }
     }
     fetchData();
+
+    // Listen for XP gains to refresh local state
+    const handleXPGain = () => fetchData();
+    window.addEventListener("xp-gained", handleXPGain);
+    return () => window.removeEventListener("xp-gained", handleXPGain);
   }, [supabase]);
+
+  const handleVerifyClick = () => {
+    setIsVerificationOpen(true);
+  };
 
   if (loading) {
     return <div className="space-y-4 animate-pulse">
@@ -105,21 +122,24 @@ export function CitizenDashboard() {
             <AlertCircle className="w-3 h-3 text-brand-primary" /> Action Items
         </h3>
         
-        {/* Mock Action Item 1 */}
-        <div className="bg-brand-surface-secondary border border-l-4 border-l-brand-primary border-y-border border-r-border rounded-r-lg p-4 hover:bg-brand-surface-highlight transition-colors cursor-pointer group">
+        {/* Interactive Action Item 1 */}
+        <div 
+            onClick={handleVerifyClick}
+            className="bg-brand-surface-secondary border border-l-4 border-l-brand-primary border-y-border border-r-border rounded-r-lg p-4 hover:bg-brand-surface-highlight transition-all cursor-pointer group active:scale-[0.98]"
+        >
             <div className="flex justify-between items-start mb-1">
                 <span className="text-xs font-bold text-brand-primary bg-brand-primary/10 px-2 py-0.5 rounded">Verify</span>
                 <span className="text-[10px] text-brand-text-muted">+50 XP</span>
             </div>
             <h4 className="font-bold text-sm text-white group-hover:text-brand-primary transition-colors mb-1">
-                Road Upgrade in {MOCK_USER_LOCATION.ward}
+                {selectedProject.title}
             </h4>
             <p className="text-xs text-brand-text-muted line-clamp-2">
                 Contractors reported on site. Can you confirm work is ongoing?
             </p>
-            <Link href="/tracker" className="text-[10px] font-bold text-white mt-2 inline-flex items-center gap-1 group-hover:gap-2 transition-all">
+            <div className="text-[10px] font-bold text-white mt-2 inline-flex items-center gap-1 group-hover:gap-2 transition-all">
                 Verify Now <ChevronRight className="w-3 h-3" />
-            </Link>
+            </div>
         </div>
 
         {/* Mock Action Item 2 */}
@@ -182,6 +202,12 @@ export function CitizenDashboard() {
         )}
       </div>
 
+      <ProjectVerificationModal 
+        isOpen={isVerificationOpen}
+        onClose={() => setIsVerificationOpen(false)}
+        userId={user?.id || "anonymous"}
+        project={selectedProject}
+      />
     </div>
   );
 }

@@ -15,7 +15,9 @@ export interface ShortVideo {
     comments: string;
     shares: string;
   };
-  verificationStatus: 'Verified' | 'Pending' | 'Fact-Checked';
+  verificationStatus: "Verified" | "Fact-Checked" | "True" | "False" | "Misleading" | "Context Needed" | "Context Added" | "Pending" | "Opinion";
+  citations?: { label: string; url: string }[];
+  detailedAnalysis?: string;
   description: string;
   tags: string[];
 }
@@ -37,6 +39,11 @@ export const SHORTS_DATA: ShortVideo[] = [
       shares: "12K"
     },
     verificationStatus: 'Verified',
+    citations: [
+      { label: "Parliamentary Budget Office Report 2025", url: "https://parliament.go.ke" },
+      { label: "Treasury Gazette Notice #442", url: "https://treasury.go.ke" }
+    ],
+    detailedAnalysis: "The 2% Digital Levy mentioned is confirmed in the Finance Bill 2026, Section 14. However, the exemptions for small-scale creators are still under debate.",
     description: "Breaking down the new levies in less than 60 seconds. Know your taxes! #FinanceBill #Kenya",
     tags: ["#FinanceBill", "#Kenya", "#Taxes"]
   },
@@ -56,6 +63,11 @@ export const SHORTS_DATA: ShortVideo[] = [
       shares: "8.4K"
     },
     verificationStatus: 'Fact-Checked',
+    citations: [
+      { label: "The Constitution of Kenya, Article 105", url: "https://kenyalaw.org" },
+      { label: "IEBC Recall Guide", url: "https://iebc.or.ke" }
+    ],
+    detailedAnalysis: "Article 105 of the Constitution and the Elections Act provide the framework for recall. The first step is indeed a petition signed by 30% of registered voters in the constituency.",
     description: "Think it's hard to recall an MP? Here's the first legal step you need to take. #CivicDuty #KenyaLaws",
     tags: ["#CivicDuty", "#KenyaLaws", "#RecallMP"]
   },

@@ -9,7 +9,7 @@ import {
 import { cn } from "@/lib/utils";
 
 interface TrustIndicatorProps {
-  status: "Verified" | "True" | "False" | "Misleading" | "Context Needed" | "Context Added" | "Pending" | "Opinion";
+  status: "Verified" | "Fact-Checked" | "True" | "False" | "Misleading" | "Context Needed" | "Context Added" | "Pending" | "Opinion";
   citations?: { label: string; url: string }[];
   compact?: boolean;
 }
@@ -19,6 +19,7 @@ export function TrustIndicator({ status, citations, compact = false }: TrustIndi
     switch (s) {
       case "Verified":
       case "True":
+      case "Fact-Checked":
         return { color: "text-green-500", bg: "bg-green-500/10", border: "border-green-500/20", icon: ShieldCheck, label: "Verified Fact" };
       case "False":
       case "Misleading":
