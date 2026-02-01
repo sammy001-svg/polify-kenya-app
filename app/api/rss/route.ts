@@ -5,6 +5,10 @@ const CHANNELS = {
   citizen: "UChBQgieUidXV1CmDxSdRm3g",
   parliament: "UC6QjtrmjCTrDFGG62GE4KZQ",
   kbc: "UCypNjM5hP1qcUqQZe57jNfg",
+  ntv: "UCJD0uTIVV4-41n-_x9pA2qA",
+  ktn: "UC8QTK18p_k_bS8QY3Y54-fA",
+  standard: "UCF3W6-C9E62YV55P3-2V8g",
+  tuko: "UCl6ICaB9meBcSMQ5Zmr446g", // Verified
 };
 
 export async function GET() {

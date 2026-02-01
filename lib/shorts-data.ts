@@ -89,5 +89,47 @@ export const SHORTS_DATA: ShortVideo[] = [
     verificationStatus: 'Pending',
     description: "MCAs at it again! Budget readings turned into a literal shouting match today. #Devolution #Nairobi",
     tags: ["#Devolution", "#Nairobi", "#MCAs"]
+  },
+  {
+    id: "short-4",
+    videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+    title: "AI Summary: Finance Bill 2026 🤖",
+    creator: {
+      id: "bunge-ai",
+      name: "Bunge AI Analyst",
+      avatar: "/creators/ai-avatar.jpg",
+      isVerified: true
+    },
+    stats: {
+      likes: "89.1K",
+      comments: "4.5K",
+      shares: "21K"
+    },
+    verificationStatus: 'True',
+    citations: [
+        { label: "Finance Bill 2026 Full Text", url: "#" }
+    ],
+    detailedAnalysis: "AI Analysis confirms the bill proposes a 5% reduction in income tax for low earners.",
+    description: "I read the 200-page Finance Bill so you don't have to. Here are the top 3 wins for common mwananchi. #AI #Polify #FinanceBill",
+    tags: ["#AI", "#Polify", "#FinanceBill"]
+  },
+  {
+    id: "short-5",
+    videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+    title: "Corruption Alert: Dam Project 🚨",
+    creator: {
+      id: "eacc-watch",
+      name: "EACC Watchdog",
+      avatar: "/creators/eacc.jpg",
+      isVerified: true
+    },
+    stats: {
+      likes: "12K",
+      comments: "3.2K",
+      shares: "15K"
+    },
+    verificationStatus: 'True',
+    description: "Breaking: 4B shillings unaccounted for in the new dam project. Accountability needed NOW! #Corruption #Kenya",
+    tags: ["#Corruption", "#Kenya", "#Accountability"]
   }
 ];

@@ -6,7 +6,7 @@ import { CampaignTemplateCard } from '@/components/campaign/CampaignTemplateCard
 import { CandidateDashboard } from '@/components/campaign/CandidateDashboard';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { ShieldCheck, FileCheck, ArrowRight, Flag, Users, FileText, Target, BarChart3, Calendar, Wallet, LayoutDashboard } from 'lucide-react';
+import { ShieldCheck, FileCheck, ArrowRight, Flag, Users, FileText, Target, BarChart3, Calendar, Wallet, LayoutDashboard, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 
 import { ContestingPoliticians } from '@/components/campaign/ContestingPoliticians';
@@ -39,6 +39,7 @@ export default function CampaignPage() {
 
         <div className="flex flex-wrap items-center gap-2">
             {[
+              { href: "/campaign/content", icon: Sparkles, color: "text-purple-500", label: "AI Studio" },
               { href: "/campaign/finance", icon: Wallet, color: "text-kenya-gold", label: "Finance" },
               { href: "/campaign/events", icon: Calendar, color: "text-kenya-red", label: "Events" },
               { href: "/campaign/analytics", icon: BarChart3, color: "text-blue-500", label: "Analytics" },

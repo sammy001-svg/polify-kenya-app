@@ -4,13 +4,8 @@
 import React, { useState } from 'react';
 import { 
   BadgeCheck, 
-  Volume2, 
-  VolumeX, 
   MoreHorizontal,
-  ChevronDown,
-  ThumbsUp,
-  ThumbsDown,
-  Lightbulb
+  ChevronDown
 } from 'lucide-react';
 import { CivicVideoPlayer } from "@/components/ui/CivicVideoPlayer";
 import { cn } from "@/lib/utils";
@@ -19,6 +14,7 @@ import Image from "next/image";
 import { GamificationService } from "@/lib/gamification-service";
 import { TrustIndicator } from "@/components/trust/TrustIndicator";
 import { TruthReport } from "@/components/trust/TruthReport";
+import { ShortsInteraction } from "./ShortsInteraction";
 
 interface ShortCardProps {
   video: ShortVideo;
@@ -46,13 +42,22 @@ export function ShortCard({ video, isActive }: ShortCardProps) {
     <div className="relative w-full h-full bg-black flex items-center justify-center snap-start snap-always overflow-hidden">
       {/* Background Video */}
       <div className="absolute inset-0 z-0">
-        <CivicVideoPlayer 
-          src={video.videoUrl}
-          autoPlay={isActive}
-          muted={isMuted}
-          loop
-          className="w-full h-full object-cover"
-        />
+        {(video.videoUrl.includes("youtube") || video.videoUrl.includes("youtu.be")) ? (
+             <iframe
+                src={`https://www.youtube.com/embed/${video.id}?autoplay=${isActive ? 1 : 0}&controls=0&mute=${isMuted ? 1 : 0}&loop=1&playlist=${video.id}&rel=0&playsinline=1`}
+                className="w-full h-full object-cover pointer-events-none scale-[1.35]" // Scale to fill vertical screen better
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                title={video.title}
+             />
+        ) : (
+            <CivicVideoPlayer 
+            src={video.videoUrl}
+            autoPlay={isActive}
+            muted={isMuted}
+            loop
+            className="w-full h-full object-cover"
+            />
+        )}
       </div>
 
       {/* Overlays */}
@@ -121,50 +126,13 @@ export function ShortCard({ video, isActive }: ShortCardProps) {
       </div>
 
       {/* Interaction Menu (Right Side) */}
-      <div className="absolute right-4 bottom-24 z-20 flex flex-col items-center gap-6 pointer-events-auto">
-         <div className="flex flex-col items-center gap-1">
-            <button 
-               onClick={() => handleReaction('yay')}
-               className={cn(
-                  "p-3 rounded-full backdrop-blur-md transition-all active:scale-95",
-                  reaction === 'yay' ? "bg-kenya-green text-black scale-110" : "bg-black/40 text-white hover:bg-black/60"
-               )}
-            >
-               <ThumbsUp className={cn("w-6 h-6", reaction === 'yay' && "fill-current")} />
-            </button>
-            <span className="text-white text-[10px] font-bold uppercase tracking-tighter">Yay</span>
-         </div>
-
-         <div className="flex flex-col items-center gap-1">
-            <button 
-               onClick={() => handleReaction('nay')}
-               className={cn(
-                  "p-3 rounded-full backdrop-blur-md transition-all active:scale-95",
-                  reaction === 'nay' ? "bg-kenya-red text-white scale-110" : "bg-black/40 text-white hover:bg-black/60"
-               )}
-            >
-               <ThumbsDown className={cn("w-6 h-6", reaction === 'nay' && "fill-current")} />
-            </button>
-            <span className="text-white text-[10px] font-bold uppercase tracking-tighter">Nay</span>
-         </div>
-
-         <div className="flex flex-col items-center gap-1">
-            <button 
-               onClick={handleShareInsight}
-               className="p-3 rounded-full bg-black/40 backdrop-blur-md text-white hover:bg-white hover:text-black transition-all active:scale-95"
-            >
-               <Lightbulb className="w-6 h-6" />
-            </button>
-            <span className="text-white text-[10px] font-bold uppercase tracking-tighter">Insight</span>
-         </div>
-
-         <button 
-            onClick={() => setIsMuted(!isMuted)}
-            className="p-2 rounded-full bg-black/40 backdrop-blur-md text-white hover:bg-black/60 transition-all mt-2"
-         >
-            {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-         </button>
-      </div>
+      <ShortsInteraction 
+        reaction={reaction}
+        onReaction={handleReaction}
+        onShareInsight={handleShareInsight}
+        isMuted={isMuted}
+        onToggleMute={() => setIsMuted(!isMuted)}
+      />
 
       {/* Scroll Indicator */}
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 animate-bounce">

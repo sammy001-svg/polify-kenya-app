@@ -14,6 +14,20 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 export function MobileSidebar() {
+  const [isMounted, setIsMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return (
+      <Button variant="ghost" size="icon" className="md:hidden">
+        <Menu className="w-6 h-6" />
+      </Button>
+    );
+  }
+
   return (
     <Dialog>
       <DialogTrigger asChild>

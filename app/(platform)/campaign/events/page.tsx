@@ -248,7 +248,7 @@ export default function EventsPage() {
                     <CardContent>
                          {/* Simple Mock Calendar Grid */}
                          <div className="grid grid-cols-7 gap-1 text-center text-xs mb-2">
-                             {['S','M','T','W','T','F','S'].map(d => <div key={d} className="font-bold text-brand-text-muted">{d}</div>)}
+                             {['S','M','T','W','T','F','S'].map((d, i) => <div key={`${d}-${i}`} className="font-bold text-brand-text-muted">{d}</div>)}
                          </div>
                          <div className="grid grid-cols-7 gap-1 text-center text-xs">
                              {Array.from({length: 30}).map((_, i) => {
