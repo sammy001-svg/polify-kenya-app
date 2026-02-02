@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, Mail, Lock, User, Phone, MapPin, AtSign, CheckCircle2, XCircle } from "lucide-react";
+import { Loader2, Mail, Lock, User, Phone, MapPin, AtSign } from "lucide-react";
 import Link from "next/link";
 import { generateCivicId, validateUsername, checkUsernameAvailability } from "@/lib/generate-civic-id";
 import { KENYA_LOCATIONS } from "@/lib/location-data";
@@ -172,7 +172,7 @@ export function SignupForm({ role }: SignupFormProps) {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
-  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+  // const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null); // Unused for now
   const [phoneNumber, setPhoneNumber] = useState("");
   const [physicalAddress, setPhysicalAddress] = useState("");
   const [selectedCounty, setSelectedCounty] = useState<string>("");
@@ -334,12 +334,6 @@ export function SignupForm({ role }: SignupFormProps) {
                 title="3-20 characters, lowercase letters, numbers, and underscores only"
                 required
               />
-              {usernameAvailable === true && (
-                <CheckCircle2 className="absolute right-3 top-2.5 h-4 w-4 text-green-500" />
-              )}
-              {usernameAvailable === false && (
-                <XCircle className="absolute right-3 top-2.5 h-4 w-4 text-red-500" />
-              )}
             </div>
             <p className="text-xs text-brand-text-muted">
               3-20 characters, lowercase letters, numbers, and underscores only

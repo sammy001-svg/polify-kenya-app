@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase-server";
-import { Users, FileText, Vote, AlertTriangle } from "lucide-react";
+import { Users, FileText, AlertTriangle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 async function getStats() {

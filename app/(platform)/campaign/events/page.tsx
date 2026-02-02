@@ -52,15 +52,17 @@ export default function EventsPage() {
       status: 'Upcoming'
   });
 
-  async function loadEvents() {
-      const data = await getEvents();
-      setEvents(data);
-      setLoading(false);
-  }
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
+    async function loadEvents() {
+        setLoading(true);
+        const data = await getEvents();
+        setEvents(data);
+        setLoading(false);
+    }
     loadEvents();
-  }, []);
+  }, [refreshTrigger]);
 
   const handleCreate = async () => {
     if (!newEvent.title || !newEvent.date || !newEvent.location) {
@@ -77,7 +79,7 @@ export default function EventsPage() {
         toast({ title: "Success", description: "Event scheduled successfully." });
         setShowAddForm(false);
         setNewEvent({ type: 'TownHall', status: 'Upcoming' });
-        loadEvents();
+        setRefreshTrigger(prev => prev + 1);
     }
     setSubmitting(false);
   };
@@ -89,7 +91,7 @@ export default function EventsPage() {
          toast({ title: "Error", description: res.error, variant: "destructive" });
       } else {
          toast({ title: "Success", description: "Event deleted." });
-         loadEvents();
+         setRefreshTrigger(prev => prev + 1);
       }
   };
 

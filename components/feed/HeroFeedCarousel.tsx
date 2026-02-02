@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from "react";
@@ -60,15 +61,13 @@ export function HeroFeedCarousel({ initialVideos }: HeroFeedCarouselProps) {
         const duration = currentItem.type === 'ad' ? 10000 : 15000; 
         const intervalStep = 100; // update progress every 100ms
 
-        setProgress(0); // Reset progress on index change explicitly here before intervals
-
         const timer = setInterval(() => {
             setProgress(prev => {
                 const newProgress = prev + (intervalStep / duration) * 100;
                 if (newProgress >= 100) {
                     // Next Slide
                     setCurrentIndex(prevIndex => (prevIndex + 1) % items.length);
-                    return 0;
+                    return 0; // Reset progress here
                 }
                 return newProgress;
             });
