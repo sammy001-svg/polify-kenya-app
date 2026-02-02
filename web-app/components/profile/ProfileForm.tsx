@@ -74,17 +74,35 @@ export function ProfileForm() {
       const updates = {
         id: user.id,
         full_name: fullName,
+        role: role,
         updated_at: new Date().toISOString(),
       };
 
       const { error } = await supabase.from('profiles').upsert(updates);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error updating profile:", {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+          fullError: JSON.stringify(error)
+        });
+        throw error;
+      }
       
+      console.log("✅ Profile updated successfully!");
       router.refresh();
       // Optional: Add toast notification here
-    } catch (error) {
-      console.error("Error updating profile:", error);
+    } catch (error: unknown) {
+      const err = error as { message?: string; details?: string; hint?: string };
+      console.error("Error updating profile:", {
+        message: err?.message || "Unknown error",
+        details: err?.details || "No details available",
+        hint: err?.hint || "No hint available",
+        stringified: JSON.stringify(error)
+      });
+      alert(`Failed to update profile: ${err?.message || "Unknown error occurred. Please check console for details."}`);
     } finally {
       setSaving(false);
     }

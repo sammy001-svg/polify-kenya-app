@@ -5,10 +5,19 @@ import { createClient } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea"; 
-import { Loader2, Save, User, MapPin, Globe, AlignLeft } from "lucide-react";
+import { Loader2, Save, User, MapPin, Globe, AlignLeft, Camera } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
+import { uploadAvatar } from "@/lib/upload-helper";
+import { KENYA_LOCATIONS } from "@/lib/location-data";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
 
 export function ProfileForm() {
   const supabase = createClient();
@@ -18,61 +27,100 @@ export function ProfileForm() {
   const [fullName, setFullName] = useState("");
   const [role, setRole] = useState("");
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [civicId, setCivicId] = useState("");
   const [bio, setBio] = useState("");
-  const [location, setLocation] = useState("");
+  
+  // Location State
+  const [county, setCounty] = useState("");
+  const [constituency, setConstituency] = useState("");
+  const [ward, setWard] = useState("");
+  
   const [website, setWebsite] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  
   const [followersCount, setFollowersCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
 
   useEffect(() => {
+    let mounted = true;
+
     async function getProfile() {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         
-        if (user) {
-          setEmail(user.email || "");
+        if (!mounted || !user) return;
+        
+        if (mounted) setEmail(user.email || "");
           
-          // Fetch basic profile
-          const { data, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', user.id)
-            .single();
+        // Fetch basic profile
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
 
-          if (error && error.code !== 'PGRST116') {
-            throw error;
-          }
-
-          if (data) {
-            setFullName(data.full_name || "");
-            setRole(data.role || "voter");
-            setBio(data.bio || "");
-            setLocation(data.location || "");
-            setWebsite(data.website || "");
-            setAvatarUrl(data.avatar_url || "");
-          }
-
-          // Fetch stats from view
-          const { data: stats } = await supabase
-            .from('profile_stats')
-            .select('*')
-            .eq('profile_id', user.id)
-            .single();
-          
-          if (stats) {
-            setFollowersCount(stats.followers_count || 0);
-            setFollowingCount(stats.following_count || 0);
-          }
+        if (error && error.code !== 'PGRST116') {
+          throw error;
         }
-      } catch (error) {
-        console.error("Error loading user data:", error);
+
+        if (mounted && data) {
+          setFullName(data.full_name || "");
+          setRole(data.role || "citizen");
+          setUsername(data.username || "");
+          setCivicId(data.civic_id || "");
+          setBio(data.bio || "");
+          // Location data
+          setCounty(data.county || "");
+          setConstituency(data.constituency || "");
+          setWard(data.ward || "");
+          
+          setWebsite(data.website || "");
+          setAvatarUrl(data.avatar_url || "");
+        }
+
+        // Fetch stats from view
+        const { data: stats } = await supabase
+          .from('profile_stats')
+          .select('*')
+          .eq('profile_id', user.id)
+          .single();
+        
+        if (mounted && stats) {
+          setFollowersCount(stats.followers_count || 0);
+          setFollowingCount(stats.following_count || 0);
+        }
+      } catch (error: unknown) {
+        if (mounted) {
+           const err = error as { message?: string };
+           console.error("Error loading user data:", err.message || JSON.stringify(error));
+        }
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     }
-    getProfile();
-  }, [supabase]);
+    
+    getProfile(); // Initial fetch
+
+    return () => {
+      mounted = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array as supabase client is stable
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAvatarFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   async function updateProfile() {
     try {
@@ -81,23 +129,59 @@ export function ProfileForm() {
 
       if (!user) throw new Error("No user");
 
+      let finalAvatarUrl = avatarUrl;
+
+      // Handle Avatar Upload if File Selected
+      if (avatarFile) {
+         try {
+           finalAvatarUrl = await uploadAvatar(avatarFile, user.id);
+           setAvatarUrl(finalAvatarUrl); // Update local state
+         } catch (uploadError) {
+            console.error("Avatar upload failed:", uploadError);
+            alert("Failed to upload profile photo. Saving other changes.");
+         }
+      }
+
       const updates = {
         id: user.id,
         full_name: fullName,
         bio,
-        location,
+        county,
+        constituency,
+        ward,
         website,
+        avatar_url: finalAvatarUrl,
         updated_at: new Date().toISOString(),
       };
 
       const { error } = await supabase.from('profiles').upsert(updates);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error updating profile:", {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+          fullError: JSON.stringify(error)
+        });
+        throw error;
+      }
       
+      console.log("✅ Profile updated successfully!");
+      // Reset file input state
+      setAvatarFile(null);
+      setAvatarPreview(null);
       router.refresh();
       // Optional: Add toast notification here
-    } catch (error) {
-      console.error("Error updating profile:", error);
+    } catch (error: unknown) {
+      const err = error as { message?: string; details?: string; hint?: string };
+      console.error("Error updating profile:", {
+        message: err?.message || "Unknown error",
+        details: err?.details || "No details available",
+        hint: err?.hint || "No hint available",
+        stringified: JSON.stringify(error)
+      });
+      alert(`Failed to update profile: ${err?.message || "Unknown error occurred. Please check console for details."}`);
     } finally {
       setSaving(false);
     }
@@ -111,12 +195,27 @@ export function ProfileForm() {
     <Card className="bg-brand-surface border-border">
       <CardHeader>
         <div className="flex items-center gap-4">
-          <Avatar className="h-16 w-16">
-            <AvatarImage src={avatarUrl} alt={fullName} />
-            <AvatarFallback className="bg-brand-primary/10 text-brand-primary text-xl font-bold">
-              {fullName ? fullName.substring(0, 2).toUpperCase() : "ME"}
-            </AvatarFallback>
-          </Avatar>
+          <div className="relative group">
+            <Avatar className="h-16 w-16 border-2 border-border">
+              <AvatarImage src={avatarPreview || avatarUrl} alt={fullName} className="object-cover" />
+              <AvatarFallback className="bg-brand-primary/10 text-brand-primary text-xl font-bold">
+                {fullName ? fullName.substring(0, 2).toUpperCase() : "ME"}
+              </AvatarFallback>
+            </Avatar>
+            <label 
+              htmlFor="avatar-upload" 
+              className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-white"
+            >
+              <Camera className="w-6 h-6" />
+            </label>
+            <input 
+              id="avatar-upload"
+              type="file" 
+              accept="image/*"
+              className="hidden"
+              onChange={handleAvatarChange}
+            />
+          </div>
           <div>
             <CardTitle>Profile Details</CardTitle>
             <CardDescription>Manage your public identity on the platform</CardDescription>
@@ -160,6 +259,24 @@ export function ProfileForm() {
           </div>
         </div>
 
+        {username && (
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-brand-text-muted">Username</label>
+            <div className="p-2.5 border border-border rounded-md bg-brand-bg/50 text-sm font-medium">
+              @{username}
+            </div>
+          </div>
+        )}
+
+        {civicId && (
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-brand-text-muted">Civic ID</label>
+            <div className="p-2.5 border border-border rounded-md bg-brand-bg/50 text-sm font-mono font-semibold text-brand-primary">
+              {civicId}
+            </div>
+          </div>
+        )}
+
         <div className="space-y-2">
           <label className="text-sm font-medium">Bio</label>
           <div className="relative">
@@ -176,14 +293,68 @@ export function ProfileForm() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <label className="text-sm font-medium">Location</label>
-            <div className="relative">
-               <MapPin className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-               <Input 
-                  value={location} 
-                  onChange={(e) => setLocation(e.target.value)} 
-                  className="pl-10"
-                  placeholder="City, Country"
-               />
+            <div className="space-y-3">
+               {/* County Select */}
+               <Select value={county} onValueChange={(value) => {
+                 setCounty(value);
+                 setConstituency(""); // Reset sub-selections
+                 setWard("");
+               }}>
+                 <SelectTrigger>
+                   <div className="flex items-center gap-2">
+                     <MapPin className="h-4 w-4 text-muted-foreground" />
+                     <SelectValue placeholder="Select County" />
+                   </div>
+                 </SelectTrigger>
+                 <SelectContent className="bg-black text-white border-gray-800">
+                   {KENYA_LOCATIONS.map((c) => (
+                     <SelectItem key={c.name} value={c.name}>
+                       {c.name}
+                     </SelectItem>
+                   ))}
+                 </SelectContent>
+               </Select>
+
+               {/* Constituency Select */}
+               <Select 
+                 value={constituency} 
+                 onValueChange={(value) => {
+                   setConstituency(value);
+                   setWard("");
+                 }}
+                 disabled={!county}
+               >
+                 <SelectTrigger>
+                   <SelectValue placeholder="Select Constituency" />
+                 </SelectTrigger>
+                 <SelectContent className="bg-black text-white border-gray-800">
+                   {county && KENYA_LOCATIONS.find(c => c.name === county)?.constituencies.map((c) => (
+                     <SelectItem key={c.name} value={c.name}>
+                       {c.name}
+                     </SelectItem>
+                   ))}
+                 </SelectContent>
+               </Select>
+
+               {/* Ward Select */}
+               <Select 
+                 value={ward} 
+                 onValueChange={setWard}
+                 disabled={!constituency}
+               >
+                 <SelectTrigger>
+                   <SelectValue placeholder="Select Ward" />
+                 </SelectTrigger>
+                 <SelectContent className="bg-black text-white border-gray-800">
+                   {constituency && KENYA_LOCATIONS.find(c => c.name === county)
+                     ?.constituencies.find(c => c.name === constituency)
+                     ?.wards.map((w) => (
+                       <SelectItem key={w} value={w}>
+                         {w}
+                       </SelectItem>
+                     ))}
+                 </SelectContent>
+               </Select>
             </div>
           </div>
 
@@ -204,7 +375,7 @@ export function ProfileForm() {
         <Button 
           onClick={updateProfile} 
           disabled={saving}
-          className="bg-brand-primary hover:bg-brand-primary/90 w-full"
+          className="bg-black text-white hover:bg-black/90 w-full"
         >
           {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
           Save Changes

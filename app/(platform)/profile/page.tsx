@@ -23,7 +23,10 @@ async function getUser() {
         fullName: data?.full_name || user.email?.split('@')[0] || "Citizen",
         role: data?.role || "Citizen",
         id: user.id,
-        avatarUrl: data?.avatar_url
+        civicId: data?.civic_id || "KE-2024-000000",
+        username: data?.username || "citizen",
+        avatarUrl: data?.avatar_url,
+        ward: data?.ward
     };
 }
 

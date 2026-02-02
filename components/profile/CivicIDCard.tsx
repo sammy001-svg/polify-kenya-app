@@ -6,6 +6,8 @@ interface CivicIDCardProps {
     fullName: string;
     role: string;
     id: string;
+    civicId?: string;
+    username?: string;
     avatarUrl?: string;
     ward?: string;
   };
@@ -21,7 +23,13 @@ export function CivicIDCard({ user }: CivicIDCardProps) {
 
       {/* Header */}
       <div className="relative z-10 p-6 flex justify-between items-start">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+           <div className="w-10 h-7 rounded-[2px] overflow-hidden flex flex-col shadow-md border border-white/20 shrink-0">
+             <div className="h-[30%] bg-black w-full" />
+             <div className="h-[40%] bg-kenya-red w-full border-y-[1.5px] border-white z-10" />
+             <div className="h-[30%] bg-kenya-green w-full" />
+           </div>
+           <div className="w-px h-8 bg-white/10" />
            <Shield className="w-8 h-8 text-white fill-kenya-red/20" />
            <div className="flex flex-col">
              <span className="text-[10px] uppercase tracking-[0.2em] text-gray-400 font-bold">Republic of Kenya</span>
@@ -49,7 +57,7 @@ export function CivicIDCard({ user }: CivicIDCardProps) {
             </div>
             
             <div className="pb-1 space-y-0.5">
-                <div className="text-[10px] text-gray-400 uppercase tracking-wider">Citizen Name</div>
+                <div className="text-[10px] text-gray-400 uppercase tracking-wider">@{user.username || 'citizen'}</div>
                 <h3 className="text-xl md:text-2xl font-black text-white leading-none whitespace-nowrap">{user.fullName}</h3>
                 <div className="flex items-center gap-3 pt-1">
                      <div>
@@ -70,7 +78,7 @@ export function CivicIDCard({ user }: CivicIDCardProps) {
       <div className="absolute bottom-0 left-0 right-0 p-4 bg-black/40 backdrop-blur-md border-t border-white/5 flex justify-between items-center">
          <div className="font-mono text-xs text-gray-500 flex items-center gap-2">
             <Fingerprint className="w-4 h-4 text-gray-600" />
-            <span>ID: {user.id || 'KE-2024-8839'}</span>
+            <span>ID: {user.civicId || user.id}</span>
          </div>
          <div className="h-2 w-24 bg-linear-to-r from-kenya-red via-white to-kenya-green rounded-full opacity-50" />
       </div>

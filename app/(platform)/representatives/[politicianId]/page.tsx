@@ -11,6 +11,7 @@ import { useState, useEffect } from "react";
 import { FollowButton } from "@/components/ui/FollowButton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { AccountabilityService, SyncScore } from "@/lib/accountability-service";
+import { PublicEventsList } from "@/components/representatives/PublicEventsList";
 
 interface Politician {
   id: string;
@@ -368,6 +369,9 @@ export default function PoliticianProfilePage({ params }: { params: Promise<{ po
           )}
         </div>
       )}
+      
+      {/* Public Events Feed */}
+      <PublicEventsList politicianId={politician.id} />
       
       {/* Bio & Education */}
       <div className="bg-brand-surface-secondary border border-border rounded-xl p-6">

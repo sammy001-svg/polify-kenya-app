@@ -12,11 +12,13 @@ export default function AuthLayout({
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="/images/nairobi-auth-bg.png"
-          alt="Nairobi City Skyline"
+          src="/nairobi-night-bg.jpg"
+          alt="Nairobi City Skyline at Night"
           fill
-          className="object-cover opacity-80"
+          className="object-cover object-center opacity-80"
           priority
+          quality={100}
+          sizes="100vw"
         />
         {/* Cinematic Overlay - Gradient to emphasize center content */}
         <div className="absolute inset-0 bg-radial-[circle_at_center,var(--tw-gradient-stops)] from-black/40 via-black/70 to-black/90 backdrop-blur-[2px]" />

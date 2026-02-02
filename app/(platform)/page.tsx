@@ -23,6 +23,7 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import { CitizenDashboard } from "@/components/dashboard/CitizenDashboard";
 import { TrustIndicator } from "@/components/trust/TrustIndicator";
+import { HeroFeedCarousel } from "@/components/feed/HeroFeedCarousel";
 
 export default function Home() {
   const [activeHeroVideo, setActiveHeroVideo] = useState<FeedItem | null>(null);
@@ -103,106 +104,79 @@ export default function Home() {
       />
 
       <div className="flex flex-col min-h-full">
-        {/* Hero / Featured / Active Player - Now Scrollable */}
-        <div className="shrink-0 p-4 pb-0 z-10">
-          <motion.section 
-            layoutId="hero-player"
-            className="relative rounded-3xl overflow-hidden bg-brand-surface-secondary aspect-video md:aspect-21/9 flex items-end shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] transition-all duration-700 border border-white/5 group/hero" 
-            id="hero-player"
-          >
-            <div className="absolute inset-0 bg-neutral-900 overflow-hidden">
-              <AnimatePresence mode="wait">
-                {activeHeroVideo && activeHeroVideo.videoUrl ? (
-                  <motion.div
-                    key={activeHeroVideo.id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="w-full h-full"
-                  >
-                    {activeHeroVideo.videoUrl.includes("youtube") || activeHeroVideo.videoUrl.includes("youtu.be") ? (
-                      <iframe
-                        src={
-                          activeHeroVideo.videoUrl.includes("embed")
-                            ? `${activeHeroVideo.videoUrl}${activeHeroVideo.videoUrl.includes("?") ? "&" : "?"}autoplay=1&modestbranding=1&rel=0`
-                            : `https://www.youtube.com/embed/${activeHeroVideo.videoUrl.split("v=")[1]?.split("&")[0] || activeHeroVideo.videoUrl.split("/").pop()}?autoplay=1&modestbranding=1&rel=0`
-                        }
-                        title={activeHeroVideo.title}
-                        className="w-full h-full"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      />
-                    ) : (
-                      <CivicVideoPlayer
-                        src={activeHeroVideo.videoUrl}
-                        poster={activeHeroVideo.thumbnailUrl}
-                        className="w-full h-full"
-                        autoPlay={true}
-                        // onPlayToggle={(playing) => setIsHeroPlaying(playing)}
-                      />
-                    )}
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="default-stream"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="w-full h-full"
-                  >
-                    <iframe 
-                      src="https://www.youtube.com/embed?listType=search&list=Citizen%20TV%20Kenya%20Live&autoplay=1&mute=1" 
-                      title="Citizen TV Live" 
-                      className="w-full h-full" 
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                      allowFullScreen 
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
 
-            <AnimatePresence mode="wait">
-              {activeHeroVideo ? (
-                <motion.div 
-                  key={`info-${activeHeroVideo.id}`}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  className="relative z-20 p-8 space-y-4 pointer-events-none w-full bg-linear-to-t from-black/90 to-transparent"
-                >
-                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-kenya-red text-white text-xs font-bold uppercase tracking-wide">
-                     <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-                     Now Playing
-                   </div>
-                   <h1 className="text-2xl md:text-4xl font-bold max-w-4xl text-white drop-shadow-lg line-clamp-2">
-                     {activeHeroVideo.title}
-                   </h1>
-                    <div className="flex items-center gap-3 text-sm text-gray-200">
-                        <span className="font-bold">{activeHeroVideo.host}</span>
-                        <span>• {activeHeroVideo.views}</span>
+
+          {/* Hero / Featured / Active Player - Now Scrollable */}
+          <div className="shrink-0 p-4 pb-0 z-10">
+            <motion.section 
+              layoutId="hero-player"
+              className="relative rounded-3xl overflow-hidden bg-brand-surface-secondary aspect-video md:aspect-21/9 flex items-end shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] transition-all duration-700 border border-white/5 group/hero" 
+              id="hero-player"
+            >
+              
+               {activeHeroVideo && activeHeroVideo.videoUrl ? (
+                 // If user clicked a video, show it in full player mode
+                 <div className="w-full h-full relative">
+                    <div className="absolute inset-0 bg-neutral-900 overflow-hidden">
+                       {activeHeroVideo.videoUrl.includes("youtube") || activeHeroVideo.videoUrl.includes("youtu.be") ? (
+                          <iframe
+                            src={
+                              activeHeroVideo.videoUrl.includes("embed")
+                                ? `${activeHeroVideo.videoUrl}${activeHeroVideo.videoUrl.includes("?") ? "&" : "?"}autoplay=1&modestbranding=1&rel=0`
+                                : `https://www.youtube.com/embed/${activeHeroVideo.videoUrl.split("v=")[1]?.split("&")[0] || activeHeroVideo.videoUrl.split("/").pop()}?autoplay=1&modestbranding=1&rel=0`
+                            }
+                            title={activeHeroVideo.title}
+                            className="w-full h-full"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                          />
+                        ) : (
+                          <CivicVideoPlayer
+                            src={activeHeroVideo.videoUrl}
+                            poster={activeHeroVideo.thumbnailUrl}
+                            className="w-full h-full"
+                            autoPlay={true}
+                          />
+                        )}
                     </div>
-                </motion.div>
-              ) : (
-                 <motion.div 
-                  key="default-info"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  className="relative z-20 p-8 space-y-4 pointer-events-none w-full bg-linear-to-t from-black/90 to-transparent"
-                >
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-kenya-red text-white text-xs font-bold uppercase tracking-wide">
-                      <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-                      Live Stream
-                    </div>
-                    <h1 className="text-3xl font-bold text-white drop-shadow-lg">Citizen TV Kenya Live</h1>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.section>
-        </div>
+                     {/* Overlay Info for Active Video */}
+                     <motion.div 
+                      key={`info-${activeHeroVideo.id}`}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="absolute bottom-0 left-0 z-20 p-8 space-y-4 pointer-events-none w-full bg-linear-to-t from-black/90 to-transparent"
+                    >
+                       <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-kenya-red text-white text-xs font-bold uppercase tracking-wide">
+                         <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+                         Now Playing
+                       </div>
+                       <h1 className="text-2xl md:text-4xl font-bold max-w-4xl text-white drop-shadow-lg line-clamp-2">
+                         {activeHeroVideo.title}
+                       </h1>
+                        <div className="flex items-center gap-3 text-sm text-gray-200">
+                            <span className="font-bold">{activeHeroVideo.host}</span>
+                            <span>• {activeHeroVideo.views}</span>
+                        </div>
+                         <Button 
+                            variant="secondary" 
+                            size="sm" 
+                            className="pointer-events-auto mt-2"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveHeroVideo(null); // Close active view, return to carousel
+                            }}
+                         >
+                            Close Player
+                        </Button>
+                    </motion.div>
+                 </div>
+               ) : (
+                 // Default State: The New Carousel
+                 <HeroFeedCarousel initialVideos={feedItems} />
+               )}
+               
+            </motion.section>
+          </div>
 
         <div className="flex-1 p-4 space-y-8">
           <div className="flex items-center justify-between gap-4">

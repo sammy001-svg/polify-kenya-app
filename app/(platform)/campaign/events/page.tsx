@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { MOCK_EVENTS, CampaignEvent, EventType } from '@/lib/events-data';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -15,9 +14,13 @@ import {
   Plus, 
   Mic2,
   HandHeart,
-  Briefcase
+  Briefcase,
+  Loader2,
+  Trash2
 } from 'lucide-react';
 import Link from 'next/link';
+import { createEvent, getEvents, deleteEvent, CampaignEvent, EventType } from './actions';
+import { useToast } from '@/components/ui/use-toast';
 
 // Define type helper for styling
 const getEventIcon = (type: EventType) => {
@@ -39,33 +42,55 @@ const getEventColor = (type: EventType) => {
 };
 
 export default function EventsPage() {
-  const [events, setEvents] = useState<CampaignEvent[]>(MOCK_EVENTS);
+  const { toast } = useToast();
+  const [events, setEvents] = useState<CampaignEvent[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [newEvent, setNewEvent] = useState<Partial<CampaignEvent>>({
       type: 'TownHall',
       status: 'Upcoming'
   });
 
-  const handleCreate = () => {
-    if (!newEvent.title || !newEvent.date || !newEvent.location) return;
+  async function loadEvents() {
+      const data = await getEvents();
+      setEvents(data);
+      setLoading(false);
+  }
 
-    const event: CampaignEvent = {
-        id: Date.now().toString(),
-        title: newEvent.title!,
-        type: (newEvent.type as EventType) || 'TownHall',
-        location: newEvent.location!,
-        date: newEvent.date!,
-        time: newEvent.time || '12:00',
-        status: 'Upcoming',
-        description: newEvent.description || '',
-        rsvpCount: 0,
-        volunteersNeeded: newEvent.volunteersNeeded || 0,
-        volunteersRegistered: 0
-    };
+  useEffect(() => {
+    loadEvents();
+  }, []);
 
-    setEvents([...events, event].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
-    setShowAddForm(false);
-    setNewEvent({ type: 'TownHall', status: 'Upcoming' });
+  const handleCreate = async () => {
+    if (!newEvent.title || !newEvent.date || !newEvent.location) {
+        toast({ title: "Validation Error", description: "Please fill in all required fields.", variant: "destructive" });
+        return;
+    }
+    
+    setSubmitting(true);
+    const res = await createEvent(newEvent);
+    
+    if (res.error) {
+        toast({ title: "Error", description: res.error, variant: "destructive" });
+    } else {
+        toast({ title: "Success", description: "Event scheduled successfully." });
+        setShowAddForm(false);
+        setNewEvent({ type: 'TownHall', status: 'Upcoming' });
+        loadEvents();
+    }
+    setSubmitting(false);
+  };
+
+  const handleDelete = async (id: string) => {
+      if(!confirm("Are you sure you want to cancel and delete this event?")) return;
+      const res = await deleteEvent(id);
+      if (res.error) {
+         toast({ title: "Error", description: res.error, variant: "destructive" });
+      } else {
+         toast({ title: "Success", description: "Event deleted." });
+         loadEvents();
+      }
   };
 
   return (
@@ -133,8 +158,8 @@ export default function EventsPage() {
                             <label className="text-sm font-bold">Date</label>
                             <Input 
                                 type="date"
-                                value={newEvent.date || ''}
-                                onChange={(e) => setNewEvent({...newEvent, date: e.target.value})}
+                                value={newEvent.date ? new Date(newEvent.date).toISOString().split('T')[0] : ''}
+                                onChange={(e) => setNewEvent({...newEvent, date: new Date(e.target.value).toISOString()})}
                             />
                         </div>
                         <div className="space-y-2">
@@ -164,19 +189,39 @@ export default function EventsPage() {
                              type="number" 
                              placeholder="0"
                              className="w-32" 
-                             value={newEvent.volunteersNeeded || ''}
-                             onChange={(e) => setNewEvent({...newEvent, volunteersNeeded: parseInt(e.target.value)})}
+                             value={newEvent.volunteers_needed || ''}
+                             onChange={(e) => setNewEvent({...newEvent, volunteers_needed: parseInt(e.target.value)})}
                          />
                     </div>
 
                     <div className="flex justify-end gap-2 pt-4">
                         <Button variant="ghost" onClick={() => setShowAddForm(false)}>Cancel</Button>
-                        <Button className="bg-kenya-red text-white" onClick={handleCreate}>Save Event</Button>
+                        <Button className="bg-kenya-red text-white" onClick={handleCreate} disabled={submitting}>
+                            {submitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                            Save Event
+                        </Button>
                     </div>
                 </CardContent>
             </Card>
         )}
 
+        {/* Loading State */}
+        {loading && (
+             <div className="flex justify-center py-12">
+                 <Loader2 className="w-8 h-8 animate-spin text-kenya-red" />
+             </div>
+        )}
+
+        {!loading && events.length === 0 && !showAddForm && (
+             <div className="text-center py-16 border-2 border-dashed border-border rounded-xl">
+                 <Calendar className="w-12 h-12 text-brand-text-muted mx-auto mb-4 opacity-50" />
+                 <h3 className="text-xl font-bold mb-2">No Events Scheduled</h3>
+                 <p className="text-brand-text-muted mb-6">Start planning your campaign trail today.</p>
+                 <Button onClick={() => setShowAddForm(true)}>Schedule First Event</Button>
+             </div>
+        )}
+
+        {!loading && events.length > 0 && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Event List */}
             <div className="lg:col-span-2 space-y-4">
@@ -186,7 +231,7 @@ export default function EventsPage() {
                 </h3>
                 {events.map((event) => (
                     <Card key={event.id} className="border-border hover:border-brand-text-muted transition-colors group">
-                        <CardContent className="p-0 flex flex-col md:flex-row">
+                        <CardContent className="p-0 flex flex-col md:flex-row relative">
                             {/* Date Box */}
                             <div className="bg-brand-surface-secondary p-6 md:w-32 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-border rounded-t-xl md:rounded-l-xl md:rounded-tr-none">
                                 <span className="text-xs font-bold uppercase text-brand-text-muted">{new Date(event.date).toLocaleString('default', { month: 'short' })}</span>
@@ -211,14 +256,26 @@ export default function EventsPage() {
                                 <div className="mt-auto pt-4 flex items-center gap-6 text-xs font-medium">
                                     <div className="flex items-center gap-1 text-brand-text">
                                         <Users className="w-4 h-4 text-brand-text-muted" />
-                                        {event.rsvpCount} RSVPs
+                                        {event.volunteers_registered || 0} RSVPs
                                     </div>
-                                    {event.volunteersNeeded > 0 && (
+                                    {event.volunteers_needed > 0 && (
                                         <div className="flex items-center gap-1 text-kenya-green">
                                             <HandHeart className="w-4 h-4" />
-                                            {event.volunteersRegistered}/{event.volunteersNeeded} Volunteers
+                                            {event.volunteers_registered || 0}/{event.volunteers_needed} Volunteers
                                         </div>
                                     )}
+                                </div>
+
+                                {/* Delete Action */}
+                                <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <Button 
+                                        variant="ghost" 
+                                        size="icon" 
+                                        className="h-8 w-8 text-red-500 hover:bg-red-500/10"
+                                        onClick={() => handleDelete(event.id)}
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                    </Button>
                                 </div>
                             </div>
                         </CardContent>
@@ -232,9 +289,9 @@ export default function EventsPage() {
                      <CardContent className="p-6">
                          <h3 className="font-bold mb-1">Volunteers Needed</h3>
                          <div className="text-4xl font-black mb-2">
-                             {events.reduce((acc, e) => acc + (e.volunteersNeeded - e.volunteersRegistered), 0)}
+                             {events.reduce((acc, e) => acc + ((e.volunteers_needed || 0) - (e.volunteers_registered || 0)), 0)}
                          </div>
-                         <p className="text-sm opacity-90">Open slots across next 3 events.</p>
+                         <p className="text-sm opacity-90">Open slots across upcoming events.</p>
                          <Button variant="secondary" className="w-full mt-4 text-kenya-green font-bold">
                              Manage Volunteers
                          </Button>
@@ -248,7 +305,7 @@ export default function EventsPage() {
                     <CardContent>
                          {/* Simple Mock Calendar Grid */}
                          <div className="grid grid-cols-7 gap-1 text-center text-xs mb-2">
-                             {['S','M','T','W','T','F','S'].map((d, i) => <div key={`${d}-${i}`} className="font-bold text-brand-text-muted">{d}</div>)}
+                             {['S','M','T','W','T','F','S'].map((d, i) => <div key={`head-${i}`} className="font-bold text-brand-text-muted">{d}</div>)}
                          </div>
                          <div className="grid grid-cols-7 gap-1 text-center text-xs">
                              {Array.from({length: 30}).map((_, i) => {
@@ -267,6 +324,7 @@ export default function EventsPage() {
                 </Card>
             </div>
         </div>
+        )}
     </div>
   );
 }
