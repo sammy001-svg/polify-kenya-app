@@ -11,22 +11,42 @@ export const metadata: Metadata = {
   description: "Manage your civic identity and track your impact.",
 };
 
-async function getUser() {
+
+interface UserProfile {
+  fullName: string;
+  role: string;
+  id: string;
+  civicId?: string;
+  username?: string;
+  avatarUrl?: string;
+  ward?: string;
+}
+
+async function getUser(): Promise<UserProfile> {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     
-    // Fallback mock data if not logged in or no profile in DB yet for demo
-    if (!user) return { fullName: "Guest Citizen", role: "Voter", id: "00000000", bg: "N/A" };
+    // Fallback mock data if not logged in
+    if (!user) {
+      return { 
+        fullName: "Guest Citizen", 
+        role: "Voter", 
+        id: "00000000",
+        civicId: "KE-00000000",
+        username: "guest"
+      };
+    }
 
     const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+    
     return {
         fullName: data?.full_name || user.email?.split('@')[0] || "Citizen",
         role: data?.role || "Citizen",
         id: user.id,
-        civicId: data?.civic_id || "KE-12345678",
+        civicId: data?.civic_id || "KE-PENDING",
         username: data?.username || "citizen",
-        avatarUrl: data?.avatar_url,
-        ward: data?.ward
+        avatarUrl: data?.avatar_url || undefined,
+        ward: data?.ward || undefined
     };
 }
 

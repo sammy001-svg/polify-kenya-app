@@ -1,16 +1,18 @@
-import { createClient } from "./supabase";
+"use server";
+// cspell:ignore supabase
+
+import { createAdminClient } from "@/lib/supabase-admin";
 
 /**
- * Generates a unique civic ID in the format KE-YYYY-NNNNNN
+ * Generates a unique civic ID in the format KE-NNNNNNNN
  * KE = Kenya country code
- * YYYY = Current year
- * NNNNNN = Sequential 6-digit number (padded with zeros)
+ * NNNNNN = Random 8-digit number
  *
  * @returns Promise resolving to a unique civic ID
  */
 export async function generateCivicId(): Promise<string> {
-  const supabase = createClient();
-  const maxRetries = 10; // Increased retries for random generation
+  const supabase = createAdminClient();
+  const maxRetries = 10; 
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
@@ -58,56 +60,12 @@ export async function generateCivicId(): Promise<string> {
           "Failed to generate unique civic ID after multiple attempts",
         );
       }
-      // Wait a bit before retrying, but no delay needed for random clashes usually
-      // Random wait just in case of intense contention
+      // Wait a bit before retrying
       await new Promise((resolve) => setTimeout(resolve, Math.random() * 50));
     }
   }
 
   throw new Error("Failed to generate unique civic ID");
-}
-
-/**
- * Validates a civic ID format
- * @param civicId - The civic ID to validate
- * @returns true if valid, false otherwise
- */
-export function validateCivicIdFormat(civicId: string): boolean {
-  // Matches KE-NNNNNNNN (8 digits) OR KE-YYYY-NNNNNN (old format, 10 digits total numeric)
-  // We allow old format for backward compatibility if needed, but strict request was 8 digits for NEW ones.
-  // The validator might need to be strict or lenient. Let's make it support BOTH to avoid breaking existing users in UI.
-  // New format: KE-12345678
-  // Old format: KE-2023-123456
-  return /^KE-(\d{8}|\d{4}-\d{6})$/.test(civicId);
-}
-
-/**
- * Validates a username format
- * @param username - The username to validate
- * @returns Object with isValid flag and optional error message
- */
-export function validateUsername(username: string): {
-  isValid: boolean;
-  error?: string;
-} {
-  if (!username || username.length < 3) {
-    return { isValid: false, error: "Username must be at least 3 characters" };
-  }
-
-  if (username.length > 20) {
-    return { isValid: false, error: "Username must be 20 characters or less" };
-  }
-
-  const pattern = /^[a-z0-9_]+$/;
-  if (!pattern.test(username)) {
-    return {
-      isValid: false,
-      error:
-        "Username can only contain lowercase letters, numbers, and underscores",
-    };
-  }
-
-  return { isValid: true };
 }
 
 /**
@@ -118,7 +76,7 @@ export function validateUsername(username: string): {
 export async function checkUsernameAvailability(
   username: string,
 ): Promise<boolean> {
-  const supabase = createClient();
+  const supabase = createAdminClient();
 
   const { data, error } = await supabase
     .from("profiles")
@@ -126,10 +84,11 @@ export async function checkUsernameAvailability(
     .eq("username", username.toLowerCase())
     .single();
 
-  if (error && error.code === "PGRST116") {
-    // No rows returned means username is available
-    return true;
+  if (error && error.code !== "PGRST116") {
+    console.error("Error checking username availability:", error);
+    throw error;
   }
 
+  // If data exists, username is taken (return false). If data is null, username is available (return true).
   return !data;
 }

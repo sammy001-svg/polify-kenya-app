@@ -23,7 +23,9 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, Mail, Lock, User, Phone, MapPin, AtSign } from "lucide-react";
 import Link from "next/link";
-import { generateCivicId, validateUsername, checkUsernameAvailability } from "@/lib/generate-civic-id";
+import { generateCivicId, checkUsernameAvailability } from "@/lib/generate-civic-id";
+import { validateUsername } from "@/lib/validators";
+import { lookupEmailByIdentifier } from "@/lib/auth-actions";
 import { KENYA_LOCATIONS } from "@/lib/location-data";
 
 export function SigninForm() {
@@ -43,19 +45,15 @@ export function SigninForm() {
       // Determine if identifier is email, username, or civic ID
       let email = identifier;
       
-      // If not an email, lookup in profiles table
+      // If not an email, lookup in profiles table securely
       if (!identifier.includes('@')) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('email')
-          .or(`username.eq.${identifier},civic_id.eq.${identifier}`)
-          .single();
+        const resolvedEmail = await lookupEmailByIdentifier(identifier);
         
-        if (!profile || !profile.email) {
+        if (!resolvedEmail) {
           throw new Error('User not found');
         }
         
-        email = profile.email;
+        email = resolvedEmail;
       }
 
       const { error } = await supabase.auth.signInWithPassword({

@@ -1,31 +1,35 @@
-"use client";
-
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, CheckCircle, AlertTriangle, Scale, Zap, Info, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ArrowLeft, CheckCircle, AlertTriangle, Scale, Zap, Info } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { getPolicyById } from "@/lib/policy-data";
 import { PolicyComments } from "@/components/policy/PolicyComments";
+import { Metadata } from "next";
 
-export default function PolicyDetailPage() {
-  const params = useParams();
-  const router = useRouter();
-  const policyId = params.policyId as string;
+export async function generateMetadata({ params }: { params: Promise<{ policyId: string }> }): Promise<Metadata> {
+    const { policyId } = await params;
+    const policy = getPolicyById(policyId);
+    if (!policy) return { title: 'Policy Not Found' };
+    return {
+        title: `${policy.title} | Political Intelligence`,
+        description: policy.summary
+    }
+}
+
+export default async function PolicyDetailPage({ params }: { params: Promise<{ policyId: string }> }) {
+  const { policyId } = await params;
   
   const policy = getPolicyById(policyId);
 
   if (!policy) {
-      if (!policyId) return (
-        <div className="flex h-screen items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-brand-primary" />
-        </div>
-      );
-      
       return (
           <div className="flex h-screen flex-col items-center justify-center gap-4 text-center">
               <h1 className="text-2xl font-bold text-white">Policy Not Found</h1>
-              <Button onClick={() => router.push('/policies')}>Return to Dashboard</Button>
+              <Link 
+                href="/policies" 
+                className="px-4 py-2 bg-white text-black rounded-full font-bold hover:bg-gray-200 transition-colors"
+                >
+                Return to Dashboard
+              </Link>
           </div>
       )
   }

@@ -18,7 +18,9 @@ type CarouselItem =
     | { type: 'video'; data: FeedItem };
 
 export function HeroFeedCarousel({ initialVideos }: HeroFeedCarouselProps) {
-    const [items, setItems] = useState<CarouselItem[]>([]);
+    const [items, setItems] = useState<CarouselItem[]>(() => 
+        initialVideos.slice(0, 3).map(v => ({ type: 'video', data: v }))
+    );
     const [currentIndex, setCurrentIndex] = useState(0);
     const [progress, setProgress] = useState(0);
 
@@ -136,7 +138,7 @@ export function HeroFeedCarousel({ initialVideos }: HeroFeedCarouselProps) {
                     >
                          {currentItem.data.videoUrl && (currentItem.data.videoUrl.includes("youtube") || currentItem.data.videoUrl.includes("youtu.be")) ? (
                              <iframe
-                                src={`https://www.youtube.com/embed/${currentItem.data.videoUrl.split("v=")[1]?.split("&")[0] || currentItem.data.videoUrl.split("/").pop()}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&start=0`}
+                                src={`https://www.youtube.com/embed/${currentItem.data.videoUrl?.split("v=")[1]?.split("&")[0] || currentItem.data.videoUrl?.split("/").pop()}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&start=0`}
                                 title={currentItem.data.title}
                                 className="w-full h-full pointer-events-none scale-125" // Scale up to remove bars
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
