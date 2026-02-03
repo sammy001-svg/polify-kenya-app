@@ -11,7 +11,13 @@ if (!supabaseServiceKey) {
 }
 
 export const createAdminClient = () => {
-    return createClient(supabaseUrl, supabaseServiceKey || '', {
+    const key = supabaseServiceKey || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key';
+    
+    if (!supabaseServiceKey) {
+        console.error('❌ CRITICAL: SUPABASE_SERVICE_ROLE_KEY is missing. Falling back to Anon Key (admin operations will likely fail).');
+    }
+
+    return createClient(supabaseUrl, key, {
         auth: {
             autoRefreshToken: false,
             persistSession: false
