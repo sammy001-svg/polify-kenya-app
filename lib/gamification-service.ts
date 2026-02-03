@@ -11,7 +11,24 @@ export const GamificationService = {
       .single();
 
     if (error) {
-      console.error("Error fetching user progress:", error);
+      if (error.code === 'PGRST116') {
+         // User has no progress record yet, return default empty progress instead of null or error
+         return {
+            userId: userId,
+            level: 1,
+            currentXP: 0,
+            totalXP: 0,
+            nextLevelXP: LEVEL_THRESHOLDS[2],
+            badges: [],
+            completedPaths: [],
+            completedModules: [],
+            currentStreak: 0,
+            longestStreak: 0,
+            lastLoginDate: new Date().toISOString(),
+            joinDate: new Date().toISOString(),
+         };
+      }
+      console.error("Error fetching user progress:", JSON.stringify(error, null, 2));
       return null;
     }
 
