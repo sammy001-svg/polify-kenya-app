@@ -165,7 +165,7 @@ export const GamificationService = {
       .limit(limit);
 
     if (error) {
-      console.error("Error fetching leaderboard:", error);
+      console.error("Error fetching leaderboard:", JSON.stringify(error, null, 2));
       return [];
     }
 
