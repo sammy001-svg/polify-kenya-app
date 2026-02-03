@@ -4,7 +4,7 @@ import { ProfileStats } from "@/components/profile/ProfileStats";
 import { CivicIDCard } from "@/components/profile/CivicIDCard";
 import { MyRepresentatives } from "@/components/profile/MyRepresentatives";
 import { Metadata } from "next";
-import { createClient } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase-server";
 
 export const metadata: Metadata = {
   title: "My Profile | Political Intelligence",
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 async function getUser() {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     
     // Fallback mock data if not logged in or no profile in DB yet for demo
