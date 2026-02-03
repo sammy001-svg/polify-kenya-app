@@ -38,7 +38,7 @@ export async function generateCivicId(): Promise<string> {
           `[CivicID] Uniqueness Check Error:`,
           JSON.stringify(checkError, null, 2),
         );
-        throw checkError;
+        throw new Error(`Database error checking uniqueness: ${checkError.message}`);
       }
 
       if (!existing) {
@@ -50,14 +50,14 @@ export async function generateCivicId(): Promise<string> {
       console.warn(`Civic ID collision detected: ${newCivicId}. Retrying...`);
     } catch (err: unknown) {
       const errorMessage =
-        err instanceof Error ? err.message : JSON.stringify(err);
+        err instanceof Error ? err.message : "Unknown error occurred";
       console.error(
         "Error generating civic ID (attempt " + (attempt + 1) + "):",
         errorMessage,
       );
       if (attempt === maxRetries - 1) {
         throw new Error(
-          "Failed to generate unique civic ID after multiple attempts",
+          "Failed to generate unique civic ID after multiple attempts"
         );
       }
       // Wait a bit before retrying
@@ -86,7 +86,7 @@ export async function checkUsernameAvailability(
 
   if (error && error.code !== "PGRST116") {
     console.error("Error checking username availability:", error);
-    throw error;
+    throw new Error(`Database error checking username: ${error.message}`);
   }
 
   // If data exists, username is taken (return false). If data is null, username is available (return true).
