@@ -202,11 +202,11 @@ export function SignupForm({ role }: SignupFormProps) {
     }
   };
 
-  const mapRoleToDbRole = (role: string) => {
+  const mapRoleToDbRole = (role: string): string => {
     // Mapping URL role to DB role expected by schema
     if (role === "citizen") return "citizen"; 
     if (role === "politician") return "politician"; 
-    return role; // 'creator' -> 'creator'
+    return role; // 'creator' -> 'creator' or default
   };
 
   const handleSignup = async (e: React.FormEvent) => {

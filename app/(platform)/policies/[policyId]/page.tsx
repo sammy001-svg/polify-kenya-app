@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, CheckCircle, AlertTriangle, Scale, Zap, Info } from "lucide-react";
+import { ArrowLeft, CheckCircle, AlertTriangle, Scale, Zap, Info, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { getPolicyById } from "@/lib/policy-data";
@@ -16,22 +16,15 @@ export default function PolicyDetailPage() {
   const policy = getPolicyById(policyId);
 
   if (!policy) {
-      if (!policyId) return <div className="p-10 text-white">Loading...</div>;
+      if (!policyId) return (
+        <div className="flex h-screen items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-brand-primary" />
+        </div>
+      );
       
       return (
-          <div className="p-10 text-center">
-              <h1 className="text-2xl font-bold text-white mb-4">Policy Not Found</h1>
-              <Button onClick={() => router.push('/policies')}>Return to Dashboard</Button>
-          </div>
-      )
-  }
-
-
-
-  if (!policy) {
-      return (
-          <div className="p-10 text-center">
-              <h1 className="text-2xl font-bold text-white mb-4">Policy Not Found</h1>
+          <div className="flex h-screen flex-col items-center justify-center gap-4 text-center">
+              <h1 className="text-2xl font-bold text-white">Policy Not Found</h1>
               <Button onClick={() => router.push('/policies')}>Return to Dashboard</Button>
           </div>
       )

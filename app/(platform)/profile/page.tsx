@@ -23,7 +23,7 @@ async function getUser() {
         fullName: data?.full_name || user.email?.split('@')[0] || "Citizen",
         role: data?.role || "Citizen",
         id: user.id,
-        civicId: data?.civic_id || "KE-2024-000000",
+        civicId: data?.civic_id || "KE-12345678",
         username: data?.username || "citizen",
         avatarUrl: data?.avatar_url,
         ward: data?.ward

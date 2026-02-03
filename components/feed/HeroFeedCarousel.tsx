@@ -181,9 +181,9 @@ export function HeroFeedCarousel({ initialVideos }: HeroFeedCarouselProps) {
 
             {/* Navigation Dots (Optional, for context) */}
             <div className="absolute bottom-4 right-4 flex gap-2 z-30">
-                {items.map((_, idx) => (
+                {items.map((item, idx) => (
                     <div 
-                        key={idx} 
+                        key={`${item.type}-${item.data.id}`} 
                         className={`w-1.5 h-1.5 rounded-full transition-colors ${idx === currentIndex ? 'bg-white' : 'bg-white/30'}`}
                     />
                 ))}

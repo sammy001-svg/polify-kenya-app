@@ -5,56 +5,38 @@ import { createClient } from "./supabase";
  * KE = Kenya country code
  * YYYY = Current year
  * NNNNNN = Sequential 6-digit number (padded with zeros)
- * 
+ *
  * @returns Promise resolving to a unique civic ID
  */
 export async function generateCivicId(): Promise<string> {
   const supabase = createClient();
-  const currentYear = new Date().getFullYear();
-  const maxRetries = 5;
+  const maxRetries = 10; // Increased retries for random generation
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
-      console.log(`[CivicID] Attempt ${attempt+1}: Querying profiles...`);
-      // Get the highest civic ID for the current year
-      const { data: profiles, error } = await supabase
-        .from("profiles")
-        .select("civic_id")
-        .like("civic_id", `KE-${currentYear}-%`)
-        .order("civic_id", { ascending: false })
-        .limit(1);
+      // Generate a random 8-digit number
+      const randomId = Math.floor(Math.random() * 100000000);
+      const idStr = randomId.toString().padStart(8, "0");
+      const newCivicId = `KE-${idStr}`;
 
-      if (error) {
-        console.error(`[CivicID] Query Error:`, JSON.stringify(error, null, 2));
-        throw error;
-      }
+      console.log(
+        `[CivicID] Generated candidate: ${newCivicId}. Checking uniqueness...`,
+      );
 
-      let nextSequence = 1;
-
-      if (profiles && profiles.length > 0) {
-        // Extract sequence number from the latest ID
-        const latestId = profiles[0].civic_id;
-        const sequencePart = latestId.split("-")[2];
-        nextSequence = parseInt(sequencePart, 10) + 1;
-      }
-
-      // Format the new civic ID
-      const sequenceStr = nextSequence.toString().padStart(6, "0");
-      const newCivicId = `KE-${currentYear}-${sequenceStr}`;
-      
-      console.log(`[CivicID] Generated candidate: ${newCivicId}. Checking uniqueness...`);
-
-      // Verify uniqueness (in case of race condition)
+      // Verify uniqueness
       const { data: existing, error: checkError } = await supabase
         .from("profiles")
         .select("civic_id")
         .eq("civic_id", newCivicId)
         .single();
-        
-      if (checkError && checkError.code !== 'PGRST116') {
-         // PGRST116 is "Row not found" which is good here
-         console.error(`[CivicID] Uniqueness Check Error:`, JSON.stringify(checkError, null, 2));
-         throw checkError;
+
+      if (checkError && checkError.code !== "PGRST116") {
+        // PGRST116 is "Row not found" which is good here
+        console.error(
+          `[CivicID] Uniqueness Check Error:`,
+          JSON.stringify(checkError, null, 2),
+        );
+        throw checkError;
       }
 
       if (!existing) {
@@ -65,13 +47,20 @@ export async function generateCivicId(): Promise<string> {
       // If ID exists, retry
       console.warn(`Civic ID collision detected: ${newCivicId}. Retrying...`);
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : JSON.stringify(err);
-      console.error("Error generating civic ID (attempt " + (attempt + 1) + "):", errorMessage);
+      const errorMessage =
+        err instanceof Error ? err.message : JSON.stringify(err);
+      console.error(
+        "Error generating civic ID (attempt " + (attempt + 1) + "):",
+        errorMessage,
+      );
       if (attempt === maxRetries - 1) {
-        throw new Error("Failed to generate unique civic ID after multiple attempts");
+        throw new Error(
+          "Failed to generate unique civic ID after multiple attempts",
+        );
       }
-      // Wait a bit before retrying
-      await new Promise(resolve => setTimeout(resolve, 100 * (attempt + 1)));
+      // Wait a bit before retrying, but no delay needed for random clashes usually
+      // Random wait just in case of intense contention
+      await new Promise((resolve) => setTimeout(resolve, Math.random() * 50));
     }
   }
 
@@ -84,8 +73,12 @@ export async function generateCivicId(): Promise<string> {
  * @returns true if valid, false otherwise
  */
 export function validateCivicIdFormat(civicId: string): boolean {
-  const pattern = /^KE-\d{4}-\d{6}$/;
-  return pattern.test(civicId);
+  // Matches KE-NNNNNNNN (8 digits) OR KE-YYYY-NNNNNN (old format, 10 digits total numeric)
+  // We allow old format for backward compatibility if needed, but strict request was 8 digits for NEW ones.
+  // The validator might need to be strict or lenient. Let's make it support BOTH to avoid breaking existing users in UI.
+  // New format: KE-12345678
+  // Old format: KE-2023-123456
+  return /^KE-(\d{8}|\d{4}-\d{6})$/.test(civicId);
 }
 
 /**
@@ -93,7 +86,10 @@ export function validateCivicIdFormat(civicId: string): boolean {
  * @param username - The username to validate
  * @returns Object with isValid flag and optional error message
  */
-export function validateUsername(username: string): { isValid: boolean; error?: string } {
+export function validateUsername(username: string): {
+  isValid: boolean;
+  error?: string;
+} {
   if (!username || username.length < 3) {
     return { isValid: false, error: "Username must be at least 3 characters" };
   }
@@ -106,7 +102,8 @@ export function validateUsername(username: string): { isValid: boolean; error?: 
   if (!pattern.test(username)) {
     return {
       isValid: false,
-      error: "Username can only contain lowercase letters, numbers, and underscores",
+      error:
+        "Username can only contain lowercase letters, numbers, and underscores",
     };
   }
 
@@ -118,7 +115,9 @@ export function validateUsername(username: string): { isValid: boolean; error?: 
  * @param username - The username to check
  * @returns Promise resolving to true if available, false if taken
  */
-export async function checkUsernameAvailability(username: string): Promise<boolean> {
+export async function checkUsernameAvailability(
+  username: string,
+): Promise<boolean> {
   const supabase = createClient();
 
   const { data, error } = await supabase
