@@ -3,6 +3,7 @@ import { MyActivity } from "@/components/profile/MyActivity";
 import { ProfileStats } from "@/components/profile/ProfileStats";
 import { CivicIDCard } from "@/components/profile/CivicIDCard";
 import { MyRepresentatives } from "@/components/profile/MyRepresentatives";
+import { WalletCard } from "@/components/wallet/WalletCard";
 import { Metadata } from "next";
 import { createClient } from "@/lib/supabase-server";
 
@@ -65,7 +66,8 @@ export default async function ProfilePage() {
         <div className="lg:col-span-5 flex flex-col gap-6">
             <CivicIDCard user={user} />
         </div>
-        <div className="lg:col-span-4">
+        <div className="lg:col-span-4 flex flex-col gap-6">
+            <WalletCard />
             <ProfileStats />
         </div>
         <div className="lg:col-span-3">

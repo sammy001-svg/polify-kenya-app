@@ -40,14 +40,15 @@ export default function AdsManagerPage() {
             // content reset handled by form reset or just showing current ad update
             const form = document.querySelector('form') as HTMLFormElement;
             if(form) form.reset();
-            setPreviewUrl('');
+            // Use setTimeout to avoid synchronous state update warning during render phase effects
+            setTimeout(() => setPreviewUrl(''), 0);
         }
     }, [state, toast]);
 
 
     return (
         <div className="container mx-auto max-w-5xl py-8 px-4 space-y-8">
-            {/* Header */}
+            {/* ... header ... */}
             <div className="flex items-center gap-4 border-b border-border pb-6">
                 <Link href="/campaign" className="p-2 hover:bg-brand-surface-secondary rounded-full transition-colors">
                     <ArrowLeft className="w-5 h-5 text-brand-text-muted" />
@@ -125,6 +126,7 @@ export default function AdsManagerPage() {
                     {/* Live Preview of Input */}
                     {previewUrl && (
                          <div className="relative aspect-video rounded-xl overflow-hidden border-2 border-dashed border-kenya-gold/50 bg-black/40">
+                             {/* eslint-disable-next-line @next/next/no-img-element */}
                              <img 
                                 src={previewUrl} 
                                 alt="Preview" 

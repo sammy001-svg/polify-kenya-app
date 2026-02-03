@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase-server";
 import { redirect } from "next/navigation";
+import { SubscriptionGuard } from "@/components/campaign/SubscriptionGuard";
 
 export default async function CampaignLayout({
   children,
@@ -23,6 +24,15 @@ export default async function CampaignLayout({
     .eq("id", user.id)
     .single();
 
+  // Check Subscription
+  const { data: subscription } = await supabase
+    .from("campaign_subscriptions")
+    .select("status, current_period_end")
+    .eq("user_id", user.id)
+    .single();
+
+  const isSubscribed = subscription?.status === 'active';
+
   // Allow 'politician' and 'admin' only
   if (profile?.role !== "politician" && profile?.role !== "admin") {
     // Redirect to profile with an error query param or just back to profile
@@ -30,8 +40,8 @@ export default async function CampaignLayout({
   }
 
   return (
-    <>
+    <SubscriptionGuard isSubscribed={isSubscribed}>
        {children}
-    </>
+    </SubscriptionGuard>
   );
 }

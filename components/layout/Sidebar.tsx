@@ -18,7 +18,8 @@ import {
   Flag,
   User,
   Megaphone,
-  FileCheck
+  FileCheck,
+  BarChart3
 } from 'lucide-react';
 import { cn } from '@/components/ui/button';
 
@@ -65,12 +66,15 @@ export function Sidebar({ forceShow }: SidebarProps) {
       {/* Section 1: Core Navigation */}
       <div className="space-y-1">
         <SidebarItem icon={Home} label="Civic Feed (Baraza)" href="/" isActive={pathname === '/'} />
-        <SidebarItem icon={Tv} label="Bunge Bites (Shorts)" href="/shorts" isActive={pathname === '/shorts'} />
-        <SidebarItem icon={Radio} label="Mashinani (Town Halls)" href="/live" isActive={pathname === '/live'} />
         <SidebarItem icon={Flag} label="Campaign HQ" href="/campaign" isActive={pathname.startsWith('/campaign')} />
-        <SidebarItem icon={Sparkles} label="Bunge AI (Analysts)" href="/policy-ideas" isActive={pathname.startsWith('/policy-ideas')} />
+        <SidebarItem icon={BarChart3} label="Tallying Centre" href="/tallying" isActive={pathname.startsWith('/tallying')} />
         <SidebarItem icon={Megaphone} label="Political Parties" href="/parties" isActive={pathname.startsWith('/parties')} />
         <SidebarItem icon={Users} label="My Representative" href="/representatives" isActive={pathname.startsWith('/representatives')} />
+        <SidebarItem icon={Radio} label="Mashinani (Town Halls)" href="/live" isActive={pathname === '/live'} />
+        
+        {/* Secondary Core */}
+        <SidebarItem icon={Tv} label="Bunge Bites (Shorts)" href="/shorts" isActive={pathname === '/shorts'} />
+        <SidebarItem icon={Sparkles} label="Bunge AI (Analysts)" href="/policy-ideas" isActive={pathname.startsWith('/policy-ideas')} />
       </div>
 
       <div className="h-px bg-border mx-2" />
