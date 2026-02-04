@@ -4,17 +4,17 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Search, Video, Menu, X } from 'lucide-react';
+import { Video } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { UserMenu } from '@/components/layout/UserMenu';
-import { SidebarContent } from '@/components/layout/Sidebar';
 import { createClient } from '@/lib/supabase';
 import { NotificationsPopover } from '@/components/layout/NotificationsPopover';
 import type { User } from '@supabase/supabase-js';
+import { CommandCenter } from "@/components/search/CommandCenter";
+import { MobileSidebar } from "./MobileSidebar";
 
 export function Header() {
   const [user, setUser] = React.useState<User | null>(null);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const supabase = createClient();
 
   React.useEffect(() => {
@@ -38,9 +38,7 @@ export function Header() {
       
       {/* Left: Menu & Brand */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsMobileMenuOpen(true)}>
-          <Menu className="w-6 h-6" />
-        </Button>
+        <MobileSidebar />
         <Link href="/" className="flex items-center gap-2 group">
           <div className="w-10 h-10 overflow-hidden rounded-full shadow-sm border border-white/10 group-hover:scale-105 transition-transform bg-white relative">
             <Image 
@@ -57,17 +55,8 @@ export function Header() {
       </div>
 
       {/* Center: Search */}
-      <div className="hidden md:flex flex-1 max-w-xl mx-4">
-        <div className="relative w-full group">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-brand-text-muted group-focus-within:text-brand-text" />
-          </div>
-          <input 
-            type="text"
-            className="w-full bg-brand-surface-secondary border border-border rounded-full py-2 pl-10 pr-4 text-brand-text placeholder-brand-text-muted focus:outline-none focus:ring-1 focus:ring-kenya-red/50 focus:border-kenya-red/50 transition-all"
-            placeholder="Search for policies, bills, or maandamano..."
-          />
-        </div>
+      <div className="hidden md:flex flex-1 max-w-xl mx-4 justify-center">
+         <CommandCenter />
       </div>
 
       {/* Right: Actions */}
@@ -92,23 +81,6 @@ export function Header() {
           </Link>
         )}
       </div>
-
-      {/* Mobile Menu Overlay */}
-      {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm md:hidden">
-          <div className="fixed inset-y-0 left-0 w-[80%] max-w-sm bg-brand-bg border-r border-white/10 shadow-xl flex flex-col animate-in slide-in-from-left duration-200">
-            <div className="flex items-center justify-between p-4 border-b border-white/5">
-              <span className="font-bold text-lg">Menu</span>
-              <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(false)}>
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
-            <div className="flex-1 overflow-hidden">
-              <SidebarContent onLinkClick={() => setIsMobileMenuOpen(false)} />
-            </div>
-          </div>
-        </div>
-      )}
     </header>
   );
 }

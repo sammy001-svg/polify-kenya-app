@@ -17,6 +17,9 @@ import {
   Award,
   Flag,
   User,
+  Megaphone,
+  FileCheck,
+  BarChart3,
   Vote
 } from 'lucide-react';
 import { cn } from '@/components/ui/button';
@@ -58,12 +61,16 @@ export function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
       {/* Section 1: Core Navigation */}
       <div className="space-y-1">
         <SidebarItem icon={Home} label="Civic Feed (Baraza)" href="/" isActive={pathname === '/'} onClick={onLinkClick} />
-        <SidebarItem icon={Tv} label="Bunge Bites (Shorts)" href="/shorts" isActive={pathname === '/shorts'} onClick={onLinkClick} />
+        <SidebarItem icon={Flag} label="Campaign HQ" href="/campaign" isActive={pathname.startsWith('/campaign')} onClick={onLinkClick} />
+        <SidebarItem icon={BarChart3} label="Tallying Centre" href="/tallying" isActive={pathname.startsWith('/tallying')} onClick={onLinkClick} />
+        <SidebarItem icon={Megaphone} label="Political Parties" href="/parties" isActive={pathname.startsWith('/parties')} onClick={onLinkClick} />
+        <SidebarItem icon={Users} label="My Representative" href="/representatives" isActive={pathname.startsWith('/representatives')} onClick={onLinkClick} />
         <SidebarItem icon={Radio} label="Mashinani (Town Halls)" href="/live" isActive={pathname === '/live'} onClick={onLinkClick} />
         <SidebarItem icon={Vote} label="IEBC" href="/iebc" isActive={pathname === '/iebc'} onClick={onLinkClick} />
-        <SidebarItem icon={Flag} label="Campaign HQ" href="/campaign" isActive={pathname.startsWith('/campaign')} onClick={onLinkClick} />
+        
+        {/* Secondary Core */}
+        <SidebarItem icon={Tv} label="Bunge Bites (Shorts)" href="/shorts" isActive={pathname === '/shorts'} onClick={onLinkClick} />
         <SidebarItem icon={Sparkles} label="Bunge AI (Analysts)" href="/policy-ideas" isActive={pathname.startsWith('/policy-ideas')} onClick={onLinkClick} />
-        <SidebarItem icon={Users} label="My Representative" href="/representatives" isActive={pathname.startsWith('/representatives')} onClick={onLinkClick} />
       </div>
 
       <div className="h-px bg-border mx-2" />
@@ -74,6 +81,7 @@ export function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
           Knowledge Base
         </h3>
         <SidebarItem icon={Landmark} label="Parliament Watch" href="/parliament" isActive={pathname.startsWith('/parliament')} onClick={onLinkClick} />
+        <SidebarItem icon={FileCheck} label="Auditor General" href="/auditor" isActive={pathname.startsWith('/auditor')} onClick={onLinkClick} />
         <SidebarItem icon={Scale} label="Constitution" href="/constitution" isActive={pathname.startsWith('/constitution')} onClick={onLinkClick} />
         <SidebarItem icon={BookOpen} label="Policy Decoded" href="/policies" isActive={pathname.startsWith('/policies')} onClick={onLinkClick} />
       </div>
@@ -86,6 +94,7 @@ export function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
           Youth & Future Leaders
         </h3>
         <SidebarItem icon={MessageSquare} label="Youth Issue Hubs" href="/youth" isActive={pathname.startsWith('/youth')} onClick={onLinkClick} />
+        <SidebarItem icon={Users} label="Kenyan Groups (Societies)" href="/societies" isActive={pathname.startsWith('/societies')} onClick={onLinkClick} />
         <SidebarItem icon={Sparkles} label="Civic Creators" href="/creators" isActive={pathname.startsWith('/creators')} onClick={onLinkClick} />
       </div>
 
@@ -120,9 +129,16 @@ export function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
   );
 }
 
-export function Sidebar() {
+interface SidebarProps {
+  forceShow?: boolean;
+}
+
+export function Sidebar({ forceShow }: SidebarProps) {
   return (
-    <aside className="w-64 fixed left-0 top-16 bottom-0 overflow-y-auto bg-brand-bg/80 glass-dark border-r border-white/5 hidden md:flex flex-col z-40">
+    <aside className={cn(
+      "w-64 fixed left-0 top-16 bottom-0 bg-brand-bg/80 glass-dark border-r border-white/5 flex flex-col z-40",
+      !forceShow && "hidden md:flex"
+    )}>
       <SidebarContent />
     </aside>
   );
