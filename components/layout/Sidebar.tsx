@@ -19,7 +19,8 @@ import {
   User,
   Megaphone,
   FileCheck,
-  BarChart3
+  BarChart3,
+  Vote
 } from 'lucide-react';
 import { cn } from '@/components/ui/button';
 
@@ -71,6 +72,7 @@ export function Sidebar({ forceShow }: SidebarProps) {
         <SidebarItem icon={Megaphone} label="Political Parties" href="/parties" isActive={pathname.startsWith('/parties')} />
         <SidebarItem icon={Users} label="My Representative" href="/representatives" isActive={pathname.startsWith('/representatives')} />
         <SidebarItem icon={Radio} label="Mashinani (Town Halls)" href="/live" isActive={pathname === '/live'} />
+        <SidebarItem icon={Vote} label="IEBC" href="/iebc" isActive={pathname === '/iebc'} />
         
         {/* Secondary Core */}
         <SidebarItem icon={Tv} label="Bunge Bites (Shorts)" href="/shorts" isActive={pathname === '/shorts'} />
@@ -98,6 +100,7 @@ export function Sidebar({ forceShow }: SidebarProps) {
           Youth & Future Leaders
         </h3>
         <SidebarItem icon={MessageSquare} label="Youth Issue Hubs" href="/youth" isActive={pathname.startsWith('/youth')} />
+        <SidebarItem icon={Users} label="Kenyan Groups (Societies)" href="/societies" isActive={pathname.startsWith('/societies')} />
         <SidebarItem icon={Sparkles} label="Civic Creators" href="/creators" isActive={pathname.startsWith('/creators')} />
       </div>
 

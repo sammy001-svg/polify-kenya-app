@@ -4,15 +4,17 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Search, Video, Menu } from 'lucide-react';
+import { Search, Video, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { UserMenu } from '@/components/layout/UserMenu';
+import { SidebarContent } from '@/components/layout/Sidebar';
 import { createClient } from '@/lib/supabase';
 import { NotificationsPopover } from '@/components/layout/NotificationsPopover';
 import type { User } from '@supabase/supabase-js';
 
 export function Header() {
   const [user, setUser] = React.useState<User | null>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const supabase = createClient();
 
   React.useEffect(() => {
@@ -36,7 +38,7 @@ export function Header() {
       
       {/* Left: Menu & Brand */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" className="md:hidden">
+        <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsMobileMenuOpen(true)}>
           <Menu className="w-6 h-6" />
         </Button>
         <Link href="/" className="flex items-center gap-2 group">
@@ -90,6 +92,23 @@ export function Header() {
           </Link>
         )}
       </div>
+
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm md:hidden">
+          <div className="fixed inset-y-0 left-0 w-[80%] max-w-sm bg-brand-bg border-r border-white/10 shadow-xl flex flex-col animate-in slide-in-from-left duration-200">
+            <div className="flex items-center justify-between p-4 border-b border-white/5">
+              <span className="font-bold text-lg">Menu</span>
+              <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(false)}>
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <SidebarContent onLinkClick={() => setIsMobileMenuOpen(false)} />
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
