@@ -95,6 +95,7 @@ export function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
         </h3>
         <SidebarItem icon={MessageSquare} label="Youth Issue Hubs" href="/youth" isActive={pathname.startsWith('/youth')} onClick={onLinkClick} />
         <SidebarItem icon={Users} label="Kenyan Groups (Societies)" href="/societies" isActive={pathname.startsWith('/societies')} onClick={onLinkClick} />
+        <SidebarItem icon={Megaphone} label="Mkenya Crowdfunding" href="/crowdfunding" isActive={pathname.startsWith('/crowdfunding')} onClick={onLinkClick} />
         <SidebarItem icon={Sparkles} label="Civic Creators" href="/creators" isActive={pathname.startsWith('/creators')} onClick={onLinkClick} />
       </div>
 

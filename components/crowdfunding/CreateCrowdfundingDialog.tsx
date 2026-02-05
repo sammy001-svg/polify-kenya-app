@@ -1,0 +1,158 @@
+"use client";
+
+import { useState } from "react";
+import { createClient } from "@/lib/supabase";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Loader2, Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
+
+export function CreateCrowdfundingDialog() {
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [targetAmount, setTargetAmount] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const supabase = createClient();
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      let imageUrl = null;
+
+      if (imageFile) {
+        const fileExt = imageFile.name.split('.').pop();
+        const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('crowdfunding')
+          .upload(fileName, imageFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: publicUrlData } = supabase.storage
+          .from('crowdfunding')
+          .getPublicUrl(fileName);
+          
+        imageUrl = publicUrlData.publicUrl;
+      }
+
+      const { error: insertError } = await supabase
+        .from('crowdfundings')
+        .insert({
+          user_id: user.id,
+          title,
+          description,
+          target_amount: parseFloat(targetAmount),
+          image_url: imageUrl,
+        });
+
+      if (insertError) throw insertError;
+
+      setOpen(false);
+      resetForm();
+      router.refresh();
+      // Toast success
+    } catch (error) {
+      console.error("Error creating campaign:", error);
+      alert("Failed to create campaign. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resetForm = () => {
+    setTitle("");
+    setDescription("");
+    setTargetAmount("");
+    setImageFile(null);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button className="w-full bg-brand-primary hover:bg-brand-primary/90 text-white">
+          <Plus className="w-4 h-4 mr-2" />
+          Start Crowdfunding
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px] bg-brand-surface border-border text-brand-text">
+        <DialogHeader>
+          <DialogTitle>Create Crowdfunding Campaign</DialogTitle>
+          <DialogDescription>
+            Raise funds for a cause. Tell people why they should support you.
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+          <div className="grid gap-2">
+            <label htmlFor="title" className="text-sm font-medium">Title</label>
+            <Input
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="e.g. Community Library Project"
+              required
+            />
+          </div>
+          <div className="grid gap-2">
+            <label htmlFor="amount" className="text-sm font-medium">Target Amount (KES)</label>
+            <Input
+              id="amount"
+              type="number"
+              value={targetAmount}
+              onChange={(e) => setTargetAmount(e.target.value)}
+              placeholder="e.g. 50000"
+              required
+              min="100"
+            />
+          </div>
+          <div className="grid gap-2">
+            <label htmlFor="description" className="text-sm font-medium">Description</label>
+            <Textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Describe your campaign..."
+              required
+            />
+          </div>
+          <div className="grid gap-2">
+            <label htmlFor="image" className="text-sm font-medium">Campaign Image</label>
+            <div className="flex items-center gap-2">
+              <Input
+                id="image"
+                type="file"
+                accept="image/*"
+                onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                className="cursor-pointer"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="submit" disabled={loading} className="bg-brand-primary text-white">
+              {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+              Create Campaign
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}

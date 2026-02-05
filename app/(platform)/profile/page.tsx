@@ -4,6 +4,8 @@ import { ProfileStats } from "@/components/profile/ProfileStats";
 import { CivicIDCard } from "@/components/profile/CivicIDCard";
 import { MyRepresentatives } from "@/components/profile/MyRepresentatives";
 import { WalletCard } from "@/components/wallet/WalletCard";
+import { CreateCrowdfundingDialog } from "@/components/crowdfunding/CreateCrowdfundingDialog";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Metadata } from "next";
 import { createClient } from "@/lib/supabase-server";
 
@@ -65,9 +67,19 @@ export default async function ProfilePage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-5 flex flex-col gap-6">
             <CivicIDCard user={user} />
+            <Card className="bg-brand-surface border-border">
+              <CardHeader>
+                <CardTitle>Crowdfunding</CardTitle>
+                <CardDescription>Launch a campaign to raise funds.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <CreateCrowdfundingDialog />
+              </CardContent>
+            </Card>
         </div>
         <div className="lg:col-span-4 flex flex-col gap-6">
             <WalletCard />
+
             <ProfileStats />
         </div>
         <div className="lg:col-span-3">
