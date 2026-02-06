@@ -10,15 +10,17 @@ import {
   ArrowLeft, 
   Search, 
   Phone, 
-  Mail
+  Mail,
+  Loader2
 } from 'lucide-react';
 import Link from 'next/link';
+import { sendSmsBroadcast } from '@/actions/campaign/send-sms';
 
 export default function VoterRegistryPage() {
   const [view, setView] = useState<'list' | 'map'>('list');
   const [showBroadcast, setShowBroadcast] = useState(false);
   const [broadcastMsg, setBroadcastMsg] = useState('My fellow citizens, please attend our rally this Saturday at Market Grounds.');
-
+  const [isSending, setIsSending] = useState(false);
   
   const [searchTerm, setSearchTerm] = useState('');
   const [filter] = useState('All'); // Kept simple for now, can expand later
@@ -28,12 +30,41 @@ export default function VoterRegistryPage() {
       (v.name.toLowerCase().includes(searchTerm.toLowerCase()) || v.ward.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  const handleBroadcast = () => {
-    // Simulate cost and send
-    const count = voters.length;
-    const cost = count * 1.5; // 1.5 KES per SMS
-    alert(`📢 BROADCAST SENT!\n\nTarget: ${count} Residents\nCost: KES ${cost.toLocaleString()}\nMessage: "${broadcastMsg}"`);
-    setShowBroadcast(false);
+  const handleBroadcast = async () => {
+    if (!broadcastMsg.trim()) {
+        alert("Please enter a message.");
+        return;
+    }
+
+    setIsSending(true);
+    
+    try {
+        // Collect phone numbers (mocking them from MOCK_VOTERS if they don't exist, or using a placeholder)
+        // In a real app, MOCK_VOTERS would have phone numbers.
+        // For this demo, we'll simulate sending to the filtered list.
+        const recipients = voters.map(() => "254700000000"); // Placeholder numbers for safety/demo
+        
+        console.log("Sending broadcast to", recipients.length, "recipients");
+
+        const result = await sendSmsBroadcast({
+            message: broadcastMsg,
+            recipients: recipients
+        });
+
+        if (result.success) {
+             const cost = voters.length * 1.5; // Est cost
+             alert(`📢 BROADCAST SENT SUCCESSFULLY!\n\nTarget: ${voters.length} Residents\nEst. Cost: KES ${cost.toLocaleString()}\nMessage: "${broadcastMsg}"`);
+             setShowBroadcast(false);
+        } else {
+             alert(`❌ Failed to send broadcast: ${result.error}`);
+        }
+
+    } catch (error) {
+        console.error("Broadcast failed", error);
+        alert("An unexpected error occurred while sending the broadcast.");
+    } finally {
+        setIsSending(false);
+    }
   };
 
   return (
@@ -92,7 +123,7 @@ export default function VoterRegistryPage() {
                 <Card className="w-full max-w-lg bg-brand-surface border-border">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                             <Phone className="w-5 h-5 text-kenya-green" /> New Voice Broadcast
+                             <Phone className="w-5 h-5 text-kenya-green" /> New Voice/SMS Broadcast
                         </CardTitle>
                         <CardDescription>Send an instant message to your voter list.</CardDescription>
                     </CardHeader>
@@ -118,8 +149,16 @@ export default function VoterRegistryPage() {
                         </div>
 
                         <div className="flex justify-end gap-3 pt-2">
-                            <Button variant="ghost" onClick={() => setShowBroadcast(false)}>Cancel</Button>
-                            <Button onClick={handleBroadcast} className="bg-kenya-green text-white">Send Broadcast</Button>
+                            <Button variant="ghost" onClick={() => setShowBroadcast(false)} disabled={isSending}>Cancel</Button>
+                            <Button onClick={handleBroadcast} className="bg-kenya-green text-white" disabled={isSending}>
+                                {isSending ? (
+                                    <>
+                                        <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Sending...
+                                    </>
+                                ) : (
+                                    "Send Broadcast"
+                                )}
+                            </Button>
                         </div>
                     </CardContent>
                 </Card>

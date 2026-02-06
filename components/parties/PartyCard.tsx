@@ -60,7 +60,7 @@ export function PartyCard({ party }: PartyCardProps) {
 
         <div className="pt-4 border-t border-white/5">
              <Link href={`/parties/${party.id}`}>
-                <Button className="w-full bg-brand-surface-highlight hover:bg-brand-surface border border-white/10 group-hover:border-kenya-red/30 transition-all font-bold text-xs uppercase tracking-widest h-9">
+                <Button className="w-full bg-black text-white hover:bg-neutral-900 border border-white/10 group-hover:border-kenya-red/30 transition-all font-bold text-xs uppercase tracking-widest h-9">
                     View Party <ArrowRight className="w-3.5 h-3.5 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Button>
             </Link>
