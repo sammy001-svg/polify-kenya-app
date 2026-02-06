@@ -10,14 +10,14 @@ export async function triggerAgentCycle(): Promise<ProcessingLog[]> {
     const cycleLogs: ProcessingLog[] = [];
 
     // 1. Ingest Phase
-    const sources = ["CITIZEN TV", "NTV", "IEBC PORTAL"];
+    const sources = ["CITIZEN TV", "NTV", "SOCIAL MEDIA (X/FB)", "IEBC PORTAL"];
     const ingestedData: SourceData[] = [];
 
     for (const source of sources) {
         cycleLogs.push({
             id: crypto.randomUUID(),
             timestamp: new Date().toLocaleTimeString(),
-            source: "AGENT_CORE",
+            source: "AI_CORE_V2.0_ULTRA",
             action: "INGEST",
             message: `Connecting to ${source} secure feed...`,
             status: "SUCCESS"

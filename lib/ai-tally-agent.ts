@@ -14,6 +14,13 @@ export interface SourceData {
     total_votes_processed: number;
 }
 
+export interface ConsensusResult {
+    verified_scores: Record<string, number>;
+    confidence_score: number;
+    agent_votes: Record<string, 'APPROVE' | 'REJECT'>;
+    statistical_health: number;
+}
+
 // Mock simulation of fetching from a media house or IEBC portal
 export async function ingestFromSource(sourceName: string): Promise<SourceData> {
     // Simulate network latency
@@ -28,6 +35,7 @@ export async function ingestFromSource(sourceName: string): Promise<SourceData> 
     if (sourceName === "CITIZEN TV") noise = 0.2; // Slightly higher variance
     if (sourceName === "NTV") noise = -0.1;
     if (sourceName === "IEBC PORTAL") noise = 0; // The authority
+    if (sourceName === "SOCIAL MEDIA (X/FB)") noise = 3.5; // High variance/unverified reports
 
     // Random fluctuation per fetch
     const fluctuation = (Math.random() - 0.5) * 0.1;
@@ -58,39 +66,70 @@ export function verifyResults(sources: SourceData[]): ProcessingLog[] {
         logs.push({
             id: crypto.randomUUID(),
             timestamp,
-            source: "AI_VERIFIER",
+            source: "AI_VERIFIER_V2.0",
             action: "ALERT",
-            message: "CRITICAL: IEBC Portal data missing. Cannot perform authoritative validation.",
+            message: "CRITICAL: IEBC Portal unavailable. Consensus cannot be reached.",
             status: "ERROR"
         });
         return logs;
     }
 
-    // 2. Compare others against IEBC
+    // 2. Multi-Agent Consensus (Simulated)
+    const subAgents = ["AGENT_ALPHA", "AGENT_BETA", "AGENT_GAMMA"];
+    logs.push({
+        id: crypto.randomUUID(),
+        timestamp,
+        source: "AI_VERIFIER_V2.0",
+        action: "VERIFY",
+        message: `Parallel Node Analysis started across ${subAgents.length} sub-agents.`,
+        status: "SUCCESS"
+    });
+
+    // 3. Statistical Health Check (Benford's Law Simulation)
+    const benfordHealth = 95 + (Math.random() * 4.9);
+    logs.push({
+        id: crypto.randomUUID(),
+        timestamp,
+        source: "STAT_ANALYZER",
+        action: "VERIFY",
+        message: `Benford's Law Distribution Health: ${benfordHealth.toFixed(2)}%. No manual padding detected.`,
+        status: "SUCCESS"
+    });
+
+    // 4. Consensus Flow
     sources.filter(s => s.source !== "IEBC PORTAL").forEach(media => {
         const discrepancy = Math.abs(media.candidate_scores["William Ruto"] - iebcData.candidate_scores["William Ruto"]);
+        const threshold = media.source.includes("SOCIAL") ? 5.0 : 0.2;
         
-        if (discrepancy < 0.2) {
+        subAgents.forEach(agent => {
+            const vote = discrepancy < threshold ? "APPROVE" : "REJECT";
             logs.push({
                 id: crypto.randomUUID(),
                 timestamp,
-                source: "AI_VERIFIER",
+                source: agent,
                 action: "VERIFY",
-                message: `Validated ${media.source} against IEBC. Variance: ${discrepancy.toFixed(3)}% (WITHIN LIMITS).`,
+                message: `[${media.source}] Node vote: ${vote}. Delta: ${discrepancy.toFixed(3)}%`,
+                status: vote === "APPROVE" ? "SUCCESS" : "WARNING"
+            });
+        });
+
+        if (discrepancy < threshold) {
+            logs.push({
+                id: crypto.randomUUID(),
+                timestamp,
+                source: "CONSENSUS_ENGINE",
+                action: "UPDATE",
+                message: `Quorum reached for ${media.source}. Data committed to global tally.`,
                 status: "SUCCESS"
             });
         } else {
             logs.push({
                 id: crypto.randomUUID(),
                 timestamp,
-                source: "AI_VERIFIER",
+                source: "CONSENSUS_ENGINE",
                 action: "ALERT",
-                message: `DISCREPANCY DETECTED in ${media.source}. Variance: ${discrepancy.toFixed(3)}% (Exceeds 0.2% threshold).`,
-                status: "WARNING",
-                metadata: {
-                    media_value: media.candidate_scores["William Ruto"],
-                    iebc_value: iebcData.candidate_scores["William Ruto"]
-                }
+                message: `CONSENSUS FAILED for ${media.source}. Data sequestered for manual review.`,
+                status: media.source.includes("SOCIAL") ? "WARNING" : "ERROR"
             });
         }
     });
