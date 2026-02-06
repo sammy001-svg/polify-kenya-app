@@ -145,7 +145,7 @@ export interface TurnoutStats {
     turnoutPercent: number;
 }
 
-export async function getTurnoutStats(level: 'national' | 'county', locationName: string = 'Kenya'): Promise<TurnoutStats> {
+export async function getTurnoutStats(level: 'national' | 'county' | 'constituency' | 'ward', locationName: string = 'Kenya'): Promise<TurnoutStats> {
      const { results } = await getResults(level, locationName);
      
      const totalCast = results.reduce((acc, r) => acc + r.votes, 0);
@@ -181,7 +181,7 @@ export interface PartyDistributionData {
     percentage: number;
 }
 
-export async function getPartyDistribution(level: 'national' | 'county', locationName: string = 'Kenya'): Promise<PartyDistributionData[]> {
+export async function getPartyDistribution(level: 'national' | 'county' | 'constituency' | 'ward', locationName: string = 'Kenya'): Promise<PartyDistributionData[]> {
     const { results } = await getResults(level, locationName);
     
     const distribution: Record<string, { votes: number, color: string }> = {};
@@ -210,7 +210,7 @@ export interface RegionalBreakdownData {
     color: string;
 }
 
-export async function getRegionalBreakdown(level: 'national' | 'county'): Promise<RegionalBreakdownData[]> {
+export async function getRegionalBreakdown(level: 'national' | 'county' | 'constituency' | 'ward'): Promise<RegionalBreakdownData[]> {
     const supabase = await createClient();
     
     // Determine child level (National -> County components)

@@ -1,7 +1,6 @@
-"use client";
-
 import { CandidateResult } from "@/actions/tallying";
 import Image from "next/image";
+import { Form34AViewer } from "./Form34AViewer";
 
 interface ResultCardProps {
     result: CandidateResult;
@@ -9,7 +8,7 @@ interface ResultCardProps {
 
 export function ResultCard({ result }: ResultCardProps) {
     return (
-        <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col gap-3 hover:bg-white/10 transition-colors">
+        <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col gap-3 hover:bg-white/10 transition-colors group">
             <div className="flex items-center gap-4">
                 <div className="relative h-14 w-14 rounded-full overflow-hidden border-2 border-white/20">
                      {/* Use a placeholder if photo_url fails or is empty */}
@@ -25,11 +24,19 @@ export function ResultCard({ result }: ResultCardProps) {
                         <h3 className="font-bold text-lg text-white">{result.candidate_name}</h3>
                         <span className="text-xl font-mono text-white tracking-widest">{result.percentage.toFixed(2)}%</span>
                     </div>
-                    <div className="flex justify-between text-sm text-gray-400">
-                        <span className={`px-2 py-0.5 rounded text-xs font-bold text-black ${result.party_color}`}>
-                            {result.party}
-                        </span>
-                        <span>{result.votes.toLocaleString()} Votes</span>
+                    <div className="flex justify-between items-center text-sm text-gray-400 mt-1">
+                        <div className="flex items-center gap-2">
+                             <span className={`px-2 py-0.5 rounded text-xs font-bold text-black ${result.party_color}`}>
+                                {result.party}
+                            </span>
+                            <span>{result.votes.toLocaleString()} Votes</span>
+                        </div>
+                        
+                        <Form34AViewer 
+                            stationName="Sample Station"
+                            candidateName={result.candidate_name}
+                            votes={result.votes}
+                        />
                     </div>
                 </div>
             </div>

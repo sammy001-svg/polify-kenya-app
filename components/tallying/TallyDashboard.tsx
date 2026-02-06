@@ -9,10 +9,15 @@ import { PartyDistributionChart } from "./PartyDistributionChart";
 import { RegionalTileMap } from "./RegionalTileMap";
 import { Loader2, RefreshCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { LiveTicker } from "./LiveTicker";
+import { ReportingProgress } from "./ReportingProgress";
+import { AILogConsole } from "./AILogConsole";
+import { createClient } from "@/lib/supabase";
 
 export function TallyDashboard() {
-    const [level, setLevel] = useState<'national' | 'county'>('national');
-    // derived location for now
+    const [level, setLevel] = useState<'national' | 'county' | 'constituency' | 'ward'>('national');
+    const [locationName, setLocationName] = useState<string>('Kenya');
+    
     const [results, setResults] = useState<CandidateResult[]>([]);
     const [stats, setStats] = useState<TallyStats | null>(null);
     const [turnout, setTurnout] = useState<TurnoutStats | null>(null);
@@ -21,107 +26,144 @@ export function TallyDashboard() {
     
     const [loading, setLoading] = useState(true);
     const [simulating, setSimulating] = useState(false);
+    
+    const supabase = createClient();
 
     const fetchData = useCallback(async () => {
-        const loc = level === 'national' ? 'Kenya' : 'Nairobi'; 
-        
-        // Parallel fetches
-        const [resData, turnoutData, partyStats, regData] = await Promise.all([
-            getResults(level, loc),
-            getTurnoutStats(level, loc),
-            getPartyDistribution(level, loc),
-            getRegionalBreakdown(level)
-        ]);
+        setLoading(true);
+        try {
+            const [resData, turnoutData, partyStats, regData] = await Promise.all([
+                getResults(level, locationName),
+                getTurnoutStats(level, locationName),
+                getPartyDistribution(level, locationName),
+                getRegionalBreakdown(level)
+            ]);
 
-        setResults(resData.results);
-        setStats(resData.stats);
-        setTurnout(turnoutData);
-        setPartyData(partyStats);
-        setRegionalData(regData);
-        
-        setLoading(false);
-    }, [level]);
+            setResults(resData.results);
+            setStats(resData.stats);
+            setTurnout(turnoutData);
+            setPartyData(partyStats);
+            setRegionalData(regData);
+        } catch (error) {
+            console.error("Failed to fetch data:", error);
+        } finally {
+            setLoading(false);
+        }
+    }, [level, locationName]);
 
     useEffect(() => {
-        const load = async () => {
-            await fetchData();
-        };
-        load();
+        fetchData();
         
-        const interval = setInterval(() => void fetchData(), 5000); 
-        return () => clearInterval(interval);
-    }, [fetchData]);
+        // REALTIME SUBSCRIPTION
+        const channel = supabase
+            .channel('public:election_results')
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'election_results' },
+                () => {
+                    fetchData();
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [fetchData, supabase]);
 
     const handleSimulate = async () => {
         setSimulating(true);
         await simulateIncomingVotes();
-        await fetchData();
         setSimulating(false);
     };
 
+    const handleRegionSelect = (regionName: string) => {
+        setLocationName(regionName);
+        setLevel('county');
+    };
+
+    const handleTabChange = (val: string) => {
+        const newLevel = val as 'national' | 'county' | 'constituency' | 'ward';
+        setLevel(newLevel);
+        if (newLevel === 'national') setLocationName('Kenya');
+    };
+
     return (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center bg-black/40 p-4 rounded-xl border border-white/10 backdrop-blur-md sticky top-0 z-10">
+        <div className="space-y-6 relative">
+            <LiveTicker />
+
+            <div className="flex justify-between items-center bg-black/40 p-4 rounded-xl border border-white/10 backdrop-blur-md sticky top-0 z-10 shadow-2xl">
                 <div>
-                   <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-linear-to-r from-kenya-red via-white to-kenya-green">
-                       {level === 'national' ? 'PRESIDENTIAL TALLY' : 'GUBERNATORIAL TALLY'}
+                   <h2 className="text-2xl font-black bg-clip-text text-transparent bg-linear-to-r from-kenya-red via-white to-kenya-green flex items-center gap-3">
+                       <span className="w-3 h-3 bg-red-600 rounded-full animate-pulse shadow-[0_0_10px_red]" />
+                       {locationName === 'Kenya' ? 'PRESIDENTIAL TALLY' : `${locationName.toUpperCase()} TALLY`}
                    </h2>
-                   <p className="text-sm text-gray-400 font-mono">
-                       LIVE FROM BOMAS OF KENYA • {stats?.reporting_stations.toLocaleString()} / {stats?.total_stations.toLocaleString()} STATIONS
+                   <p className="text-sm text-gray-400 font-mono tracking-widest pl-6">
+                       LIVE FROM BOMAS OF KENYA
                    </p>
                 </div>
                 
-                {/* Simulation Button (Hidden in Prod usually) */}
                 <Button 
-                    variant="ghost" 
+                    variant="outline" 
                     size="sm" 
                     onClick={handleSimulate} 
                     disabled={simulating}
-                    className="text-xs text-gray-500 hover:text-white"
+                    className="text-xs border-white/10 bg-white/5 hover:bg-white/10 hover:text-white"
                 >
                     {simulating ? <Loader2 className="h-4 w-4 animate-spin mr-2"/> : <RefreshCcw className="h-4 w-4 mr-2"/>}
-                    {simulating ? "Updating..." : "Simulate Incoming"}
+                    {simulating ? "Simulating..." : "Simulate Incoming"}
                 </Button>
             </div>
 
-            <Tabs defaultValue="national" onValueChange={(val) => setLevel(val as 'national' | 'county')} className="w-full">
-                <TabsList className="grid w-full grid-cols-4 bg-white/5">
-                    <TabsTrigger value="national">NATIONAL</TabsTrigger>
-                    <TabsTrigger value="county">COUNTY</TabsTrigger>
-                    <TabsTrigger value="constituency" disabled>CONSTITUENCY</TabsTrigger>
-                    <TabsTrigger value="ward" disabled>WARD</TabsTrigger>
+            <ReportingProgress stats={stats} />
+            
+            <div className="animate-in fade-in slide-in-from-bottom-10 duration-1000">
+                <AILogConsole />
+            </div>
+
+            <Tabs value={level} onValueChange={handleTabChange} className="w-full">
+                <TabsList className="grid w-full grid-cols-4 bg-white/5 p-1 border border-white/10 rounded-lg">
+                    <TabsTrigger value="national" className="data-[state=active]:bg-kenya-red data-[state=active]:text-white uppercase font-bold text-xs">National</TabsTrigger>
+                    <TabsTrigger value="county" className="data-[state=active]:bg-kenya-red data-[state=active]:text-white uppercase font-bold text-xs">County</TabsTrigger>
+                    <TabsTrigger value="constituency" className="data-[state=active]:bg-kenya-red data-[state=active]:text-white uppercase font-bold text-xs">Constituency</TabsTrigger>
+                    <TabsTrigger value="ward" className="data-[state=active]:bg-kenya-red data-[state=active]:text-white uppercase font-bold text-xs">Ward</TabsTrigger>
                 </TabsList>
                 
-                <div className="mt-6">
-                    {/* 1. Turnout Stats Row */}
-                    <TurnoutCard stats={turnout} />
-
+                <div className="mt-6 animate-in fade-in slide-in-from-bottom-5 duration-700">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        {/* 2. Main Results Column (2/3 width) */}
-                        <div className="lg:col-span-2 space-y-4">
-                             <h3 className="text-xl font-bold text-white mb-4">Candidate Performance</h3>
-                             {loading ? (
-                                <div className="flex justify-center py-20">
-                                    <Loader2 className="h-10 w-10 animate-spin text-kenya-red" />
-                                </div>
-                            ) : (
-                                results.map((r) => (
-                                    <ResultCard key={r.candidate_id} result={r} />
-                                ))
-                            )}
-                             {!loading && results.length === 0 && (
-                                <div className="text-center py-20 text-gray-500">
-                                    No results available for this level yet.
-                                </div>
-                            )}
+                        <div className="lg:col-span-2 space-y-6">
+                             <TurnoutCard stats={turnout} />
+                             
+                             <div className="space-y-4">
+                                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                                    <span className="w-1 h-6 bg-kenya-gold block" />
+                                    Candidate Performance
+                                </h3>
+                                
+                                {loading ? (
+                                    <div className="flex justify-center py-20">
+                                        <Loader2 className="h-10 w-10 animate-spin text-kenya-red" />
+                                    </div>
+                                ) : (
+                                    <div className="grid gap-3">
+                                        {results.map((r, i) => (
+                                            <div key={r.candidate_id} className="animate-in fade-in slide-in-from-left duration-500" style={{ animationDelay: `${i * 100}ms` }}>
+                                                <ResultCard result={r} />
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                                {!loading && results.length === 0 && (
+                                    <div className="text-center py-20 text-gray-500 bg-white/5 rounded-xl border border-white/5">
+                                        No results available for this level yet.
+                                    </div>
+                                )}
+                             </div>
                         </div>
 
-                        {/* 3. Analytics Column (1/3 width) */}
                         <div className="space-y-6">
                             <PartyDistributionChart data={partyData} />
-                            
-                            {/* Regional Map */}
-                            <RegionalTileMap data={regionalData} />
+                            <RegionalTileMap data={regionalData} onRegionSelect={handleRegionSelect} />
                         </div>
                     </div>
                 </div>

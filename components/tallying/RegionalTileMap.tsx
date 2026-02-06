@@ -1,78 +1,164 @@
-"use client";
+import { RegionalBreakdownData } from "@/actions/tallying";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
 
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+// Grid Layout: x (col), y (row). Top-left is 0,0.
+// Attempting to roughly mimic Kenya's shape.
+// Columns: 0-12 (West -> East)
+// Rows: 0-12 (North -> South)
+const FULL_KENYA_LAYOUT = [
+    // NORTH
+    { id: 23, name: "Turkana", x: 1, y: 0 },
+    { id: 10, name: "Marsabit", x: 6, y: 0 },
+    { id: 9, name: "Mandera", x: 11, y: 0 },
+    { id: 8, name: "Wajir", x: 10, y: 2 },
+    
+    // WEST / NORTH RIFT
+    { id: 24, name: "West Pokot", x: 2, y: 2 },
+    { id: 26, name: "Trans Nzoia", x: 1, y: 3 },
+    { id: 39, name: "Bungoma", x: 0, y: 4 },
+    { id: 40, name: "Busia", x: 0, y: 5 },
+    { id: 37, name: "Kakamega", x: 1, y: 4 },
+    { id: 38, name: "Vihiga", x: 1, y: 5 },
+    { id: 42, name: "Kisumu", x: 1, y: 6 },
+    { id: 41, name: "Siaya", x: 0, y: 6 },
+    { id: 43, name: "Homa Bay", x: 0, y: 7 },
+    { id: 44, name: "Migori", x: 0, y: 8 },
+    { id: 45, name: "Kisii", x: 1, y: 7 },
+    { id: 46, name: "Nyamira", x: 2, y: 7 },
 
+    // NORTH RIFT / CENTRAL RIFT
+    { id: 25, name: "Samburu", x: 5, y: 2 },
+    { id: 11, name: "Isiolo", x: 7, y: 3 },
+    { id: 27, name: "Uasin Gishu", x: 2, y: 3 },
+    { id: 28, name: "Elgeyo-Marakwet", x: 3, y: 3 },
+    { id: 30, name: "Baringo", x: 4, y: 3 },
+    { id: 29, name: "Nandi", x: 2, y: 4 },
+    { id: 35, name: "Kericho", x: 2, y: 5 },
+    { id: 36, name: "Bomet", x: 2, y: 6 },
+    { id: 32, name: "Nakuru", x: 3, y: 5 },
+    { id: 33, name: "Narok", x: 2, y: 8 },
+    { id: 34, name: "Kajiado", x: 4, y: 9 },
 
-// Fix visible errors in my layout array memory
-// 4 is Taita Taveta. 6 is Tana River.
-const FIXED_LAYOUT = [
-    {r: 1, c: 2, id: 23, name: "Turkana"}, {r: 1, c: 3, id: 24, name: "West Pokot"}, {r: 1, c: 4, id: 25, name: "Samburu"}, {r: 1, c: 5, id: 10, name: "Marsabit"}, {r: 1, c: 6, id: 9, name: "Mandera"},
-    {r: 2, c: 2, id: 26, name: "Trans Nzoia"}, {r: 2, c: 3, id: 27, name: "Uasin Gishu"}, {r: 2, c: 4, id: 30, name: "Baringo"}, {r: 2, c: 5, id: 11, name: "Isiolo"}, {r: 2, c: 6, id: 8, name: "Wajir"},
-    {r: 3, c: 0, id: 39, name: "Bungoma"}, {r: 3, c: 1, id: 37, name: "Kakamega"}, {r: 3, c: 2, id: 28, name: "Elgeyo Marakwet"}, {r: 3, c: 3, id: 29, name: "Nandi"}, {r: 3, c: 4, id: 31, name: "Laikipia"}, {r: 3, c: 5, id: 12, name: "Meru"}, {r: 3, c: 6, id: 7, name: "Garissa"},
-    {r: 4, c: 0, id: 40, name: "Busia"}, {r: 4, c: 1, id: 38, name: "Vihiga"}, {r: 4, c: 2, id: 42, name: "Kisumu"}, {r: 4, c: 3, id: 35, name: "Kericho"}, {r: 4, c: 4, id: 19, name: "Nyeri"}, {r: 4, c: 5, id: 13, name: "Tharaka Nithi"},
-    {r: 5, c: 0, id: 41, name: "Siaya"}, {r: 5, c: 1, id: 43, name: "Homa Bay"}, {r: 5, c: 2, id: 45, name: "Kisii"}, {r: 5, c: 3, id: 36, name: "Bomet"}, {r: 5, c: 4, id: 18, name: "Nyandarua"}, {r: 5, c: 5, id: 14, name: "Embu"}, {r: 5, c: 6, id: 6, name: "Tana River"},
-    {r: 6, c: 1, id: 44, name: "Migori"}, {r: 6, c: 2, id: 46, name: "Nyamira"}, {r: 6, c: 3, id: 32, name: "Nakuru"}, {r: 6, c: 4, id: 20, name: "Kirinyaga"}, {r: 6, c: 5, id: 15, name: "Kitui"}, {r: 6, c: 6, id: 5, name: "Lamu"},
-    {r: 7, c: 3, id: 33, name: "Narok"}, {r: 7, c: 4, id: 47, name: "Nairobi"}, {r: 7, c: 5, id: 22, name: "Kiambu"}, {r: 7, c: 6, id: 3, name: "Kilifi"},
-    {r: 8, c: 4, id: 21, name: "Murang'a"}, {r: 8, c: 5, id: 16, name: "Machakos"}, {r: 8, c: 6, id: 1, name: "Mombasa"},
-    {r: 9, c: 4, id: 34, name: "Kajiado"}, {r: 9, c: 5, id: 17, name: "Makueni"}, {r: 9, c: 6, id: 2, name: "Kwale"},
-    {r: 10, c: 5, id: 4, name: "Taita Taveta"} // Adjusted for flow
-    // Note: This is an artistic approximation, not geographically perfect!
+    // CENTRAL / MT KENYA
+    { id: 31, name: "Laikipia", x: 5, y: 4 },
+    { id: 12, name: "Meru", x: 7, y: 4 },
+    { id: 13, name: "Tharaka-Nithi", x: 8, y: 5 },
+    { id: 19, name: "Nyeri", x: 5, y: 5 },
+    { id: 18, name: "Nyandarua", x: 4, y: 5 },
+    { id: 20, name: "Kirinyaga", x: 6, y: 5 },
+    { id: 21, name: "Murang'a", x: 5, y: 6 },
+    { id: 22, name: "Kiambu", x: 5, y: 7 },
+    { id: 47, name: "Nairobi", x: 5, y: 8 },
+
+    // EASTERN
+    { id: 14, name: "Embu", x: 7, y: 5 },
+    { id: 16, name: "Machakos", x: 6, y: 8 },
+    { id: 15, name: "Kitui", x: 8, y: 7 },
+    { id: 17, name: "Makueni", x: 7, y: 9 },
+
+    // COAST
+    { id: 7, name: "Garissa", x: 10, y: 5 },
+    { id: 4, name: "Tana River", x: 10, y: 7 },
+    { id: 5, name: "Lamu", x: 11, y: 8 },
+    { id: 3, name: "Kilifi", x: 9, y: 9 },
+    { id: 1, name: "Mombasa", x: 9, y: 10 },
+    { id: 2, name: "Kwale", x: 9, y: 11 },
+    { id: 6, name: "Taita-Taveta", x: 8, y: 10 },
 ];
 
-interface RegionalData {
-    location: string;
-    winner: string;
-    party: string;
-    votes: number;
-    color: string;
+interface RegionalTileMapProps {
+    data: RegionalBreakdownData[];
+    onRegionSelect?: (region: string) => void;
 }
 
-export function RegionalTileMap({ data }: { data: RegionalData[] }) {
+export function RegionalTileMap({ data, onRegionSelect }: RegionalTileMapProps) {
     // Convert data to map for easy lookup
     const dataMap = new Map(data.map(d => [d.location, d]));
 
     return (
-        <div className="bg-black/40 border border-white/10 rounded-xl p-6 backdrop-blur">
-            <h3 className="text-xl font-bold text-white mb-6">County Performance Map</h3>
+        <div className="bg-black/40 border border-white/10 rounded-xl p-6 backdrop-blur flex flex-col items-center">
+            <h3 className="text-xl font-bold text-white mb-6 self-start flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-kenya-green animate-pulse" />
+                COUNTY PERFORMANCE MAP
+            </h3>
             
-            <div className="overflow-x-auto">
+            <div className="overflow-auto w-full flex justify-center">
                 <div 
-                    className="grid gap-2 min-w-[600px] mx-auto"
+                    className="grid gap-1.5"
                     style={{ 
-                        gridTemplateColumns: `repeat(8, 1fr)`,
-                        gridTemplateRows: `repeat(11, 1fr)`
+                        gridTemplateColumns: `repeat(12, 1fr)`,
+                        gridTemplateRows: `repeat(12, 1fr)`,
+                        maxWidth: '600px',
+                        width: '100%',
+                        aspectRatio: '1/1'
                     }}
                 >
-                    {FIXED_LAYOUT.map((tile) => {
+                    {FULL_KENYA_LAYOUT.map((tile) => {
                         const regionData = dataMap.get(tile.name);
+                        const hasData = !!regionData;
                         const color = regionData ? regionData.color : "bg-white/5";
                         
                         return (
                             <TooltipProvider key={tile.id}>
-                                <Tooltip>
+                                <Tooltip delayDuration={0}>
                                     <TooltipTrigger asChild>
                                         <div 
-                                            className={`${color} rounded-sm aspect-square flex items-center justify-center text-[10px] font-bold text-white cursor-pointer hover:scale-110 transition-transform shadow-sm border border-black/20`}
+                                            onClick={() => onRegionSelect?.(tile.name)}
+                                            className={`
+                                                ${color} 
+                                                rounded-sm 
+                                                flex items-center justify-center 
+                                                text-[8px] sm:text-[10px] 
+                                                font-bold 
+                                                ${hasData ? 'text-white cursor-pointer hover:scale-125 hover:z-50 hover:shadow-[0_0_15px_rgba(255,255,255,0.5)]' : 'text-gray-600 cursor-default'}
+                                                transition-all duration-300
+                                                border border-white/5
+                                                relative
+                                                aspect-square
+                                            `}
                                             style={{ 
-                                                gridColumn: tile.c + 1, // CSS Grid is 1-indexed
-                                                gridRow: tile.r
+                                                gridColumn: tile.x + 1, // CSS Grid is 1-indexed
+                                                gridRow: tile.y + 1
                                             }}
                                         >
-                                            {tile.id}
+                                            <span className="z-10">{tile.id}</span>
+                                            {/* Digital glow effect for active tiles */}
+                                            {hasData && (
+                                                <div className="absolute inset-0 bg-white/10 rounded-sm animate-pulse" />
+                                            )}
                                         </div>
                                     </TooltipTrigger>
-                                    <TooltipContent className="bg-black border border-white/20 text-white">
-                                        <div className="text-center">
-                                            <p className="font-bold text-lg">{tile.name}</p>
+                                    <TooltipContent side="top" className="bg-black/90 border border-white/20 text-white p-3 shadow-2xl backdrop-blur-md">
+                                        <div className="text-center min-w-[120px]">
+                                            <div className="flex items-center justify-center gap-2 mb-2 border-b border-white/10 pb-1">
+                                                <span className="text-kenya-red font-black text-xs">#{tile.id}</span>
+                                                <p className="font-bold text-lg uppercase">{tile.name}</p>
+                                            </div>
                                             {regionData ? (
                                                 <>
-                                                    <p className="text-sm text-gray-400">Leading: <span className="text-white">{regionData.winner}</span></p>
-                                                    <p className="text-xs opacity-70">{regionData.party}</p>
-                                                    <p className="text-xs font-mono mt-1">{regionData.votes.toLocaleString()} votes</p>
+                                                    <div className="flex justify-between items-center text-xs text-gray-400 mb-1">
+                                                        <span>LEADING:</span>
+                                                        <span className="text-white font-bold">{regionData.winner}</span>
+                                                    </div>
+                                                    <div className="flex justify-between items-center text-xs text-gray-400 mb-2">
+                                                        <span>PARTY:</span>
+                                                        <span className="text-kenya-gold">{regionData.party}</span>
+                                                    </div>
+                                                    {/* Mini Bar */}
+                                                    <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden mb-1">
+                                                        <div className={`h-full ${regionData.color} w-[60%]`} /> 
+                                                    </div>
+                                                    <p className="text-[10px] font-mono text-gray-500">{regionData.votes.toLocaleString()} votes processed</p>
                                                 </>
                                             ) : (
-                                                <p className="text-xs text-gray-500">No data</p>
+                                                <p className="text-xs text-gray-500 italic py-2">Waiting for results...</p>
                                             )}
+                                            {hasData && <p className="text-[9px] text-kenya-green mt-2 font-mono border-t border-white/10 pt-1 tracking-wider">CLICK TO DRILL-DOWN</p>}
                                         </div>
                                     </TooltipContent>
                                 </Tooltip>
@@ -82,12 +168,12 @@ export function RegionalTileMap({ data }: { data: RegionalData[] }) {
                 </div>
             </div>
 
-            <div className="mt-6 flex flex-wrap gap-4 justify-center text-xs text-gray-400">
-                <div className="flex items-center gap-2"><div className="w-3 h-3 bg-yellow-400 rounded-sm"></div> UDA</div>
-                <div className="flex items-center gap-2"><div className="w-3 h-3 bg-orange-500 rounded-sm"></div> ODM</div>
-                <div className="flex items-center gap-2"><div className="w-3 h-3 bg-blue-400 rounded-sm"></div> WIPER</div>
-                <div className="flex items-center gap-2"><div className="w-3 h-3 bg-green-600 rounded-sm"></div> ROOTS</div>
-                <div className="flex items-center gap-2"><div className="w-3 h-3 bg-white/10 rounded-sm"></div> Pending</div>
+            <div className="mt-8 flex flex-wrap gap-6 justify-center text-xs font-medium text-gray-400 border-t border-white/5 pt-4 w-full">
+                <div className="flex items-center gap-2"><div className="w-3 h-3 bg-yellow-400 rounded-sm shadow-[0_0_5px_rgba(250,204,21,0.5)]"></div> UDA</div>
+                <div className="flex items-center gap-2"><div className="w-3 h-3 bg-orange-500 rounded-sm shadow-[0_0_5px_rgba(249,115,22,0.5)]"></div> ODM</div>
+                <div className="flex items-center gap-2"><div className="w-3 h-3 bg-blue-400 rounded-sm shadow-[0_0_5px_rgba(96,165,250,0.5)]"></div> WIPER</div>
+                <div className="flex items-center gap-2"><div className="w-3 h-3 bg-green-600 rounded-sm shadow-[0_0_5px_rgba(22,163,74,0.5)]"></div> ROOTS</div>
+                <div className="flex items-center gap-2"><div className="w-3 h-3 bg-white/5 border border-white/10 rounded-sm"></div> Pending</div>
             </div>
         </div>
     );

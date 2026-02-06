@@ -2,52 +2,79 @@ import { createClient } from "@/lib/supabase";
 import { UserProgress, LEVEL_THRESHOLDS, UserLevel } from "@/lib/gamification";
 
 export const GamificationService = {
-  async getUserProgress(userId: string): Promise<UserProgress | null> {
-    const supabase = createClient();
-    const { data, error } = await supabase
-      .from("user_progress")
-      .select("*")
-      .eq("user_id", userId)
-      .single();
+  async getUserProgress(userId: string, client?: ReturnType<typeof createClient>): Promise<UserProgress | null> {
+    const supabase = client || createClient();
+    let attempts = 0;
+    const maxAttempts = 3;
 
-    if (error) {
-      if (error.code === 'PGRST116') {
-         // User has no progress record yet, return default empty progress instead of null or error
-         return {
-            userId: userId,
-            level: 1,
-            currentXP: 0,
-            totalXP: 0,
-            nextLevelXP: LEVEL_THRESHOLDS[2],
-            badges: [],
-            completedPaths: [],
-            completedModules: [],
-            currentStreak: 0,
-            longestStreak: 0,
-            lastLoginDate: new Date().toISOString(),
-            joinDate: new Date().toISOString(),
-         };
+    while (attempts < maxAttempts) {
+      try {
+        const { data, error } = await supabase
+          .from("user_progress")
+          .select("*")
+          .eq("user_id", userId)
+          .single();
+
+        if (error) {
+          if (error.code === 'PGRST116') {
+             // User has no progress record yet, return default empty progress instead of null or error
+             return {
+                userId: userId,
+                level: 1,
+                currentXP: 0,
+                totalXP: 0,
+                nextLevelXP: LEVEL_THRESHOLDS[2],
+                badges: [],
+                completedPaths: [],
+                completedModules: [],
+                currentStreak: 0,
+                longestStreak: 0,
+                lastLoginDate: new Date().toISOString(),
+                joinDate: new Date().toISOString(),
+             };
+          }
+          throw error;
+        }
+
+        // Map DB fields to TypeScript interface
+        return {
+          userId: data.user_id,
+          level: data.level as UserLevel,
+          currentXP: data.current_xp,
+          totalXP: data.total_xp,
+          nextLevelXP:
+            LEVEL_THRESHOLDS[((data.level as number) + 1) as UserLevel] || 999999,
+          badges: data.badges || [],
+          completedPaths: [], // Not yet in DB schema explicitly, maybe in jsonb?
+          completedModules: data.completed_modules || [],
+          currentStreak: data.streak || 0,
+          longestStreak: 0, // Not in DB schema
+          lastLoginDate: data.last_login,
+          joinDate: new Date().toISOString(), // Placeholder
+        };
+      } catch (error: unknown) {
+        attempts++;
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        const errorName = error instanceof Error ? error.name : '';
+        const isAbortError = errorMessage.includes('AbortError') || errorName === 'AbortError' || JSON.stringify(error).includes('AbortError');
+        
+        if (isAbortError && attempts < maxAttempts) {
+           console.warn(`GamificationService: Retrying getUserProgress due to AbortError (Attempt ${attempts}/${maxAttempts})`);
+           await new Promise(resolve => setTimeout(resolve, 500 * attempts)); // Exponential backoff
+           continue;
+        }
+
+        if (attempts === maxAttempts) {
+             console.error("Error fetching user progress after retries:", JSON.stringify(error, null, 2));
+             return null;
+        }
+        
+        // If not an abort error, log and return null immediately (or handle other specific errors)
+        console.error("Error fetching user progress:", JSON.stringify(error, null, 2));
+        return null;
       }
-      console.error("Error fetching user progress:", JSON.stringify(error, null, 2));
-      return null;
     }
-
-    // Map DB fields to TypeScript interface
-    return {
-      userId: data.user_id,
-      level: data.level as UserLevel,
-      currentXP: data.current_xp,
-      totalXP: data.total_xp,
-      nextLevelXP:
-        LEVEL_THRESHOLDS[((data.level as number) + 1) as UserLevel] || 999999,
-      badges: data.badges || [],
-      completedPaths: [], // Not yet in DB schema explicitly, maybe in jsonb?
-      completedModules: data.completed_modules || [],
-      currentStreak: data.streak || 0,
-      longestStreak: 0, // Not in DB schema
-      lastLoginDate: data.last_login,
-      joinDate: new Date().toISOString(), // Placeholder
-    };
+    return null;
   },
 
   async awardXP(userId: string, amount: number, action: string) {

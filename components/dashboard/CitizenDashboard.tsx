@@ -48,7 +48,7 @@ export function CitizenDashboard() {
         setUser(user);
 
         if (user) {
-          const userProgress = await GamificationService.getUserProgress(user.id);
+          const userProgress = await GamificationService.getUserProgress(user.id, supabase);
           if (userProgress) {
             setProgress(userProgress);
           }

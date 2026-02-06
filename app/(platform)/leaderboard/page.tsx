@@ -37,16 +37,17 @@ export default function LeaderboardPage() {
 
   useEffect(() => {
     const fetchData = async () => {
+      const supabase = createClient();
       const {
         data: { user },
-      } = await createClient().auth.getUser();
+      } = await supabase.auth.getUser();
       // setCurrentUser(user);
 
       const leaders = await GamificationService.getLeaderboard(10);
       setLeaderboard(leaders);
 
       if (user) {
-        const progress = await GamificationService.getUserProgress(user.id);
+        const progress = await GamificationService.getUserProgress(user.id, supabase);
         if (progress) {
           setUserProgress(progress);
         }
