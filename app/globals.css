@@ -10,6 +10,7 @@
 
   --color-kenya-red: var(--accent-red);
   --color-kenya-green: var(--accent-green);
+  --color-kenya-deep: var(--accent-deep-green);
   --color-kenya-gold: var(--accent-gold);
 }
 
@@ -27,6 +28,7 @@
   /* Accents - The Flag 🇰🇪 Optimized for Glow */
   --accent-red: hsl(0 72% 51%);
   --accent-green: hsl(150 100% 27%);
+  --accent-deep-green: #00704A;
   --accent-gold: hsl(35 92% 50%);
 
   --border: hsl(240 5% 15%);

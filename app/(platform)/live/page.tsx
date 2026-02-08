@@ -1,201 +1,214 @@
+/* cSpell:ignore MASHINANI PoliFy Poli */
 "use client";
 
-import React, { useState } from "react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { MessageSquare, Share2, ThumbsUp, BrainCircuit } from "lucide-react";
-import { SentimentMeter } from "@/components/live/SentimentMeter";
-import { LivePolls } from "@/components/live/LivePolls";
-import { LiveChat } from "@/components/live/LiveChat";
-import { LiveQA } from "@/components/live/LiveQA";
-import { ChannelSelector } from "@/components/live/ChannelSelector";
-import { KENYAN_MEDIA_CHANNELS, MediaChannel } from "@/lib/media-data";
+import React, { useState, useEffect } from "react";
+import { Search, Filter, Calendar, Share2, Loader2 } from "lucide-react";
+import { EventCard } from "@/components/campaign/EventCard";
+import { getAllPublicEvents } from "@/app/(platform)/campaign/events/actions";
+import { CAMPAIGN_EVENTS } from "@/lib/events-data";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
+
+interface MappedEvent {
+  id: string;
+  politicianName: string;
+  politicianAvatar: string;
+  party: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  location: string;
+  date: string;
+  type: string;
+  attendees: string;
+}
+
+interface RawEvent {
+  id: string;
+  title: string;
+  description: string | null;
+  image_url: string | null;
+  location: string;
+  date: string;
+  time: string | null;
+  type: string;
+  volunteers_registered: number;
+  profiles: {
+    full_name: string | null;
+    avatar_url: string | null;
+    party: string | null;
+  } | null;
+}
 
 export default function TownHallPage() {
-  const [activeTab, setActiveTab] = useState<"chat" | "polls" | "qa">("chat");
-  const [currentChannel, setCurrentChannel] = useState<MediaChannel>(
-    KENYAN_MEDIA_CHANNELS[0],
-  );
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeFilter, setActiveFilter] = useState<
+    "All" | "Rally" | "TownHall" | "Launch"
+  >("All");
+  const [events, setEvents] = useState<MappedEvent[]>(CAMPAIGN_EVENTS);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadEvents() {
+      setLoading(true);
+      const data = (await getAllPublicEvents()) as unknown as RawEvent[];
+      // Map DB events to EventCard expected format
+      const mappedEvents: MappedEvent[] = (data || []).map((e) => ({
+        id: e.id,
+        politicianName: e.profiles?.full_name || "Unknown Candidate",
+        politicianAvatar:
+          e.profiles?.avatar_url ||
+          `https://api.dicebear.com/7.x/avataaars/svg?seed=${e.id}`,
+        party: e.profiles?.party || "Independent",
+        title: e.title,
+        description: e.description || "No description provided.",
+        imageUrl:
+          e.image_url ||
+          "https://images.unsplash.com/photo-1540910419892-f39aefe24aa2?q=80&w=2070&auto=format&fit=crop",
+        location: e.location,
+        date:
+          new Date(e.date).toLocaleDateString() +
+          (e.time ? ` at ${e.time}` : ""),
+        type: e.type,
+        attendees: `${e.volunteers_registered || 0} RSVPs`,
+      }));
+      setEvents([...mappedEvents, ...CAMPAIGN_EVENTS]);
+      setLoading(false);
+    }
+    loadEvents();
+  }, []);
+
+  const handleSharePage = async () => {
+    const shareData = {
+      title: "PoliFy Kenya | Campaign Pulse",
+      text: "Track real-time campaign rallies and events across Kenya on PoliFy!",
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        alert("Campaign Pulse link copied to clipboard!");
+      }
+    } catch (err) {
+      console.error("Error sharing:", err);
+    }
+  };
+
+  const filteredEvents = events.filter((event) => {
+    const matchesSearch =
+      event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      event.politicianName.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesFilter = activeFilter === "All" || event.type === activeFilter;
+    return matchesSearch && matchesFilter;
+  });
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 h-[calc(100vh-6rem)]">
-      {/* Sidebar: Channel Selector (Left on large screens) */}
-      <div className="lg:col-span-1 hidden lg:block overflow-hidden h-full">
-        <ChannelSelector
-          channels={KENYAN_MEDIA_CHANNELS}
-          activeChannel={currentChannel}
-          onSelect={setCurrentChannel}
-        />
-      </div>
+    <div className="space-y-10 pb-20">
+      {/* Hero Section */}
+      <section className="relative h-[250px] md:h-[350px] rounded-3xl overflow-hidden group">
+        <div className="absolute inset-0 bg-linear-to-r from-black via-black/40 to-transparent z-10" />
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1540910419892-f39aefe24aa2?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center group-hover:scale-105 transition-transform duration-700" />
 
-      {/* Main Content Area */}
-      <div className="lg:col-span-2 flex flex-col gap-4 overflow-y-auto pr-2 scrollbar-hide h-full">
-        {/* Video Player & Overlays */}
-        <div className="aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl relative group border border-white/5 shrink-0">
-          {/* Replace VideoJS with simple Iframe for YouTube Live Demo reliability */}
-          <iframe
-            width="100%"
-            height="100%"
-            src={`${currentChannel.streamUrl}${currentChannel.streamUrl.includes("?") ? "&" : "?"}autoplay=1&mute=1&controls=1`}
-            title={currentChannel.name}
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-
-          {/* Overlays */}
-          <div className="absolute top-4 left-4 flex items-center gap-2 z-10">
-            <div className="bg-red-600 text-white px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full animate-pulse flex items-center gap-2 shadow-lg">
-              <span className="w-1.5 h-1.5 rounded-full bg-white" />
-              Live
-            </div>
-            <div className="bg-black/60 backdrop-blur-md text-white px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full border border-white/10">
-              {currentChannel.name}
-            </div>
-          </div>
-
-          <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
-            <SentimentMeter />
-          </div>
+        <div className="relative z-20 h-full flex flex-col justify-center px-6 md:px-12 max-w-2xl space-y-4">
+          <Badge className="w-fit bg-kenya-red/20 text-kenya-red border-kenya-red/30 py-1 px-4 font-black uppercase tracking-widest italic flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-kenya-red animate-pulse" />
+            Live Campaign Pulse
+          </Badge>
+          <h1 className="text-4xl md:text-6xl font-black italic tracking-tighter text-white leading-none">
+            MASHINANI <span className="text-brand-primary">EVENTS</span>
+          </h1>
+          <p className="text-lg text-white/70 font-medium leading-relaxed max-w-lg">
+            Real-time updates from the ground. Track rallies, town halls, and
+            major policy launches across all 47 counties.
+          </p>
         </div>
+      </section>
 
-        {/* Stream Info & Debate Pulse */}
-        <div className="space-y-4 pb-12">
-          <div className="bg-brand-surface border border-white/5 p-4 rounded-2xl">
-            <div className="flex items-start justify-between">
-              <div className="space-y-1">
-                <h1 className="text-xl md:text-2xl font-black tracking-tight leading-none">
-                  {currentChannel.currentProgram}
-                </h1>
-                <p className="text-brand-text-muted text-sm font-medium flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-brand-primary" />
-                  {currentChannel.category} • {currentChannel.viewerCount}{" "}
-                  watching
-                </p>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  className="rounded-full bg-white/5 border-white/10 hover:bg-white/10"
-                >
-                  <Share2 className="w-4 h-4 mr-2" /> Share
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  className="rounded-full bg-white/5 border-white/10 hover:bg-white/10"
-                >
-                  <ThumbsUp className="w-4 h-4 mr-2" /> Like
-                </Button>
-              </div>
-            </div>
+      {/* Control Bar */}
+      <div className="sticky top-20 z-40 flex flex-col md:flex-row gap-4 justify-between items-center bg-black/80 p-4 rounded-2xl border border-white/10 backdrop-blur-2xl transition-all duration-300">
+        <div className="flex items-center gap-4 w-full md:w-auto">
+          <div className="relative flex-1 md:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-text-muted" />
+            <input
+              type="text"
+              placeholder="Search by politician or event..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-brand-surface border border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-brand-primary transition-colors"
+            />
           </div>
-
-          {/* AI Debate Pulse (Summary) */}
-          <Card className="bg-brand-surface-secondary/50 border-purple-500/20 backdrop-blur-sm">
-            <CardHeader className="pb-3 border-b border-white/5 py-3">
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                  <BrainCircuit className="w-3.5 h-3.5 text-purple-400" />
-                </div>
-                <h3 className="font-black text-purple-400 uppercase text-[10px] tracking-widest">
-                  AI Context Engine
-                </h3>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1 border-l-2 border-kenya-green/30 pl-3">
-                <h4 className="text-[9px] font-black text-brand-text-muted uppercase tracking-wider mb-1">
-                  Live Topic Analysis
-                </h4>
-                <p className="text-xs font-bold text-white/90 leading-relaxed">
-                  Discussion centered on {currentChannel.category} reforms.
-                  Public sentiment is currently trending positive (62%).
-                </p>
-              </div>
-              <div className="space-y-1 border-l-2 border-kenya-red/30 pl-3">
-                <h4 className="text-[9px] font-black text-brand-text-muted uppercase tracking-wider mb-1">
-                  Fact Check Alert
-                </h4>
-                <p className="text-xs font-bold text-white/90 leading-relaxed">
-                  No false claims detected in the last 15 minutes of broadcast.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      {/* Sidebar: Interactive Tabs (Right) */}
-      <div className="lg:col-span-1 flex flex-col bg-brand-surface border border-white/5 rounded-2xl h-full overflow-hidden shadow-2xl relative">
-        {/* Tab Headers */}
-        <div className="flex border-b border-white/5 p-1 gap-1 bg-black/20">
+          <div className="h-8 w-px bg-white/10" />
+          <Filter className="w-4 h-4 text-brand-text-muted" />
+          <div className="h-8 w-px bg-white/10" />
           <button
-            onClick={() => setActiveTab("chat")}
-            className={cn(
-              "flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl transition-all text-[10px] font-black uppercase tracking-widest",
-              activeTab === "chat"
-                ? "bg-brand-surface-highlight text-white border border-white/10"
-                : "text-brand-text-muted hover:text-white",
-            )}
+            onClick={handleSharePage}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-white/5 text-brand-text-muted transition-colors active:scale-95"
           >
-            <MessageSquare className="w-3.5 h-3.5" /> Chat
-          </button>
-          {/* ... other tabs simplified for this view ... */}
-          <button
-            onClick={() => setActiveTab("polls")}
-            className={cn(
-              "flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl transition-all text-[10px] font-black uppercase tracking-widest",
-              activeTab === "polls"
-                ? "bg-brand-surface-highlight text-white border border-white/10"
-                : "text-brand-text-muted hover:text-white",
-            )}
-          >
-            Live Polls
+            <Share2 className="w-4 h-4" />
+            <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">
+              Share Pulse
+            </span>
           </button>
         </div>
 
-        {/* Tab Content */}
-        <div className="flex-1 overflow-hidden relative">
-          <div
-            className={cn(
-              "absolute inset-0 transition-opacity duration-300",
-              activeTab === "chat"
-                ? "opacity-100 z-10"
-                : "opacity-0 invisible z-0",
-            )}
-          >
-            <LiveChat townhallId={currentChannel.id} />
-          </div>
-
-          <div
-            className={cn(
-              "absolute inset-0 transition-opacity duration-300 overflow-y-auto",
-              activeTab === "polls"
-                ? "opacity-100 z-10"
-                : "opacity-0 invisible z-0",
-            )}
-          >
-            <LivePolls townhallId={currentChannel.id} />
-          </div>
-
-          <div
-            className={cn(
-              "absolute inset-0 transition-opacity duration-300",
-              activeTab === "qa"
-                ? "opacity-100 z-10"
-                : "opacity-0 invisible z-0",
-            )}
-          >
-            <LiveQA townhallId={currentChannel.id} />
-          </div>
+        <div className="flex gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 no-scrollbar">
+          {(["All", "Rally", "TownHall", "Launch"] as const).map((filter) => (
+            <button
+              key={filter}
+              onClick={() => setActiveFilter(filter)}
+              className={cn(
+                "px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest whitespace-nowrap transition-all border",
+                activeFilter === filter
+                  ? "bg-brand-primary text-black border-brand-primary"
+                  : "bg-white/5 text-brand-text-muted border-white/10 hover:border-white/20",
+              )}
+            >
+              {filter === "All" ? "All Updates" : filter}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Mobile Channel Selector Drawer (could be added later, for now hidden on mobile) */}
+      {/* Events Grid */}
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-20 animate-pulse">
+          <Loader2 className="w-12 h-12 text-brand-primary animate-spin mb-4" />
+          <p className="text-xs font-black uppercase tracking-widest text-brand-text-muted">
+            Synchronizing Pulse Feed...
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <AnimatePresence mode="popLayout">
+            {filteredEvents.map((event, index) => (
+              <motion.div
+                key={event.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <EventCard event={event} />
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
+      )}
+
+      {!loading && filteredEvents.length === 0 && (
+        <div className="py-20 flex flex-col items-center justify-center text-center space-y-4">
+          <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center">
+            <Calendar className="w-8 h-8 text-brand-text-muted opacity-20" />
+          </div>
+          <p className="text-brand-text-muted font-bold tracking-tight">
+            No campaign events found for this selection.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

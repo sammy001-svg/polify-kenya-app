@@ -4,12 +4,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Image from "next/image";
-import {
-  BadgeCheck,
-  Info,
-  Sparkles,
-  RefreshCw,
-} from "lucide-react";
+import { BadgeCheck, Info, Sparkles, RefreshCw } from "lucide-react";
 
 import { FeedService, FeedItem } from "@/lib/feed-service";
 import { PolifyPlayIcon } from "@/components/ui/PolifyPlayIcon";
@@ -32,15 +27,15 @@ export default function Home() {
   const [feedItems, setFeedItems] = useState<FeedItem[]>([]);
   const [isScanning, setIsScanning] = useState(false);
   const [newUpdateCount, setNewUpdateCount] = useState(0);
-  const [mobileTab, setMobileTab] = useState<'feed' | 'dashboard'>('feed');
+  const [mobileTab, setMobileTab] = useState<"feed" | "dashboard">("feed");
 
   const handleVideoClick = (item: FeedItem) => {
     setActiveHeroVideo(item);
-    const heroElement = document.getElementById('hero-player');
+    const heroElement = document.getElementById("hero-player");
     if (heroElement) {
-        heroElement.scrollIntoView({ behavior: 'smooth' });
+      heroElement.scrollIntoView({ behavior: "smooth" });
     } else {
-        window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
@@ -79,7 +74,7 @@ export default function Home() {
         setIsScanning(false);
       },
       60 * 60 * 1000,
-    ); 
+    );
 
     return () => clearInterval(interval);
   }, []);
@@ -90,7 +85,6 @@ export default function Home() {
   };
 
   return (
-
     <div className="h-[calc(100vh-64px)] overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent page-transition">
       <CivicVideoTheater
         isOpen={!!theaterVideo}
@@ -104,79 +98,76 @@ export default function Home() {
       />
 
       <div className="flex flex-col min-h-full">
-
-
-          {/* Hero / Featured / Active Player - Now Scrollable */}
-          <div className="shrink-0 p-4 pb-0 z-10">
-            <motion.section 
-              layoutId="hero-player"
-              className="relative rounded-3xl overflow-hidden bg-brand-surface-secondary aspect-video md:aspect-21/9 flex items-end shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] transition-all duration-700 border border-white/5 group/hero" 
-              id="hero-player"
-            >
-              
-               {activeHeroVideo && activeHeroVideo.videoUrl ? (
-                 // If user clicked a video, show it in full player mode
-                 <div className="w-full h-full relative">
-                    <div className="absolute inset-0 bg-neutral-900 overflow-hidden">
-                       {activeHeroVideo.videoUrl.includes("youtube") || activeHeroVideo.videoUrl.includes("youtu.be") ? (
-                          <iframe
-                            src={
-                              activeHeroVideo.videoUrl.includes("embed")
-                                ? `${activeHeroVideo.videoUrl}${activeHeroVideo.videoUrl.includes("?") ? "&" : "?"}autoplay=1&modestbranding=1&rel=0`
-                                : `https://www.youtube.com/embed/${activeHeroVideo.videoUrl.split("v=")[1]?.split("&")[0] || activeHeroVideo.videoUrl.split("/").pop()}?autoplay=1&modestbranding=1&rel=0`
-                            }
-                            title={activeHeroVideo.title}
-                            className="w-full h-full"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                          />
-                        ) : (
-                          <CivicVideoPlayer
-                            src={activeHeroVideo.videoUrl}
-                            poster={activeHeroVideo.thumbnailUrl}
-                            className="w-full h-full"
-                            autoPlay={true}
-                          />
-                        )}
-                    </div>
-                     {/* Overlay Info for Active Video */}
-                     <motion.div 
-                      key={`info-${activeHeroVideo.id}`}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="absolute bottom-0 left-0 z-20 p-8 space-y-4 pointer-events-none w-full bg-linear-to-t from-black/90 to-transparent"
-                    >
-                       <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-kenya-red text-white text-xs font-bold uppercase tracking-wide">
-                         <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-                         Now Playing
-                       </div>
-                       <h1 className="text-2xl md:text-4xl font-bold max-w-4xl text-white drop-shadow-lg line-clamp-2">
-                         {activeHeroVideo.title}
-                       </h1>
-                        <div className="flex items-center gap-3 text-sm text-gray-200">
-                            <span className="font-bold">{activeHeroVideo.host}</span>
-                            <span>• {activeHeroVideo.views}</span>
-                        </div>
-                         <Button 
-                            variant="secondary" 
-                            size="sm" 
-                            className="pointer-events-auto mt-2"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                setActiveHeroVideo(null); // Close active view, return to carousel
-                            }}
-                         >
-                            Close Player
-                        </Button>
-                    </motion.div>
-                 </div>
-               ) : (
-                 // Default State: The New Carousel
-                 <HeroFeedCarousel initialVideos={feedItems} />
-               )}
-               
-            </motion.section>
-          </div>
+        {/* Hero / Featured / Active Player - Now Scrollable */}
+        <div className="shrink-0 p-4 pb-0 z-10">
+          <motion.section
+            layoutId="hero-player"
+            className="relative rounded-3xl overflow-hidden bg-brand-surface-secondary aspect-video md:aspect-21/9 flex items-end shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] transition-all duration-700 border border-white/5 group/hero"
+            id="hero-player"
+          >
+            {activeHeroVideo && activeHeroVideo.videoUrl ? (
+              // If user clicked a video, show it in full player mode
+              <div className="w-full h-full relative">
+                <div className="absolute inset-0 bg-neutral-900 overflow-hidden">
+                  {activeHeroVideo.videoUrl.includes("youtube") ||
+                  activeHeroVideo.videoUrl.includes("youtu.be") ? (
+                    <iframe
+                      src={
+                        activeHeroVideo.videoUrl.includes("embed")
+                          ? `${activeHeroVideo.videoUrl}${activeHeroVideo.videoUrl.includes("?") ? "&" : "?"}autoplay=1&modestbranding=1&rel=0`
+                          : `https://www.youtube.com/embed/${activeHeroVideo.videoUrl.split("v=")[1]?.split("&")[0] || activeHeroVideo.videoUrl.split("/").pop()}?autoplay=1&modestbranding=1&rel=0`
+                      }
+                      title={activeHeroVideo.title}
+                      className="w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  ) : (
+                    <CivicVideoPlayer
+                      src={activeHeroVideo.videoUrl}
+                      poster={activeHeroVideo.thumbnailUrl}
+                      className="w-full h-full"
+                      autoPlay={true}
+                    />
+                  )}
+                </div>
+                {/* Overlay Info for Active Video */}
+                <motion.div
+                  key={`info-${activeHeroVideo.id}`}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="absolute bottom-0 left-0 z-20 p-8 space-y-4 pointer-events-none w-full bg-linear-to-t from-black/90 to-transparent"
+                >
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-kenya-red text-white text-xs font-bold uppercase tracking-wide">
+                    <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+                    Now Playing
+                  </div>
+                  <h1 className="text-2xl md:text-4xl font-bold max-w-4xl text-white drop-shadow-lg line-clamp-2">
+                    {activeHeroVideo.title}
+                  </h1>
+                  <div className="flex items-center gap-3 text-sm text-gray-200">
+                    <span className="font-bold">{activeHeroVideo.host}</span>
+                    <span>• {activeHeroVideo.views}</span>
+                  </div>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="pointer-events-auto mt-2"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveHeroVideo(null); // Close active view, return to carousel
+                    }}
+                  >
+                    Close Player
+                  </Button>
+                </motion.div>
+              </div>
+            ) : (
+              // Default State: The New Carousel
+              <HeroFeedCarousel initialVideos={feedItems} />
+            )}
+          </motion.section>
+        </div>
 
         <div className="flex-1 p-4 space-y-8">
           <div className="flex items-center justify-between gap-4">
@@ -203,13 +194,14 @@ export default function Home() {
             <div className="flex items-center gap-3 shrink-0">
               <AnimatePresence>
                 {isScanning && (
-                  <motion.span 
+                  <motion.span
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: 20 }}
                     className="text-[10px] font-bold text-brand-text-muted flex items-center gap-2"
                   >
-                    <RefreshCw className="w-3 h-3 animate-spin" /> AI Scanning Local Channels...
+                    <RefreshCw className="w-3 h-3 animate-spin" /> AI Scanning
+                    Local Channels...
                   </motion.span>
                 )}
                 {newUpdateCount > 0 && (
@@ -221,41 +213,46 @@ export default function Home() {
                     onClick={handleRefresh}
                     className="bg-brand-primary text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full flex items-center gap-2 shadow-lg shadow-brand-primary/20"
                   >
-                    <Sparkles className="w-3 h-3 fill-current" /> {newUpdateCount} New Updates
+                    <Sparkles className="w-3 h-3 fill-current" />{" "}
+                    {newUpdateCount} New Updates
                   </motion.button>
                 )}
               </AnimatePresence>
             </div>
-
           </div>
 
           {/* Mobile Tab Switcher */}
           <div className="flex lg:hidden bg-brand-surface-secondary p-1 rounded-lg mb-4">
-             <button 
-                onClick={() => setMobileTab('feed')}
-                className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-md transition-all ${
-                    mobileTab === 'feed' 
-                    ? 'bg-brand-surface shadow-md text-white' 
-                    : 'text-brand-text-muted hover:text-white'
-                }`}
-             >
-                Civic Feed
-             </button>
-             <button 
-                onClick={() => setMobileTab('dashboard')}
-                className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-md transition-all ${
-                    mobileTab === 'dashboard' 
-                    ? 'bg-brand-surface shadow-md text-white' 
-                    : 'text-brand-text-muted hover:text-white'
-                }`}
-             >
-                My Dashboard
-             </button>
+            <button
+              onClick={() => setMobileTab("feed")}
+              className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-md transition-all ${
+                mobileTab === "feed"
+                  ? "bg-brand-surface shadow-md text-white"
+                  : "text-brand-text-muted hover:text-white"
+              }`}
+            >
+              Civic Feed
+            </button>
+            <button
+              onClick={() => setMobileTab("dashboard")}
+              className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-md transition-all ${
+                mobileTab === "dashboard"
+                  ? "bg-brand-surface shadow-md text-white"
+                  : "text-brand-text-muted hover:text-white"
+              }`}
+            >
+              My Dashboard
+            </button>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            <div className={`lg:col-span-3 ${mobileTab === 'dashboard' ? 'hidden lg:block' : ''}`}>
-              <motion.div layout className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            <div
+              className={`lg:col-span-3 ${mobileTab === "dashboard" ? "hidden lg:block" : ""}`}
+            >
+              <motion.div
+                layout
+                className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
+              >
                 <AnimatePresence mode="popLayout">
                   {feedItems.map((item) => (
                     <motion.div
@@ -286,17 +283,21 @@ export default function Home() {
                             {item.duration}
                           </div>
 
-                          <div className="absolute top-2 left-2 z-10 pointer-events-auto" onClick={(e) => e.stopPropagation()}>
-                            <TrustIndicator 
-                              status={item.verificationStatus} 
+                          <div
+                            className="absolute top-2 left-2 z-10 pointer-events-auto"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <TrustIndicator
+                              status={item.verificationStatus}
                               citations={item.citations}
-                              compact 
+                              compact
                             />
                           </div>
 
                           {item.isNew && (
                             <div className="absolute top-2 left-20 ml-2 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider backdrop-blur-md z-10 bg-brand-primary text-white flex items-center gap-1 shadow-lg shadow-brand-primary/20">
-                              <Sparkles className="w-3 h-3 fill-current" /> AI Pick
+                              <Sparkles className="w-3 h-3 fill-current" /> AI
+                              Pick
                             </div>
                           )}
 
@@ -357,8 +358,10 @@ export default function Home() {
               </motion.div>
             </div>
 
-            <div className={`lg:col-span-1 h-[calc(100vh-64px)] overflow-y-auto sticky top-4 mb-4 ${mobileTab === 'feed' ? 'hidden lg:block' : ''}`}>
-               <CitizenDashboard />
+            <div
+              className={`lg:col-span-1 h-[calc(100vh-64px)] overflow-y-auto sticky top-4 mb-4 ${mobileTab === "feed" ? "hidden lg:block" : ""}`}
+            >
+              <CitizenDashboard />
             </div>
           </div>
         </div>

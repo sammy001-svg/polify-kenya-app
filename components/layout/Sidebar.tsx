@@ -9,15 +9,16 @@ import {
   Users,
   BookOpen,
   Landmark,
-  Radio,
-  MessageSquare,
-  Sparkles,
-  Flag,
-  Megaphone,
-  FileCheck,
-  BarChart3,
   Vote,
   Handshake,
+  Calendar,
+  Flag,
+  BarChart3,
+  Megaphone,
+  Sparkles,
+  FileCheck,
+  MessageSquare,
+  UserCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -53,7 +54,7 @@ function SidebarItem({
           className={cn(
             "p-2 rounded-xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-3",
             isActive
-              ? "bg-kenya-red/10 text-kenya-red glow-red"
+              ? "bg-kenya-green/10 text-kenya-green glow-green"
               : "bg-white/5 text-current",
           )}
         >
@@ -65,7 +66,7 @@ function SidebarItem({
       {isActive && (
         <motion.div
           layoutId="sidebar-active-glow"
-          className="absolute inset-0 bg-linear-to-r from-kenya-red/5 to-transparent z-0"
+          className="absolute inset-0 bg-linear-to-r from-kenya-green/5 to-transparent z-0"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         />
@@ -97,6 +98,18 @@ export function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
           href="/campaign"
           isActive={pathname.startsWith("/campaign")}
           onClick={onLinkClick}
+          // Bot knowledge base metadata for "Campaign HQ"
+          category="campaign"
+          keywords={[
+            "mashinani",
+            "rally",
+            "event",
+            "meeting",
+            "townhall",
+            "pulse",
+          ]}
+          response="Check out the Mashinani Campaign Pulse to see real-time updates from political rallies, town halls, and policy launches across the country."
+          actionText="View Campaign Pulse"
         />
         <SidebarItem
           icon={BarChart3}
@@ -120,8 +133,8 @@ export function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
           onClick={onLinkClick}
         />
         <SidebarItem
-          icon={Radio}
-          label="Mashinani (Town Halls)"
+          icon={Calendar}
+          label="Mashinani (Campaign Pulse)"
           href="/live"
           isActive={pathname === "/live"}
           onClick={onLinkClick}
@@ -151,7 +164,7 @@ export function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
         />
         <SidebarItem
           icon={Sparkles}
-          label="Bunge AI (Analysts)"
+          label="Polify AI (Analysts)"
           href="/policy-ideas"
           isActive={pathname.startsWith("/policy-ideas")}
           onClick={onLinkClick}
@@ -216,6 +229,20 @@ export function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
         />
       </div>
 
+      {/* Section 4: Personal */}
+      <div className="space-y-1.5">
+        <h3 className="px-4 text-[10px] font-black text-brand-text-muted uppercase tracking-[0.2em] mb-4">
+          Personal
+        </h3>
+        <SidebarItem
+          icon={UserCircle}
+          label="My Profile"
+          href="/profile"
+          isActive={pathname === "/profile"}
+          onClick={onLinkClick}
+        />
+      </div>
+
       <div className="mt-auto pt-8 pb-4 px-4">
         <div className="p-4 rounded-2xl bg-white/5 border border-white/5 glass-dark relative overflow-hidden group">
           <div className="absolute inset-0 bg-linear-to-br from-kenya-red/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -239,7 +266,7 @@ export function Sidebar({ forceShow }: SidebarProps) {
   return (
     <aside
       className={cn(
-        "w-72 fixed left-0 top-16 bottom-0 bg-brand-bg/80 glass-dark border-r border-white/5 flex flex-col z-40 transition-all duration-500",
+        "w-72 fixed left-0 top-16 bottom-0 bg-brand-bg/95 bg-linear-to-b from-kenya-green/5 via-transparent to-transparent glass-dark border-r border-white/5 flex flex-col z-40 transition-all duration-500",
         !forceShow && "hidden md:flex transform translate-x-0",
       )}
     >

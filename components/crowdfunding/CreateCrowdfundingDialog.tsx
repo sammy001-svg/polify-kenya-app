@@ -23,6 +23,8 @@ export function CreateCrowdfundingDialog() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [targetAmount, setTargetAmount] = useState("");
+  const [category, setCategory] = useState("Community");
+  const [impact, setImpact] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const supabase = createClient();
   const router = useRouter();
@@ -32,34 +34,38 @@ export function CreateCrowdfundingDialog() {
     setLoading(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
       let imageUrl = null;
 
       if (imageFile) {
-        const fileExt = imageFile.name.split('.').pop();
+        const fileExt = imageFile.name.split(".").pop();
         const fileName = `${user.id}/${Date.now()}.${fileExt}`;
-        
+
         const { error: uploadError } = await supabase.storage
-          .from('crowdfunding')
+          .from("crowdfunding")
           .upload(fileName, imageFile);
 
         if (uploadError) throw uploadError;
 
         const { data: publicUrlData } = supabase.storage
-          .from('crowdfunding')
+          .from("crowdfunding")
           .getPublicUrl(fileName);
-          
+
         imageUrl = publicUrlData.publicUrl;
       }
 
       const { error: insertError } = await supabase
-        .from('crowdfundings')
+        .from("crowdfundings")
         .insert({
           user_id: user.id,
           title,
           description,
+          category,
+          impact_statement: impact,
           target_amount: parseFloat(targetAmount),
           image_url: imageUrl,
         });
@@ -82,6 +88,8 @@ export function CreateCrowdfundingDialog() {
     setTitle("");
     setDescription("");
     setTargetAmount("");
+    setCategory("Community");
+    setImpact("");
     setImageFile(null);
   };
 
@@ -102,7 +110,9 @@ export function CreateCrowdfundingDialog() {
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <label htmlFor="title" className="text-sm font-medium">Title</label>
+            <label htmlFor="title" className="text-sm font-medium">
+              Title
+            </label>
             <Input
               id="title"
               value={title}
@@ -112,7 +122,9 @@ export function CreateCrowdfundingDialog() {
             />
           </div>
           <div className="grid gap-2">
-            <label htmlFor="amount" className="text-sm font-medium">Target Amount (KES)</label>
+            <label htmlFor="amount" className="text-sm font-medium">
+              Target Amount (KES)
+            </label>
             <Input
               id="amount"
               type="number"
@@ -124,30 +136,80 @@ export function CreateCrowdfundingDialog() {
             />
           </div>
           <div className="grid gap-2">
-            <label htmlFor="description" className="text-sm font-medium">Description</label>
+            <label
+              htmlFor="category"
+              className="text-xs font-black uppercase tracking-widest text-brand-text-muted"
+            >
+              Category
+            </label>
+            <select
+              id="category"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full h-10 bg-brand-surface border border-white/10 rounded-xl px-4 text-sm text-white focus:outline-none focus:ring-1 focus:ring-brand-primary"
+            >
+              <option value="Community">Community Project</option>
+              <option value="Emergency">Emergency Relief</option>
+              <option value="Medical">Medical Support</option>
+              <option value="Climate">Climate Action</option>
+              <option value="Education">Education & Skills</option>
+            </select>
+          </div>
+          <div className="grid gap-2">
+            <label
+              htmlFor="description"
+              className="text-xs font-black uppercase tracking-widest text-brand-text-muted"
+            >
+              Detailed Description
+            </label>
             <Textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Describe your campaign..."
+              className="min-h-[100px] bg-brand-surface border-white/10 rounded-xl"
               required
             />
           </div>
           <div className="grid gap-2">
-            <label htmlFor="image" className="text-sm font-medium">Campaign Image</label>
-            <div className="flex items-center gap-2">
-              <Input
-                id="image"
-                type="file"
-                accept="image/*"
-                onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-                className="cursor-pointer"
-              />
-            </div>
+            <label
+              htmlFor="impact"
+              className="text-xs font-black uppercase tracking-widest text-brand-text-muted"
+            >
+              Impact Statement
+            </label>
+            <Input
+              id="impact"
+              value={impact}
+              onChange={(e) => setImpact(e.target.value)}
+              placeholder="How will this money change lives?"
+              className="bg-brand-surface border-white/10 h-10"
+            />
+          </div>
+          <div className="grid gap-2">
+            <label
+              htmlFor="image"
+              className="text-xs font-black uppercase tracking-widest text-brand-text-muted"
+            >
+              Campaign Image
+            </label>
+            <Input
+              id="image"
+              type="file"
+              accept="image/*"
+              onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+              className="bg-brand-surface border-white/10 h-10 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-black file:bg-brand-primary/10 file:text-brand-primary cursor-pointer"
+            />
           </div>
           <DialogFooter>
-            <Button type="submit" disabled={loading} className="bg-brand-primary text-white">
-              {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+            <Button
+              type="submit"
+              disabled={loading}
+              className="bg-brand-primary text-white"
+            >
+              {loading ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : null}
               Create Campaign
             </Button>
           </DialogFooter>

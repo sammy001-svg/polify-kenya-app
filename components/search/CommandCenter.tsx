@@ -2,13 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import {
-  Search,
-  FileText,
-  BookOpen,
-  Home,
-  User 
-} from "lucide-react";
+import { Search, FileText, BookOpen, Home, User } from "lucide-react";
 
 import {
   CommandDialog,
@@ -56,7 +50,9 @@ export function CommandCenter({ isMobileTrigger }: CommandCenterProps) {
           className="flex flex-col items-center justify-center gap-1 text-brand-text-muted hover:text-white transition-colors"
         >
           <Search className="w-5 h-5" />
-          <span className="text-[10px] font-bold uppercase tracking-tighter">Search</span>
+          <span className="text-[10px] font-bold uppercase tracking-tighter">
+            Search
+          </span>
         </button>
       ) : (
         <button
@@ -66,28 +62,32 @@ export function CommandCenter({ isMobileTrigger }: CommandCenterProps) {
           <Search className="h-4 w-4" />
           <span className="hidden lg:inline-flex">Search PoliFy...</span>
           <span className="hidden lg:inline-flex text-xs text-brand-text-muted/60 ml-4">
-             <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-brand-surface px-1.5 font-mono text-[10px] font-medium text-brand-text-muted opacity-100">
-                <span className="text-xs">⌘</span>K
-             </kbd>
+            <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-brand-surface px-1.5 font-mono text-[10px] font-medium text-brand-text-muted opacity-100">
+              <span className="text-xs">⌘</span>K
+            </kbd>
           </span>
         </button>
       )}
 
       <CommandDialog open={open} onOpenChange={setOpen}>
         <CommandInput placeholder="Type a command or search..." />
-        <CommandList className="bg-brand-surface border-border">
+        <CommandList className="bg-brand-surface bg-linear-to-b from-kenya-green/10 via-transparent to-transparent border-t border-white/5">
           <CommandEmpty>No results found.</CommandEmpty>
-          
+
           <CommandGroup heading="Navigation">
             <CommandItem onSelect={() => runCommand(() => router.push("/"))}>
               <Home className="mr-2 h-4 w-4" />
               <span>Home</span>
             </CommandItem>
-            <CommandItem onSelect={() => runCommand(() => router.push("/tracker"))}>
+            <CommandItem
+              onSelect={() => runCommand(() => router.push("/tracker"))}
+            >
               <Search className="mr-2 h-4 w-4" />
               <span>Project Tracker</span>
             </CommandItem>
-            <CommandItem onSelect={() => runCommand(() => router.push("/leaderboard"))}>
+            <CommandItem
+              onSelect={() => runCommand(() => router.push("/leaderboard"))}
+            >
               <User className="mr-2 h-4 w-4" />
               <span>Leaderboard</span>
             </CommandItem>
@@ -97,43 +97,52 @@ export function CommandCenter({ isMobileTrigger }: CommandCenterProps) {
 
           <CommandGroup heading="Politicians">
             {SAMPLE_POLITICIANS.slice(0, 5).map((politician) => (
-               <CommandItem 
-                  key={politician.id} 
-                  onSelect={() => runCommand(() => router.push(`/representatives/${politician.id}`))}
-                >
-                  <User className="mr-2 h-4 w-4" />
-                  <span>{politician.name}</span>
-                  <span className="ml-2 text-xs text-brand-text-muted">({politician.position})</span>
-               </CommandItem>
+              <CommandItem
+                key={politician.id}
+                onSelect={() =>
+                  runCommand(() =>
+                    router.push(`/representatives/${politician.id}`),
+                  )
+                }
+              >
+                <User className="mr-2 h-4 w-4" />
+                <span>{politician.name}</span>
+                <span className="ml-2 text-xs text-brand-text-muted">
+                  ({politician.position})
+                </span>
+              </CommandItem>
             ))}
           </CommandGroup>
 
           <CommandSeparator />
-        
+
           <CommandGroup heading="Policies">
-             {DECODED_POLICIES.map((policy) => (
-               <CommandItem 
-                  key={policy.id} 
-                  onSelect={() => runCommand(() => router.push(`/policies/${policy.id}`))}
-                >
-                  <FileText className="mr-2 h-4 w-4" />
-                  <span>{policy.title}</span>
-               </CommandItem>
-             ))}
+            {DECODED_POLICIES.map((policy) => (
+              <CommandItem
+                key={policy.id}
+                onSelect={() =>
+                  runCommand(() => router.push(`/policies/${policy.id}`))
+                }
+              >
+                <FileText className="mr-2 h-4 w-4" />
+                <span>{policy.title}</span>
+              </CommandItem>
+            ))}
           </CommandGroup>
 
           <CommandGroup heading="Constitution">
-             {CONSTITUTION_CHAPTERS.slice(0, 5).map((chapter) => (
-                <CommandItem
-                  key={chapter.id}
-                  onSelect={() => runCommand(() => router.push(`/constitution/${chapter.id}`))}
-                >
-                  <BookOpen className="mr-2 h-4 w-4" />
-                  <span>{chapter.title}</span>
-                </CommandItem>
-             ))}
+            {CONSTITUTION_CHAPTERS.slice(0, 5).map((chapter) => (
+              <CommandItem
+                key={chapter.id}
+                onSelect={() =>
+                  runCommand(() => router.push(`/constitution/${chapter.id}`))
+                }
+              >
+                <BookOpen className="mr-2 h-4 w-4" />
+                <span>{chapter.title}</span>
+              </CommandItem>
+            ))}
           </CommandGroup>
-
         </CommandList>
       </CommandDialog>
     </>

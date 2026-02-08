@@ -223,7 +223,7 @@ export function PolicyIdeaCard({ idea }: PolicyIdeaCardProps) {
             <Sparkles className="w-12 h-12 text-brand-primary" />
           </div>
           <h4 className="text-[10px] font-black uppercase tracking-widest text-brand-primary flex items-center gap-2">
-            <Sparkles className="w-3 h-3" /> Bunge AI Scorecard
+            <Sparkles className="w-3 h-3" /> Polify AI Scorecard
           </h4>
           <div className="grid grid-cols-3 gap-3 text-center">
             <div className="space-y-1">
@@ -264,7 +264,7 @@ export function PolicyIdeaCard({ idea }: PolicyIdeaCardProps) {
             className="flex-1 bg-brand-primary text-white rounded-full font-black text-[10px] uppercase gap-2 animate-pulse hover:animate-none"
           >
             {isDrafting ? (
-              "Drafting via Bunge AI..."
+              "Drafting via Polify AI..."
             ) : (
               <>
                 <Gavel className="w-4 h-4" /> Move to AI Implementation

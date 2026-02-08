@@ -53,18 +53,20 @@ export function AILogConsole() {
       <div className="flex items-center justify-between px-3 md:px-4 py-2 border-b border-white/10 bg-white/5 shrink-0">
         <div className="flex items-center gap-2">
           <div className="relative">
-            <Cpu className="w-3 h-3 md:w-4 md:h-4 text-kenya-gold" />
-            <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-ping" />
+            <Cpu className="w-3 h-3 md:w-4 md:h-4 text-kenya-green" />
+            <span className="absolute -top-1 -right-1 w-2 h-2 bg-kenya-green rounded-full animate-ping" />
           </div>
           <span className="text-xs font-black tracking-tighter text-white">
             AI VERIFICATION NODE{" "}
-            <span className="text-kenya-gold">V2.0 ULTRA</span>
+            <span className="text-kenya-green uppercase tracking-widest">
+              Active
+            </span>
           </span>
           <Badge
             variant="outline"
-            className="text-[8px] h-4 border-kenya-gold/30 text-kenya-gold bg-kenya-gold/5"
+            className="text-[8px] h-4 border-kenya-green/30 text-kenya-green bg-kenya-green/5 font-black tracking-widest"
           >
-            MULTI-AGENT CONSENSUS ACTIVE
+            NODE CONSENSUS ACTIVE
           </Badge>
         </div>
 
@@ -78,7 +80,7 @@ export function AILogConsole() {
 
           <button
             onClick={() => setIsAutoPilot(!isAutoPilot)}
-            className="text-[10px] md:text-xs text-white hover:text-kenya-gold transition-colors font-black uppercase border border-white/20 px-3 py-1 rounded-lg hover:bg-white/5"
+            className="text-[10px] md:text-xs text-white hover:text-kenya-green transition-colors font-black uppercase border border-white/20 px-3 py-1 rounded-lg hover:bg-white/5"
           >
             {isAutoPilot ? "STOP" : "START"}
           </button>
