@@ -6,7 +6,6 @@ import { usePathname } from 'next/navigation';
 import { 
   Home, 
   Flame, 
-  Tv, 
   Scale, 
   Users, 
   BookOpen,
@@ -20,7 +19,8 @@ import {
   Megaphone,
   FileCheck,
   BarChart3,
-  Vote
+  Vote,
+  Handshake
 } from 'lucide-react';
 import { cn } from '@/components/ui/button';
 
@@ -68,9 +68,6 @@ export function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
         <SidebarItem icon={Radio} label="Mashinani (Town Halls)" href="/live" isActive={pathname === '/live'} onClick={onLinkClick} />
         <SidebarItem icon={Vote} label="IEBC" href="/iebc" isActive={pathname === '/iebc'} onClick={onLinkClick} />
         
-        {/* Secondary Core */}
-        <SidebarItem icon={Tv} label="Bunge Bites (Shorts)" href="/shorts" isActive={pathname === '/shorts'} onClick={onLinkClick} />
-        <SidebarItem icon={Sparkles} label="Bunge AI (Analysts)" href="/policy-ideas" isActive={pathname.startsWith('/policy-ideas')} onClick={onLinkClick} />
       </div>
 
       <div className="h-px bg-border mx-2" />
@@ -81,6 +78,7 @@ export function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
           Knowledge Base
         </h3>
         <SidebarItem icon={Landmark} label="Parliament Watch" href="/parliament" isActive={pathname.startsWith('/parliament')} onClick={onLinkClick} />
+        <SidebarItem icon={Sparkles} label="Bunge AI (Analysts)" href="/policy-ideas" isActive={pathname.startsWith('/policy-ideas')} onClick={onLinkClick} />
         <SidebarItem icon={FileCheck} label="Auditor General" href="/auditor" isActive={pathname.startsWith('/auditor')} onClick={onLinkClick} />
         <SidebarItem icon={Scale} label="Constitution" href="/constitution" isActive={pathname.startsWith('/constitution')} onClick={onLinkClick} />
         <SidebarItem icon={BookOpen} label="Policy Decoded" href="/policies" isActive={pathname.startsWith('/policies')} onClick={onLinkClick} />
@@ -95,7 +93,7 @@ export function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
         </h3>
         <SidebarItem icon={MessageSquare} label="Youth Issue Hubs" href="/youth" isActive={pathname.startsWith('/youth')} onClick={onLinkClick} />
         <SidebarItem icon={Users} label="Kenyan Groups (Societies)" href="/societies" isActive={pathname.startsWith('/societies')} onClick={onLinkClick} />
-        <SidebarItem icon={Megaphone} label="Mkenya Crowdfunding" href="/crowdfunding" isActive={pathname.startsWith('/crowdfunding')} onClick={onLinkClick} />
+        <SidebarItem icon={Handshake} label="Mkenya Crowdfunding" href="/crowdfunding" isActive={pathname.startsWith('/crowdfunding')} onClick={onLinkClick} />
         <SidebarItem icon={Sparkles} label="Civic Creators" href="/creators" isActive={pathname.startsWith('/creators')} onClick={onLinkClick} />
       </div>
 
@@ -117,8 +115,7 @@ export function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
         <h3 className="px-3 text-xs font-semibold text-brand-text-muted uppercase tracking-wider mb-2">
           My Civic Duty
         </h3>
-        <SidebarItem icon={Users} label="My Representatives" href="/my-reps" isActive={pathname.startsWith('/my-reps')} onClick={onLinkClick} />
-        <SidebarItem icon={Flame} label="Active Petitions" href="/petitions" isActive={pathname.startsWith('/petitions')} onClick={onLinkClick} />
+        <SidebarItem icon={Flame} label="Active Petitions" href="/participate#petitions" isActive={pathname.startsWith('/petitions')} onClick={onLinkClick} />
         <SidebarItem icon={User} label="My Profile" href="/profile" isActive={pathname.startsWith('/profile')} onClick={onLinkClick} />
       </div>
       

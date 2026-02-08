@@ -27,7 +27,7 @@ export default function ParticipatePage() {
       
       <div className="max-w-6xl mx-auto px-6 space-y-16">
           {/* Section 1: Petitions */}
-          <div className="space-y-6">
+          <div id="petitions" className="space-y-6 scroll-mt-24">
               <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-kenya-red/10 flex items-center justify-center border border-kenya-red/20">
@@ -35,7 +35,7 @@ export default function ParticipatePage() {
                       </div>
                       <h2 className="text-2xl font-bold text-white">Active Petitions</h2>
                   </div>
-                  <Link href="#" className="text-sm font-bold text-brand-text-muted hover:text-white transition-colors">
+                  <Link href="/participate" className="text-sm font-bold text-brand-text-muted hover:text-white transition-colors">
                       View All →
                   </Link>
               </div>

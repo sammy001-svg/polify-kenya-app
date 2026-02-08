@@ -118,8 +118,8 @@ export default function ChapterPage() {
                                 </div>
 
                                 <div className="flex gap-2 mt-3 ml-0">
-                                     {article.keywords.map(k => (
-                                         <span key={k} className="text-[10px] bg-white/5 text-brand-text-muted px-2 py-1 rounded-full border border-white/5">
+                                     {article.keywords.map((k, index) => (
+                                         <span key={`${article.id}-${k}-${index}`} className="text-[10px] bg-white/5 text-brand-text-muted px-2 py-1 rounded-full border border-white/5">
                                              #{k}
                                          </span>
                                      ))}
