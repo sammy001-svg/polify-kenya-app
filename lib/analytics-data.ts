@@ -24,6 +24,7 @@ export interface Voter {
   id: string;
   name: string;
   ward: string;
+  phone: string;
   age: number;
   gender: string;
   supportStatus: 'Strong Supporter' | 'Leaning' | 'Undecided' | 'Opposed';
@@ -46,9 +47,9 @@ export const MOCK_WARDS: WardData[] = [
 ];
 
 export const MOCK_VOTERS: Voter[] = [
-    { id: 'v1', name: 'John Kamau', ward: 'Kangemi', age: 24, gender: 'Male', supportStatus: 'Strong Supporter', lastContactDate: '2026-01-20', tags: ['Volunteer'] },
-    { id: 'v2', name: 'Alice Wanjiku', ward: 'Mountain View', age: 32, gender: 'Female', supportStatus: 'Undecided', lastContactDate: '2026-01-10', tags: [] },
-    { id: 'v3', name: 'Mohammed Ali', ward: 'Parklands', age: 45, gender: 'Male', supportStatus: 'Leaning', lastContactDate: '2026-01-22', tags: ['Donor'] },
-    { id: 'v4', name: 'Grace Ochieng', ward: 'Kitisuru', age: 50, gender: 'Female', supportStatus: 'Opposed', lastContactDate: '2025-12-15', tags: [] },
-    { id: 'v5', name: 'Peter Njoroge', ward: 'Kangemi', age: 21, gender: 'Male', supportStatus: 'Strong Supporter', lastContactDate: '2026-01-25', tags: ['Needs Transport'] },
+    { id: 'v1', name: 'John Kamau', ward: 'Kangemi', phone: '254712345678', age: 24, gender: 'Male', supportStatus: 'Strong Supporter', lastContactDate: '2026-01-20', tags: ['Volunteer'] },
+    { id: 'v2', name: 'Alice Wanjiku', ward: 'Mountain View', phone: '254722334455', age: 32, gender: 'Female', supportStatus: 'Undecided', lastContactDate: '2026-01-10', tags: [] },
+    { id: 'v3', name: 'Mohammed Ali', ward: 'Parklands', phone: '254733445566', age: 45, gender: 'Male', supportStatus: 'Leaning', lastContactDate: '2026-01-22', tags: ['Donor'] },
+    { id: 'v4', name: 'Grace Ochieng', ward: 'Kitisuru', phone: '254744556677', age: 50, gender: 'Female', supportStatus: 'Opposed', lastContactDate: '2025-12-15', tags: [] },
+    { id: 'v5', name: 'Peter Njoroge', ward: 'Kangemi', phone: '254755667788', age: 21, gender: 'Male', supportStatus: 'Strong Supporter', lastContactDate: '2026-01-25', tags: ['Needs Transport'] },
 ];

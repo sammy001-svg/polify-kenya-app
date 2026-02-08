@@ -39,12 +39,10 @@ export default function VoterRegistryPage() {
     setIsSending(true);
     
     try {
-        // Collect phone numbers (mocking them from MOCK_VOTERS if they don't exist, or using a placeholder)
-        // In a real app, MOCK_VOTERS would have phone numbers.
-        // For this demo, we'll simulate sending to the filtered list.
-        const recipients = voters.map(() => "254700000000"); // Placeholder numbers for safety/demo
+        // Use actual phone numbers from the filtered voters list
+        const recipients = voters.map(v => v.phone);
         
-        console.log("Sending broadcast to", recipients.length, "recipients");
+        console.log("Sending broadcast to", recipients.length, "recipients:", recipients.join(','));
 
         const result = await sendSmsBroadcast({
             message: broadcastMsg,
