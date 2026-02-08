@@ -12,10 +12,19 @@ export default function PlatformLayout({
   return (
     <>
       <Header />
-      <div className="flex pt-16">
+      <div className="flex pt-16 min-h-screen bg-brand-bg relative">
+        {/* Background Decorative Elements - Responsive */}
+        <div className="absolute top-0 left-0 w-full h-full pointer-events-none -z-10">
+          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-brand-primary/5 blur-[120px] rounded-full hide-on-mobile" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-kenya-red/5 blur-[120px] rounded-full hide-on-mobile" />
+        </div>
+
         <Sidebar />
-        <main className="flex-1 md:ml-64 p-4 md:p-6 pb-24 md:pb-6 min-h-[calc(100vh-4rem)]">
-          <div className="max-w-7xl mx-auto">{children}</div>
+
+        <main className="flex-1 md:ml-64 w-full relative">
+          <div className="main-content-container py-6 pb-24 md:pb-8 min-h-[calc(100vh-4rem)]">
+            {children}
+          </div>
         </main>
       </div>
       <BottomNav />
