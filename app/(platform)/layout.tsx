@@ -3,6 +3,12 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { XPNotification } from "@/components/gamification/XPNotification";
 import { PolifyAI } from "@/components/trust/PolifyAI";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Platform | PoliFy Keny",
+  description: "Engage, participate, and track your political impact.",
+};
 
 export default function PlatformLayout({
   children,

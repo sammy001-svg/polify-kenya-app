@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Sparkles, Trophy } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 export interface XPEventDetail {
   amount: number;
@@ -12,6 +13,12 @@ export interface XPEventDetail {
 }
 
 export const XP_EVENT_NAME = "xp-gained";
+
+declare global {
+  interface WindowEventMap {
+    [XP_EVENT_NAME]: CustomEvent<XPEventDetail>;
+  }
+}
 
 export function XPNotification() {
   const [notifications, setNotifications] = useState<XPEventDetail[]>([]);
@@ -26,15 +33,8 @@ export function XPNotification() {
       }, 4000);
     };
 
-    window.addEventListener(
-      XP_EVENT_NAME as unknown as string,
-      handleXP as EventListener,
-    );
-    return () =>
-      window.removeEventListener(
-        XP_EVENT_NAME as unknown as string,
-        handleXP as EventListener,
-      );
+    window.addEventListener(XP_EVENT_NAME, handleXP);
+    return () => window.removeEventListener(XP_EVENT_NAME, handleXP);
   }, []);
 
   return (
@@ -46,20 +46,20 @@ export function XPNotification() {
             initial={{ opacity: 0, y: 50, scale: 0.8 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8, x: 50 }}
-            className={`
-              p-4 rounded-xl border shadow-2xl backdrop-blur-md flex items-center gap-3 pr-6 pointer-events-auto
-              ${
-                notif.levelUp
-                  ? "bg-linear-to-r from-yellow-500/90 to-amber-600/90 border-yellow-300/50 text-white"
-                  : "bg-slate-900/90 border-slate-700 text-white"
-              }
-            `}
+            className={cn(
+              "p-4 rounded-xl border shadow-2xl backdrop-blur-md flex items-center gap-3 pr-6 pointer-events-auto transition-colors",
+              notif.levelUp
+                ? "bg-linear-to-r from-yellow-500/90 to-amber-600/90 border-yellow-300/50 text-white"
+                : "bg-slate-900/90 border-slate-700 text-white"
+            )}
           >
             <div
-              className={`
-              w-10 h-10 rounded-full flex items-center justify-center shrink-0
-              ${notif.levelUp ? "bg-white text-yellow-600" : "bg-brand-primary/20 text-brand-primary"}
-            `}
+              className={cn(
+                "w-10 h-10 rounded-full flex items-center justify-center shrink-0",
+                notif.levelUp
+                  ? "bg-white text-yellow-600"
+                  : "bg-brand-primary/20 text-brand-primary"
+              )}
             >
               {notif.levelUp ? (
                 <Trophy className="w-5 h-5 fill-current" />

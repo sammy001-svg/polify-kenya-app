@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, CheckCircle2, Clock, PlayCircle } from "lucide-react";
-import { mockTimeline } from "@/data/iebc-data";
+import { mockTimeline, TimelineEvent } from "@/data/iebc-data";
 import { cn } from "@/lib/utils";
 
 export function ElectionTimeline() {
@@ -27,7 +27,7 @@ export function ElectionTimeline() {
       </CardHeader>
       <CardContent>
         <div className="relative space-y-6 before:absolute before:inset-0 before:ml-5 before:-translate-x-px before:h-full before:w-0.5 before:bg-linear-to-b before:from-kenya-red before:via-white/20 before:to-transparent">
-          {mockTimeline.map((event) => (
+          {mockTimeline.map((event: TimelineEvent) => (
             <div
               key={event.id}
               className="relative flex items-start gap-6 group"

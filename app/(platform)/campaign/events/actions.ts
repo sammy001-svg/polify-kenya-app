@@ -35,113 +35,125 @@ export interface CampaignEventWithProfile extends CampaignEvent {
 }
 
 export async function getEvents(): Promise<CampaignEvent[]> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return [];
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return [];
 
-  const { data, error } = await supabase
-    .from("campaign_events")
-    .select("*")
-    .eq("created_by", user.id)
-    .order("date", { ascending: true });
+    const { data, error } = await supabase
+      .from("campaign_events")
+      .select("*")
+      .eq("created_by", user.id)
+      .order("date", { ascending: true });
 
-  if (error) {
-    console.error("Error fetching events:", error);
+    if (error) throw error;
+    return (data as CampaignEvent[]) || [];
+  } catch (error) {
+    console.error("Error in getEvents:", error);
     return [];
   }
-  return (data as CampaignEvent[]) || [];
 }
 
 export async function getAllPublicEvents(): Promise<CampaignEventWithProfile[]> {
-  const supabase = await createClient();
-  const now = new Date().toISOString();
+  try {
+    const supabase = await createClient();
+    const now = new Date().toISOString();
 
-  const { data, error } = await supabase
-    .from("campaign_events")
-    .select("*, profiles:created_by(full_name, avatar_url, party)")
-    .gte("date", now) // Only fetch upcoming events
-    .order("date", { ascending: true });
+    const { data, error } = await supabase
+      .from("campaign_events")
+      .select("*, profiles:created_by(full_name, avatar_url, party)")
+      .gte("date", now)
+      .order("date", { ascending: true });
 
-  if (error) {
-    console.error("Error fetching public events:", error);
+    if (error) throw error;
+    return (data as CampaignEventWithProfile[]) || [];
+  } catch (error) {
+    console.error("Error in getAllPublicEvents:", error);
     return [];
   }
-  return (data as CampaignEventWithProfile[]) || [];
 }
 
 export async function createEvent(formData: Partial<CampaignEvent>) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "Unauthorized" };
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return { error: "You must be logged in to create events." };
 
-  const {
-    title,
-    type,
-    description,
-    location,
-    date,
-    time = null,
-    image_url = null,
-    volunteers_needed = 0,
-  } = formData;
+    const title = formData.title?.trim();
+    const location = formData.location?.trim();
+    const date = formData.date;
+    const type = formData.type || "TownHall";
+    const description = formData.description?.trim() || null;
+    const time = formData.time || null;
+    const image_url = formData.image_url?.trim() || null;
+    const volunteers_needed = formData.volunteers_needed || 0;
 
-  // Validate minimum data
-  if (!title || !date || !location) {
-    return { error: "Missing required fields: Title, Date, and Location are required." };
+    // Validate required fields
+    if (!title || !date || !location) {
+      return { error: "Title, Date, and Location are required." };
+    }
+
+    // Validate date is not in the past
+    const eventDate = new Date(date);
+    const now = new Date();
+    now.setHours(0, 0, 0, 0); // Check by day
+    if (eventDate < now) {
+      return { error: "Event date cannot be in the past." };
+    }
+
+    // Ensure volunteers_needed is a valid positive number
+    const vNeeded = Math.max(0, Number(volunteers_needed) || 0);
+
+    const { error } = await supabase.from("campaign_events").insert({
+      created_by: user.id,
+      title,
+      type,
+      description,
+      location,
+      date,
+      time,
+      image_url,
+      volunteers_needed: vNeeded,
+      volunteers_registered: 0,
+      status: "Upcoming",
+    });
+
+    if (error) throw error;
+
+    revalidatePath("/campaign/events");
+    revalidatePath("/live");
+    return { success: true };
+  } catch (error) {
+    console.error("Error in createEvent:", error);
+    return { error: error instanceof Error ? error.message : "Failed to create event." };
   }
-
-  // Ensure volunteers_needed is a valid positive number
-  const vNeeded = typeof volunteers_needed === 'number' && !isNaN(volunteers_needed) 
-    ? Math.max(0, volunteers_needed) 
-    : 0;
-
-  const { error } = await supabase.from("campaign_events").insert({
-    created_by: user.id,
-    title,
-    type: type || "TownHall",
-    description: description || null,
-    location,
-    date,
-    time,
-    image_url,
-    volunteers_needed: vNeeded,
-    volunteers_registered: 0,
-    status: "Upcoming",
-  });
-
-  if (error) {
-    console.error("Error creating event:", error);
-    return { error: error.message };
-  }
-
-  revalidatePath("/campaign/events");
-  revalidatePath("/live");
-  return { success: true };
 }
 
 export async function deleteEvent(eventId: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "Unauthorized" };
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return { error: "Unauthorized" };
 
-  const { error } = await supabase
-    .from("campaign_events")
-    .delete()
-    .eq("id", eventId)
-    .eq("created_by", user.id); // Ensure ownership
+    const { error } = await supabase
+      .from("campaign_events")
+      .delete()
+      .eq("id", eventId)
+      .eq("created_by", user.id);
 
-  if (error) {
-    console.error("Error deleting event:", error);
-    return { error: error.message };
+    if (error) throw error;
+
+    revalidatePath("/campaign/events");
+    revalidatePath("/live");
+    return { success: true };
+  } catch (error) {
+    console.error("Error in deleteEvent:", error);
+    return { error: error instanceof Error ? error.message : "Failed to delete event." };
   }
-
-  revalidatePath("/campaign/events");
-  revalidatePath("/live");
-  return { success: true };
 }

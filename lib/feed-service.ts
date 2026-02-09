@@ -91,6 +91,9 @@ export const FeedService = {
 
       // Filter & Transform
       const newItems: (FeedItem | null)[] = rawVideos.map((video) => {
+        // Strict property check
+        if (!video?.id || !video?.title || !video?.author) return null;
+
         // Perform "AI Analysis" on Real Title
         const { isRelevant, reasoning } = analyzeContent(video.title);
 
@@ -147,15 +150,20 @@ export const FeedService = {
       const data = await response.json();
       const rawVideos: VideoItem[] = data.videos || [];
 
+      // Improved filtering: Check for valid objects before accessing properties
+      const validVideos = rawVideos.filter(
+        (v) => v && v.id && v.title && v.author,
+      );
+
       // 1. High Quality Shorts (Tagged)
-      const primaryShorts = rawVideos.filter(
+      const primaryShorts = validVideos.filter(
         (v) =>
           v.title.toLowerCase().includes("#shorts") ||
           v.title.toLowerCase().includes("short"),
       );
 
       // 2. News Bites (Everything else, treated as potential content)
-      const newsBites = rawVideos.filter(
+      const newsBites = validVideos.filter(
         (v) =>
           !v.title.toLowerCase().includes("#shorts") &&
           !v.title.toLowerCase().includes("short"),
@@ -216,6 +224,11 @@ function analyzeContent(text: string): {
   isRelevant: boolean;
   reasoning: string;
 } {
+  // Safety check
+  if (!text || typeof text !== "string") {
+    return { isRelevant: false, reasoning: "Invalid Content" };
+  }
+
   const lowerText = text.toLowerCase();
 
   // Filter Noise

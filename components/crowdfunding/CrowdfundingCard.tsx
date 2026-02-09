@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { formatDistanceToNow } from "date-fns";
 import { Crowdfunding, donateToCampaign } from "@/app/(platform)/crowdfunding/actions";
 import { useToast } from "@/components/ui/use-toast";
 import {
@@ -128,7 +129,7 @@ export function CrowdfundingCard({ campaign }: { campaign: Crowdfunding }) {
 
           <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-brand-text-muted">
             <span>Goal: KES {campaign.target_amount.toLocaleString()}</span>
-            <span>12 days left</span>
+            <span>Started {formatDistanceToNow(new Date(campaign.created_at), { addSuffix: true })}</span>
           </div>
         </div>
       </CardContent>

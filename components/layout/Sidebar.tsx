@@ -98,18 +98,6 @@ export function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
           href="/campaign"
           isActive={pathname.startsWith("/campaign")}
           onClick={onLinkClick}
-          // Bot knowledge base metadata for "Campaign HQ"
-          category="campaign"
-          keywords={[
-            "mashinani",
-            "rally",
-            "event",
-            "meeting",
-            "townhall",
-            "pulse",
-          ]}
-          response="Check out the Mashinani Campaign Pulse to see real-time updates from political rallies, town halls, and policy launches across the country."
-          actionText="View Campaign Pulse"
         />
         <SidebarItem
           icon={BarChart3}

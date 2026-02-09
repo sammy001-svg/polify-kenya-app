@@ -1,0 +1,26 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "words": [
+    "supabase",
+    "Polify",
+    "Mkenya",
+    "Shaba",
+    "Huduma",
+    "IEBC",
+    "Kenyatta",
+    "Ruto",
+    "Raila",
+    "Gachagua",
+    "Kindiki",
+    "Kalonzo",
+    "Maandamano",
+    "KMPDU",
+    "EACC"
+  ],
+  "ignorePaths": [
+    "node_modules",
+    ".next",
+    "public"
+  ]
+}

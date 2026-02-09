@@ -28,7 +28,7 @@ export async function analyzeIEBCData(): Promise<AIResponse> {
     
     3. **Engagement**: There are **${mockNews.length}** active news updates and **${mockJobs.length}** career opportunities listed.
     
-    **Recommendation**: Voter mobilization in "Westlands" constituency shows a favorable trend compared to the national average.
+    **Recommendation**: Voter mobilization efforts should focus on regions with higher population density to maximize registration efficiency.
   `;
 
   return {

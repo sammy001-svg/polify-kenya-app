@@ -8,6 +8,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ShieldCheck, Info, MapPin } from "lucide-react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "IEBC E-Portal | PoliFy Kenya",
+  description: "Real-time tracking of voter registration, electoral roadmaps, and boundary delimitation.",
+};
 
 export default function IEBCPage() {
   return (
@@ -34,7 +40,7 @@ export default function IEBCPage() {
             variant="outline"
             className="border-white/10 hover:bg-white/5 text-white gap-2 font-bold text-xs uppercase tracking-widest px-6 h-11 rounded-2xl"
           >
-            <Info className="w-4 h-4" /> voter Verification
+            <Info className="w-4 h-4" /> Voter Verification
           </Button>
           <Button className="bg-brand-primary text-black hover:bg-brand-primary/90 gap-2 font-black text-xs uppercase tracking-widest px-6 h-11 rounded-2xl shadow-xl shadow-brand-primary/20">
             <MapPin className="w-4 h-4" /> Register Now
@@ -61,7 +67,7 @@ export default function IEBCPage() {
               value="intelligence"
               className="rounded-xl px-6 py-2.5 data-[state=active]:bg-brand-primary data-[state=active]:text-black text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap"
             >
-              IEBC A.I Analytics
+              IEBC AI Analytics
             </TabsTrigger>
           </TabsList>
         </div>

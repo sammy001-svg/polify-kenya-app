@@ -5,12 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Sparkles, Send, Bot, User, BarChart } from "lucide-react";
-import { analyzeIEBCData, askIEBCAI } from "@/lib/iebc-ai";
+import { analyzeIEBCData, askIEBCAI, AIResponse } from "@/lib/iebc-ai";
 
 interface Message {
   role: "ai" | "user";
   content: string;
-  type?: "analysis" | "answer";
+  type?: AIResponse["type"];
 }
 
 export function AIAnalyst() {
@@ -82,18 +82,20 @@ export function AIAnalyst() {
   };
 
   return (
-    <Card className="bg-brand-surface border-white/5 h-[600px] flex flex-col">
-      <CardHeader className="border-b border-white/5">
+    <Card className="bg-brand-surface border-white/5 h-[600px] flex flex-col shadow-xl shadow-purple-900/5">
+      <CardHeader className="border-b border-white/5 bg-brand-surface-secondary/30">
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-purple-400" />
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <div className="p-2 rounded-lg bg-purple-500/10">
+               <Sparkles className="w-5 h-5 text-purple-400" />
+            </div>
             IEBC AI Analyst
           </CardTitle>
           <Button
             onClick={handleAnalyze}
             disabled={isAnalyzing}
             size="sm"
-            className="bg-purple-600 hover:bg-purple-700 text-white gap-2"
+            className="bg-purple-600 hover:bg-purple-700 text-white gap-2 shadow-lg shadow-purple-600/20 transition-all hover:scale-105"
           >
             <BarChart className="w-4 h-4" />
             {isAnalyzing ? "Analyzing..." : "Analyze Live Data"}
@@ -101,42 +103,48 @@ export function AIAnalyst() {
         </div>
       </CardHeader>
 
-      <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
-        <div className="flex-1 overflow-y-auto p-4 space-y-4" ref={scrollRef}>
+      <CardContent className="flex-1 flex flex-col p-0 overflow-hidden relative">
+        <div className="flex-1 overflow-y-auto p-4 space-y-6 scroll-smooth" ref={scrollRef}>
           {messages.map((msg, idx) => (
             <div
               key={idx}
-              className={`flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+              className={`flex gap-4 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
             >
               {msg.role === "ai" && (
-                <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 rounded-full bg-purple-500/20 border border-purple-500/30 flex items-center justify-center shrink-0 shadow-lg shadow-purple-500/10">
                   <Bot className="w-5 h-5 text-purple-400" />
                 </div>
               )}
 
               <div
-                className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm ${
+                className={`max-w-[85%] rounded-2xl px-5 py-4 text-sm shadow-md leading-relaxed ${
                   msg.role === "user"
-                    ? "bg-brand-surface-secondary text-white"
-                    : "bg-white/5 text-brand-text border border-white/5"
+                    ? "bg-purple-600 text-white rounded-tr-none"
+                    : "bg-brand-surface-secondary/80 text-brand-text border border-white/5 rounded-tl-none backdrop-blur-sm"
                 }`}
               >
-                <div className="whitespace-pre-wrap">{msg.content}</div>
+                <div className="whitespace-pre-wrap font-medium">{msg.content}</div>
+                {msg.type === "analysis" && (
+                   <div className="mt-2 text-xs text-purple-300/80 font-mono border-t border-white/10 pt-2 flex items-center gap-1">
+                      <BarChart className="w-3 h-3" />
+                      Live Data Analysis
+                   </div>
+                )}
               </div>
 
               {msg.role === "user" && (
-                <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center shrink-0 shadow-lg shadow-purple-600/20">
                   <User className="w-5 h-5 text-white" />
                 </div>
               )}
             </div>
           ))}
           {isAnalyzing && (
-            <div className="flex gap-3 items-center">
+            <div className="flex gap-4 items-center animate-pulse">
               <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center shrink-0">
                 <Bot className="w-5 h-5 text-purple-400" />
               </div>
-              <div className="flex gap-1">
+              <div className="flex gap-1 bg-brand-surface-secondary/50 px-4 py-3 rounded-2xl rounded-tl-none">
                 <span className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" />
                 <span className="w-2 h-2 bg-purple-400 rounded-full animate-bounce [animation-delay:0.2s]" />
                 <span className="w-2 h-2 bg-purple-400 rounded-full animate-bounce [animation-delay:0.4s]" />
@@ -145,8 +153,8 @@ export function AIAnalyst() {
           )}
         </div>
 
-        <div className="p-4 border-t border-white/5 bg-black/20">
-          <div className="flex gap-2">
+        <div className="p-4 border-t border-white/5 bg-brand-surface-secondary/30 backdrop-blur-md">
+          <div className="flex gap-3 items-end">
             <Textarea
               placeholder="Ask about voters, centres, or electoral laws..."
               value={input}
@@ -157,14 +165,14 @@ export function AIAnalyst() {
                   handleSendMessage();
                 }
               }}
-              className="min-h-[50px] bg-brand-bg border-white/10 focus-visible:ring-purple-500/50 resize-none"
+              className="min-h-[50px] bg-brand-bg/50 border-white/10 focus:border-purple-500/50 focus-visible:ring-purple-500/20 resize-none rounded-xl"
               disabled={isAnalyzing}
             />
             <Button
               onClick={handleSendMessage}
               disabled={!input.trim() || isAnalyzing}
               size="icon"
-              className="h-[50px] w-[50px] bg-white text-black hover:bg-white/90"
+              className="h-[50px] w-[50px] bg-purple-600 text-white hover:bg-purple-700 shadow-lg shadow-purple-600/20 rounded-xl transition-all active:scale-95"
             >
               <Send className="w-5 h-5" />
             </Button>

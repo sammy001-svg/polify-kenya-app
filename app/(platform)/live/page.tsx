@@ -3,12 +3,13 @@
 
 import React, { useState, useEffect } from "react";
 import { Search, Filter, Calendar, Share2, Loader2 } from "lucide-react";
+import { format } from "date-fns";
 import { EventCard } from "@/components/campaign/EventCard";
 import {
   getAllPublicEvents,
   CampaignEventWithProfile,
 } from "@/app/(platform)/campaign/events/actions";
-import { CAMPAIGN_EVENTS, CampaignEvent } from "@/lib/events-data";
+import { CAMPAIGN_EVENTS, CampaignEvent, EventType } from "@/lib/events-data";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -18,7 +19,7 @@ export default function TownHallPage() {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<
-    "All" | CampaignEvent["type"]
+    "All" | EventType
   >("All");
   const [events, setEvents] = useState<CampaignEvent[]>(CAMPAIGN_EVENTS);
   const [loading, setLoading] = useState(true);
@@ -37,14 +38,12 @@ export default function TownHallPage() {
         party: e.profiles?.party || "Independent",
         title: e.title,
         description: e.description || "No description provided.",
-        imageUrl:
+        image_url:
           e.image_url ||
           "https://images.unsplash.com/photo-1540910419892-f39aefe24aa2?q=80&w=2070&auto=format&fit=crop",
         location: e.location,
-        date:
-          new Date(e.date).toLocaleDateString() +
-          (e.time ? ` at ${e.time}` : ""),
-        type: e.type,
+        date: format(new Date(e.date), "PPP") + (e.time ? ` at ${e.time}` : ""),
+        type: e.type as EventType,
         attendees: `${e.volunteers_registered || 0} RSVPs`,
       }));
       setEvents([...mappedEvents, ...CAMPAIGN_EVENTS]);

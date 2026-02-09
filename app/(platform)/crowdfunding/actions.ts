@@ -13,6 +13,21 @@ export interface Crowdfunding {
   category: string;
   user_id: string;
   impact_statement?: string;
+  created_at: string;
+}
+
+export async function getCampaigns(): Promise<Crowdfunding[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("crowdfundings")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching campaigns:", error);
+    return [];
+  }
+  return data || [];
 }
 
 export async function createCampaign(formData: {

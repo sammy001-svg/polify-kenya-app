@@ -56,12 +56,12 @@ export const PLATFORM_KNOWLEDGE: KnowledgeEntry[] = [
     keywords: [
       "parliament",
       "bill",
-      "law",
+      "legislation",
       "mp",
       "senator",
       "debate",
       "hansard",
-      "legislative",
+      "statute",
     ],
     response:
       "Parliament Watch keeps you updated on active Bills, parliamentary debates (Hansard), and the performance of your representatives. You can track exactly what laws are being made.",
@@ -94,7 +94,7 @@ export const PLATFORM_KNOWLEDGE: KnowledgeEntry[] = [
       "article",
       "chapter",
       "law",
-      "supreme",
+      "supreme court",
     ],
     response:
       "I can help you navigate the 18 chapters and various articles of the Kenyan Constitution. Ask me about your rights, the Bill of Rights (Chapter 4), or the structure of Government.",
@@ -135,13 +135,24 @@ export const PLATFORM_KNOWLEDGE: KnowledgeEntry[] = [
 
 export function searchPlatformKnowledge(query: string): KnowledgeEntry | null {
   const q = query.toLowerCase();
+  // Tokenize the query by splitting on whitespace and punctuation
+  const tokens = q.split(/[\s,?.!]+/);
 
   // Find entry with most matching keywords
   let bestMatch: KnowledgeEntry | null = null;
   let maxMatches = 0;
 
   for (const entry of PLATFORM_KNOWLEDGE) {
-    const matches = entry.keywords.filter((k) => q.includes(k)).length;
+    const matches = entry.keywords.filter((k) => {
+      const lowerK = k.toLowerCase();
+      // If keyword is a phrase (contains space), allow partial match (substring)
+      if (lowerK.includes(" ")) {
+        return q.includes(lowerK);
+      }
+      // Otherwise, strict whole-word match using tokens
+      return tokens.includes(lowerK);
+    }).length;
+
     if (matches > maxMatches) {
       maxMatches = matches;
       bestMatch = entry;
