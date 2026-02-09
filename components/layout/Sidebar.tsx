@@ -254,7 +254,7 @@ export function Sidebar({ forceShow }: SidebarProps) {
   return (
     <aside
       className={cn(
-        "w-72 fixed left-0 top-16 bottom-0 bg-brand-bg/95 bg-linear-to-b from-kenya-green/5 via-transparent to-transparent glass-dark border-r border-white/5 flex flex-col z-40 transition-all duration-500",
+        "w-72 fixed left-0 top-16 bottom-0 bg-[#0B3D0B] border-r border-white/5 flex flex-col z-40 transition-all duration-500",
         !forceShow && "hidden md:flex transform translate-x-0",
       )}
     >

@@ -30,7 +30,7 @@
 
 :root {
   /* Kenyan Identity Palette - High-Fidelity HSL */
-  --background: hsl(240 10% 4%);
+  --background: hsl(25 100% 20%);
   --surface-primary: hsl(240 10% 6%);
   --surface-secondary: hsl(240 10% 9%);
   --surface-highlight: hsl(240 10% 12%);
@@ -42,7 +42,9 @@
   /* Accents - The Flag 🇰🇪 Optimized for Glow */
   --accent-red: hsl(0 72% 51%);
   --accent-green: hsl(150 100% 27%);
-  --accent-deep-green: hsl(160 100% 22%); /* Converted from #00704A for opacity utilities */
+  --accent-deep-green: hsl(
+    160 100% 22%
+  ); /* Converted from #00704A for opacity utilities */
   --accent-gold: hsl(35 92% 50%);
 
   --border: hsl(240 5% 15%);

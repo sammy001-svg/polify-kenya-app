@@ -47,7 +47,7 @@ export function MobileSidebar() {
           PoliFy Kenya Main Navigation
         </DialogDescription>
 
-        <div className="h-full bg-brand-bg/95 glass-dark backdrop-blur-3xl border-r border-white/10 flex flex-col relative overflow-hidden">
+        <div className="h-full bg-[#0B3D0B] border-r border-white/10 flex flex-col relative overflow-hidden">
           <div className="noise-overlay opacity-[0.02]" />
 
           {/* Mobile Sidebar Brand Header */}

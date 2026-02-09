@@ -27,7 +27,7 @@ export default function PlatformLayout({
 
         <Sidebar />
 
-        <main className="flex-1 md:ml-72 w-full relative bg-linear-to-br from-[#00704A]/15 via-black/50 to-black/80 border-l border-white/5">
+        <main className="flex-1 md:ml-72 relative bg-linear-to-br from-[#00704A]/15 via-black/50 to-black/80 border-l border-white/5">
           <div className="main-content-container py-6 pb-24 md:pb-8 min-h-[calc(100vh-4rem)]">
             {children}
           </div>
