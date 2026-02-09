@@ -70,6 +70,14 @@ const NON_POLITICAL_KEYWORDS = [
 
 // 2. Simulation Data Pool Removed (Switched to Real-time API)
 
+// Define raw RSS API response type
+interface VideoItem {
+  id: string;
+  title: string;
+  author: string;
+  channelKey: string;
+}
+
 // 2. Real-time RSS Feed Integration
 export const FeedService = {
   scanForUpdates: async (): Promise<FeedItem[]> => {
@@ -79,57 +87,52 @@ export const FeedService = {
       if (!response.ok) throw new Error("Failed to fetch RSS feeds");
 
       const data = await response.json();
-      const rawVideos = data.videos || [];
-
-      interface Video {
-        id: string;
-        title: string;
-        author: string;
-        channelKey: string;
-      }
+      const rawVideos: VideoItem[] = data.videos || [];
 
       // Filter & Transform
-      const newItems: FeedItem[] = rawVideos
-        .map((video: Video) => {
-          // Perform "AI Analysis" on Real Title
-          const { isRelevant, reasoning } = analyzeContent(video.title);
+      const newItems: (FeedItem | null)[] = rawVideos.map((video) => {
+        // Perform "AI Analysis" on Real Title
+        const { isRelevant, reasoning } = analyzeContent(video.title);
 
-          if (!isRelevant) return null;
+        if (!isRelevant) return null;
 
-          const channelConfig =
-            KENYAN_MEDIA_CHANNELS.find((c) => c.id === video.channelKey) ||
-            KENYAN_MEDIA_CHANNELS[0];
+        const channelConfig =
+          KENYAN_MEDIA_CHANNELS.find((c) => c.id === video.channelKey) ||
+          KENYAN_MEDIA_CHANNELS[0];
 
-          return {
-            id: video.id, // YouTube Video ID
-            title: video.title,
-            host: video.author,
-            views: "Live/New",
-            timeAgo: "Just now", // In a real app we'd parse video.published relative to now
-            duration: "New",
-            thumbnailUrl: `https://i.ytimg.com/vi/${video.id}/hqdefault.jpg`, // Real YouTube Thumbnail
-            category:
-              channelConfig.id === "parliament" ? "Parliament" : "Town Hall",
-            verificationStatus: "Verified", // Trusted source
-            citations: [
-              { label: "Official YouTube Channel", url: `https://youtube.com/watch?v=${video.id}` }
-            ],
-            isVerifiedChannel: true,
-            recommendationReason: "AI Alert: " + reasoning,
-            politicalLeaning:
-              channelConfig.category === "Governance"
-                ? "Independent"
-                : "Government",
-            videoUrl: `https://www.youtube.com/embed/${video.id}`,
-            aiReasoning: reasoning,
-            sourceChannelId: video.channelKey,
-            isNew: true,
-          };
-        })
-        .filter(Boolean); // Remove nulls (irrelevant videos)
+        const item: FeedItem = {
+          id: video.id, // YouTube Video ID
+          title: video.title,
+          host: video.author,
+          views: "Live/New",
+          timeAgo: "Just now", // In a real app we'd parse video.published relative to now
+          duration: "New",
+          thumbnailUrl: `https://i.ytimg.com/vi/${video.id}/hqdefault.jpg`, // Real YouTube Thumbnail
+          category:
+            channelConfig.id === "parliament" ? "Parliament" : "Town Hall",
+          verificationStatus: "Verified", // Trusted source
+          citations: [
+            {
+              label: "Official YouTube Channel",
+              url: `https://youtube.com/watch?v=${video.id}`,
+            },
+          ],
+          isVerifiedChannel: true,
+          recommendationReason: "AI Alert: " + reasoning,
+          politicalLeaning:
+            channelConfig.category === "Governance"
+              ? "Independent"
+              : "Government",
+          videoUrl: `https://www.youtube.com/embed/${video.id}`,
+          aiReasoning: reasoning,
+          sourceChannelId: video.channelKey,
+          isNew: true,
+        };
+        return item;
+      });
 
-      // Deduplication would happen here in a real app (checking against existing IDs)
-      return newItems;
+      // Remove nulls and return valid items
+      return newItems.filter((item): item is FeedItem => item !== null);
     } catch (error) {
       console.error("RSS Scan failed:", error);
       return [];
@@ -137,78 +140,76 @@ export const FeedService = {
   },
 
   scanForShorts: async (): Promise<ShortVideo[]> => {
-     try {
-       const response = await fetch("/api/rss");
-       if (!response.ok) return [];
-       
-       const data = await response.json();
-       const rawVideos = data.videos || [];
+    try {
+      const response = await fetch("/api/rss");
+      if (!response.ok) return [];
 
-       interface Video {
-        id: string;
-        title: string;
-        author: string;
-        channelKey: string;
+      const data = await response.json();
+      const rawVideos: VideoItem[] = data.videos || [];
+
+      // 1. High Quality Shorts (Tagged)
+      const primaryShorts = rawVideos.filter(
+        (v) =>
+          v.title.toLowerCase().includes("#shorts") ||
+          v.title.toLowerCase().includes("short"),
+      );
+
+      // 2. News Bites (Everything else, treated as potential content)
+      const newsBites = rawVideos.filter(
+        (v) =>
+          !v.title.toLowerCase().includes("#shorts") &&
+          !v.title.toLowerCase().includes("short"),
+      );
+
+      // Combine: Shorts first, then Bites
+      const combinedPool = [...primaryShorts, ...newsBites];
+
+      // 3. Fallback: If 0 items (API Error or Empty), return empty to show "No Shorts"
+      if (combinedPool.length === 0) return [];
+
+      // 4. Volume Maximizer: Target 100 items
+      // If we have less than 100, we recycle content with unique IDs for UX demo
+      const TARGET_COUNT = 100;
+      const finalVideos: ShortVideo[] = [];
+
+      let poolIndex = 0;
+      while (finalVideos.length < TARGET_COUNT && combinedPool.length > 0) {
+        const sourceVideo = combinedPool[poolIndex % combinedPool.length];
+        const isDerivative = finalVideos.length >= combinedPool.length;
+
+        finalVideos.push({
+          id: isDerivative
+            ? `${sourceVideo.id}_${finalVideos.length}`
+            : sourceVideo.id,
+          videoUrl: `https://www.youtube.com/embed/${sourceVideo.id}`,
+          title: sourceVideo.title,
+          creator: {
+            id: sourceVideo.channelKey,
+            name: sourceVideo.author,
+            avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(sourceVideo.author)}&background=random`,
+            isVerified: true,
+          },
+          stats: {
+            likes: isDerivative ? `${Math.floor(Math.random() * 900)}` : "New",
+            comments: "0",
+            shares: "0",
+          },
+          verificationStatus: isDerivative ? "Verified" : "Pending",
+          description: isDerivative
+            ? "Recommended for you based on your viewing history."
+            : "Latest update from the channel feed.",
+          tags: ["#BungeBites", "#KenyaPolitics"],
+        });
+
+        poolIndex++;
       }
 
-       // 1. High Quality Shorts (Tagged)
-       const primaryShorts = rawVideos.filter((v: Video) => 
-          v.title.toLowerCase().includes("#shorts") || 
-          v.title.toLowerCase().includes("short")
-       );
-
-       // 2. News Bites (Everything else, treated as potential content)
-       const newsBites = rawVideos.filter((v: Video) => 
-          !v.title.toLowerCase().includes("#shorts") && 
-          !v.title.toLowerCase().includes("short")
-       );
-
-       // Combine: Shorts first, then Bites
-       const combinedPool = [...primaryShorts, ...newsBites];
-       
-       // 3. Fallback: If 0 items (API Error or Empty), return empty to show "No Shorts"
-       if (combinedPool.length === 0) return [];
-
-       // 4. Volume Maximizer: Target 100 items
-       // If we have less than 100, we recycle content with unique IDs for UX demo
-       const TARGET_COUNT = 100;
-       const finalVideos: ShortVideo[] = [];
-       
-       let poolIndex = 0;
-       while (finalVideos.length < TARGET_COUNT && combinedPool.length > 0) {
-           const sourceVideo = combinedPool[poolIndex % combinedPool.length];
-           const isDerivative = finalVideos.length >= combinedPool.length;
-           
-           finalVideos.push({
-              id: isDerivative ? `${sourceVideo.id}_${finalVideos.length}` : sourceVideo.id,
-              videoUrl: `https://www.youtube.com/embed/${sourceVideo.id}`,
-              title: sourceVideo.title,
-              creator: {
-                 id: sourceVideo.channelKey,
-                 name: sourceVideo.author,
-                 avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(sourceVideo.author)}&background=random`, 
-                 isVerified: true
-              },
-              stats: {
-                 likes: isDerivative ? `${Math.floor(Math.random() * 900)}` : "New",
-                 comments: "0",
-                 shares: "0"
-              },
-              verificationStatus: isDerivative ? "Verified" : "Pending",
-              description: isDerivative ? "Recommended for you based on your viewing history." : "Latest update from the channel feed.",
-              tags: ["#BungeBites", "#KenyaPolitics"]
-           });
-           
-           poolIndex++;
-       }
-
-       return finalVideos;
-
-     } catch (error) {
-       console.error("Shorts Scan failed:", error);
-       return [];
-     }
-  }
+      return finalVideos;
+    } catch (error) {
+      console.error("Shorts Scan failed:", error);
+      return [];
+    }
+  },
 };
 
 function analyzeContent(text: string): {

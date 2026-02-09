@@ -3,7 +3,13 @@
 import { createClient } from "@/lib/supabase-server";
 import { revalidatePath } from "next/cache";
 
-export type EventType = "Rally" | "TownHall" | "Fundraiser" | "MeetUp";
+export type EventType =
+  | "Rally"
+  | "TownHall"
+  | "Fundraiser"
+  | "MeetUp"
+  | "Press"
+  | "Launch";
 
 export interface CampaignEvent {
   id: string;
@@ -20,7 +26,15 @@ export interface CampaignEvent {
   status: string;
 }
 
-export async function getEvents() {
+export interface CampaignEventWithProfile extends CampaignEvent {
+  profiles: {
+    full_name: string | null;
+    avatar_url: string | null;
+    party: string | null;
+  } | null;
+}
+
+export async function getEvents(): Promise<CampaignEvent[]> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -37,10 +51,10 @@ export async function getEvents() {
     console.error("Error fetching events:", error);
     return [];
   }
-  return data as CampaignEvent[];
+  return (data as CampaignEvent[]) || [];
 }
 
-export async function getAllPublicEvents() {
+export async function getAllPublicEvents(): Promise<CampaignEventWithProfile[]> {
   const supabase = await createClient();
   const now = new Date().toISOString();
 
@@ -54,7 +68,7 @@ export async function getAllPublicEvents() {
     console.error("Error fetching public events:", error);
     return [];
   }
-  return data;
+  return (data as CampaignEventWithProfile[]) || [];
 }
 
 export async function createEvent(formData: Partial<CampaignEvent>) {
@@ -64,25 +78,45 @@ export async function createEvent(formData: Partial<CampaignEvent>) {
   } = await supabase.auth.getUser();
   if (!user) return { error: "Unauthorized" };
 
+  const {
+    title,
+    type,
+    description,
+    location,
+    date,
+    time = null,
+    image_url = null,
+    volunteers_needed = 0,
+  } = formData;
+
   // Validate minimum data
-  if (!formData.title || !formData.date || !formData.location) {
-    return { error: "Missing required fields" };
+  if (!title || !date || !location) {
+    return { error: "Missing required fields: Title, Date, and Location are required." };
   }
+
+  // Ensure volunteers_needed is a valid positive number
+  const vNeeded = typeof volunteers_needed === 'number' && !isNaN(volunteers_needed) 
+    ? Math.max(0, volunteers_needed) 
+    : 0;
 
   const { error } = await supabase.from("campaign_events").insert({
     created_by: user.id,
-    title: formData.title,
-    type: formData.type || "TownHall",
-    description: formData.description,
-    location: formData.location,
-    date: formData.date,
-    time: formData.time,
-    image_url: formData.image_url,
-    volunteers_needed: formData.volunteers_needed || 0,
+    title,
+    type: type || "TownHall",
+    description: description || null,
+    location,
+    date,
+    time,
+    image_url,
+    volunteers_needed: vNeeded,
+    volunteers_registered: 0,
     status: "Upcoming",
   });
 
-  if (error) return { error: error.message };
+  if (error) {
+    console.error("Error creating event:", error);
+    return { error: error.message };
+  }
 
   revalidatePath("/campaign/events");
   revalidatePath("/live");
@@ -102,8 +136,12 @@ export async function deleteEvent(eventId: string) {
     .eq("id", eventId)
     .eq("created_by", user.id); // Ensure ownership
 
-  if (error) return { error: error.message };
+  if (error) {
+    console.error("Error deleting event:", error);
+    return { error: error.message };
+  }
 
   revalidatePath("/campaign/events");
+  revalidatePath("/live");
   return { success: true };
 }

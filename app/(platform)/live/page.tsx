@@ -4,57 +4,31 @@
 import React, { useState, useEffect } from "react";
 import { Search, Filter, Calendar, Share2, Loader2 } from "lucide-react";
 import { EventCard } from "@/components/campaign/EventCard";
-import { getAllPublicEvents } from "@/app/(platform)/campaign/events/actions";
-import { CAMPAIGN_EVENTS } from "@/lib/events-data";
+import {
+  getAllPublicEvents,
+  CampaignEventWithProfile,
+} from "@/app/(platform)/campaign/events/actions";
+import { CAMPAIGN_EVENTS, CampaignEvent } from "@/lib/events-data";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
-
-interface MappedEvent {
-  id: string;
-  politicianName: string;
-  politicianAvatar: string;
-  party: string;
-  title: string;
-  description: string;
-  imageUrl: string;
-  location: string;
-  date: string;
-  type: string;
-  attendees: string;
-}
-
-interface RawEvent {
-  id: string;
-  title: string;
-  description: string | null;
-  image_url: string | null;
-  location: string;
-  date: string;
-  time: string | null;
-  type: string;
-  volunteers_registered: number;
-  profiles: {
-    full_name: string | null;
-    avatar_url: string | null;
-    party: string | null;
-  } | null;
-}
+import { useToast } from "@/components/ui/use-toast";
 
 export default function TownHallPage() {
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<
-    "All" | "Rally" | "TownHall" | "Launch"
+    "All" | CampaignEvent["type"]
   >("All");
-  const [events, setEvents] = useState<MappedEvent[]>(CAMPAIGN_EVENTS);
+  const [events, setEvents] = useState<CampaignEvent[]>(CAMPAIGN_EVENTS);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadEvents() {
       setLoading(true);
-      const data = (await getAllPublicEvents()) as unknown as RawEvent[];
+      const data: CampaignEventWithProfile[] = await getAllPublicEvents();
       // Map DB events to EventCard expected format
-      const mappedEvents: MappedEvent[] = (data || []).map((e) => ({
+      const mappedEvents: CampaignEvent[] = (data || []).map((e) => ({
         id: e.id,
         politicianName: e.profiles?.full_name || "Unknown Candidate",
         politicianAvatar:
@@ -91,7 +65,10 @@ export default function TownHallPage() {
         await navigator.share(shareData);
       } else {
         await navigator.clipboard.writeText(window.location.href);
-        alert("Campaign Pulse link copied to clipboard!");
+        toast({
+          title: "Link Copied",
+          description: "Campaign Pulse link copied to clipboard!",
+        });
       }
     } catch (err) {
       console.error("Error sharing:", err);
@@ -156,7 +133,17 @@ export default function TownHallPage() {
         </div>
 
         <div className="flex gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 no-scrollbar">
-          {(["All", "Rally", "TownHall", "Launch"] as const).map((filter) => (
+          {(
+            [
+              "All",
+              "Rally",
+              "TownHall",
+              "Launch",
+              "Press",
+              "MeetUp",
+              "Fundraiser",
+            ] as const
+          ).map((filter) => (
             <button
               key={filter}
               onClick={() => setActiveFilter(filter)}

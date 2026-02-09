@@ -16,8 +16,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { createCampaign } from "@/app/(platform)/crowdfunding/actions";
+import { useToast } from "@/components/ui/use-toast";
 
 export function CreateCrowdfundingDialog() {
+  const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState("");
@@ -58,27 +61,31 @@ export function CreateCrowdfundingDialog() {
         imageUrl = publicUrlData.publicUrl;
       }
 
-      const { error: insertError } = await supabase
-        .from("crowdfundings")
-        .insert({
-          user_id: user.id,
-          title,
-          description,
-          category,
-          impact_statement: impact,
-          target_amount: parseFloat(targetAmount),
-          image_url: imageUrl,
-        });
+      const res = await createCampaign({
+        title,
+        description,
+        category,
+        impact_statement: impact,
+        target_amount: parseFloat(targetAmount),
+        image_url: imageUrl,
+      });
 
-      if (insertError) throw insertError;
+      if (res.error) throw new Error(res.error);
 
       setOpen(false);
       resetForm();
+      toast({
+        title: "Success",
+        description: "Campaign created successfully!",
+      });
       router.refresh();
-      // Toast success
     } catch (error) {
       console.error("Error creating campaign:", error);
-      alert("Failed to create campaign. Please try again.");
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to create campaign. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }

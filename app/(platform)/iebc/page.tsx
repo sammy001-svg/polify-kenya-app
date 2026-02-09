@@ -43,26 +43,28 @@ export default function IEBCPage() {
       </div>
 
       <Tabs defaultValue="dashboard" className="w-full">
-        <TabsList className="bg-white/5 border border-white/10 mb-8 p-1 rounded-2xl h-auto flex flex-wrap gap-1">
-          <TabsTrigger
-            value="dashboard"
-            className="rounded-xl px-6 py-2.5 data-[state=active]:bg-brand-primary data-[state=active]:text-black text-xs font-black uppercase tracking-widest transition-all"
-          >
-            National Dashboard
-          </TabsTrigger>
-          <TabsTrigger
-            value="roadmap"
-            className="rounded-xl px-6 py-2.5 data-[state=active]:bg-brand-primary data-[state=active]:text-black text-xs font-black uppercase tracking-widest transition-all"
-          >
-            Electoral Roadmap
-          </TabsTrigger>
-          <TabsTrigger
-            value="intelligence"
-            className="rounded-xl px-6 py-2.5 data-[state=active]:bg-brand-primary data-[state=active]:text-black text-xs font-black uppercase tracking-widest transition-all"
-          >
-            IEBC A.I Analytics
-          </TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto no-scrollbar pb-2">
+          <TabsList className="bg-white/5 border border-white/10 p-1 rounded-2xl h-auto flex gap-1 w-fit min-w-full md:w-auto">
+            <TabsTrigger
+              value="dashboard"
+              className="rounded-xl px-6 py-2.5 data-[state=active]:bg-brand-primary data-[state=active]:text-black text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap"
+            >
+              National Dashboard
+            </TabsTrigger>
+            <TabsTrigger
+              value="roadmap"
+              className="rounded-xl px-6 py-2.5 data-[state=active]:bg-brand-primary data-[state=active]:text-black text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap"
+            >
+              Electoral Roadmap
+            </TabsTrigger>
+            <TabsTrigger
+              value="intelligence"
+              className="rounded-xl px-6 py-2.5 data-[state=active]:bg-brand-primary data-[state=active]:text-black text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap"
+            >
+              IEBC A.I Analytics
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent
           value="dashboard"

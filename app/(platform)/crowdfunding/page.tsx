@@ -16,18 +16,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-interface Crowdfunding {
-  id: string;
-  title: string;
-  description: string;
-  target_amount: number;
-  collected_amount: number;
-  image_url: string | null;
-  category: string;
-  user_id: string;
-}
+import { Crowdfunding } from "./actions";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function CrowdfundingPage() {
+  const { toast } = useToast();
   const [campaigns, setCampaigns] = useState<Crowdfunding[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -55,18 +48,24 @@ export default function CrowdfundingPage() {
         setCampaigns(data || []);
       } catch (error) {
         console.error("Error fetching campaigns:", error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch campaigns. Please try again later.",
+          variant: "destructive",
+        });
       } finally {
         setLoading(false);
       }
     }
 
     fetchCampaigns();
-  }, [supabase]);
+  }, [supabase, toast]);
 
   const filteredCampaigns = campaigns.filter((c) => {
     const matchesSearch =
       c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.description.toLowerCase().includes(searchQuery.toLowerCase());
+      c.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (c.impact_statement?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false);
     const matchesCategory =
       activeCategory === "All" || c.category === activeCategory;
     return matchesSearch && matchesCategory;

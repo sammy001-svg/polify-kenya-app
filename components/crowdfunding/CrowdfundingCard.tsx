@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { createClient } from "@/lib/supabase";
+import { useState, useEffect } from "react";
+import { Crowdfunding, donateToCampaign } from "@/app/(platform)/crowdfunding/actions";
+import { useToast } from "@/components/ui/use-toast";
 import {
   Card,
   CardContent,
@@ -15,64 +16,39 @@ import { motion } from "framer-motion";
 import { Heart, Loader2, Users, TrendingUp } from "lucide-react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-interface Crowdfunding {
-  id: string;
-  title: string;
-  description: string;
-  target_amount: number;
-  collected_amount: number;
-  image_url: string | null;
-  category: string;
-  user_id: string;
-}
 
 export function CrowdfundingCard({ campaign }: { campaign: Crowdfunding }) {
+  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [collected, setCollected] = useState(campaign.collected_amount);
-  const supabase = createClient();
+
+  useEffect(() => {
+    setCollected(campaign.collected_amount);
+  }, [campaign.collected_amount]);
 
   const progress = Math.min((collected / campaign.target_amount) * 100, 100);
 
   const handleDonate = async () => {
     setLoading(true);
+    const donationAmount = 1000;
+
     try {
-      // simulate donation of 1000 KES
-      const donationAmount = 1000;
+      const res = await donateToCampaign(campaign.id, donationAmount);
 
-      // Update collected amount
-      const { error: updateError } = await supabase
-        .from("crowdfundings")
-        .update({ collected_amount: collected + donationAmount })
-        .eq("id", campaign.id);
+      if (res.error) throw new Error(res.error);
 
-      if (updateError) throw updateError;
-
-      // Update wallet balance of the campaign owner
-      // First get the owner's wallet
-      const { data: wallet } = await supabase
-        .from("wallets")
-        .select("id, balance")
-        .eq("user_id", campaign.user_id)
-        .single();
-
-      if (wallet) {
-        await supabase
-          .from("wallets")
-          .update({ balance: wallet.balance + donationAmount })
-          .eq("id", wallet.id);
-      } else {
-        // Create wallet if not exists (should handle by trigger usually but manual here for now)
-        await supabase.from("wallets").insert({
-          user_id: campaign.user_id,
-          balance: donationAmount,
-        });
-      }
-
-      setCollected((prev) => prev + donationAmount);
-      alert(`Donated ${donationAmount} KES!`);
+      setCollected(res.newAmount ?? (collected + donationAmount));
+      toast({
+        title: "Success",
+        description: `Donated KES ${donationAmount.toLocaleString()} successfully!`,
+      });
     } catch (error) {
       console.error("Error donating:", error);
-      alert("Failed to donate.");
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to donate. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -118,6 +94,11 @@ export function CrowdfundingCard({ campaign }: { campaign: Crowdfunding }) {
         <CardDescription className="line-clamp-2 text-xs font-medium text-brand-text-muted leading-relaxed">
           {campaign.description}
         </CardDescription>
+        {campaign.impact_statement && (
+          <div className="mt-2 text-[10px] font-bold text-brand-primary uppercase tracking-widest italic flex items-center gap-2">
+            <TrendingUp className="w-3 h-3" /> Impact: {campaign.impact_statement}
+          </div>
+        )}
       </CardHeader>
 
       <CardContent className="space-y-6 grow pt-4">

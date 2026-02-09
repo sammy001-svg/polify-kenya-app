@@ -8,7 +8,7 @@ export interface CampaignEvent {
   imageUrl: string;
   location: string;
   date: string;
-  type: "Rally" | "TownHall" | "Press" | "Launch";
+  type: "Rally" | "TownHall" | "Fundraiser" | "MeetUp" | "Press" | "Launch";
   attendees: string;
 }
 

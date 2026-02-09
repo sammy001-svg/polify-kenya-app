@@ -27,7 +27,7 @@ export function ElectionTimeline() {
       </CardHeader>
       <CardContent>
         <div className="relative space-y-6 before:absolute before:inset-0 before:ml-5 before:-translate-x-px before:h-full before:w-0.5 before:bg-linear-to-b before:from-kenya-red before:via-white/20 before:to-transparent">
-          {mockTimeline.map((event, index) => (
+          {mockTimeline.map((event) => (
             <div
               key={event.id}
               className="relative flex items-start gap-6 group"

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,18 +14,18 @@ interface Message {
 }
 
 export function AIAnalyst() {
-  const [messages, setMessages] = React.useState<Message[]>([
+  const [messages, setMessages] = useState<Message[]>([
     {
       role: "ai",
       content:
         "Jambo! I am the IEBC AI Analyst. I can help you analyze electoral data or answer questions about the IEBC. Try clicking 'Analyze Live Data' or ask me a question!",
     },
   ]);
-  const [input, setInput] = React.useState("");
-  const [isAnalyzing, setIsAnalyzing] = React.useState(false);
-  const scrollRef = React.useRef<HTMLDivElement>(null);
+  const [input, setInput] = useState("");
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
@@ -87,7 +87,7 @@ export function AIAnalyst() {
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-purple-400" />
-            Polify AI Analyst
+            IEBC AI Analyst
           </CardTitle>
           <Button
             onClick={handleAnalyze}

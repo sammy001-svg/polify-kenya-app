@@ -15,11 +15,11 @@ export function VoterStats() {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       {mockVoterStats.map((stat, index) => {
         const Icon = getIcon(stat.category);
         return (
-          <Card key={index} className="bg-brand-surface border-white/5 hover:border-kenya-red/30 transition-colors group">
+          <Card key={index} className="bg-brand-surface border-white/5 hover:border-kenya-red/30 transition-all duration-300 group hover:-translate-y-1 active:scale-95 cursor-pointer">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-brand-text-muted">
                 {stat.category} Voters

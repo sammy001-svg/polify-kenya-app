@@ -17,6 +17,9 @@ import {
   Briefcase,
   Loader2,
   Trash2,
+  Rocket,
+  Megaphone,
+  Handshake,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -37,6 +40,12 @@ const getEventIcon = (type: EventType) => {
       return <Users className="w-5 h-5" />;
     case "Fundraiser":
       return <Briefcase className="w-5 h-5" />;
+    case "MeetUp":
+      return <Handshake className="w-5 h-5" />;
+    case "Press":
+      return <Megaphone className="w-5 h-5" />;
+    case "Launch":
+      return <Rocket className="w-5 h-5" />;
     default:
       return <Calendar className="w-5 h-5" />;
   }
@@ -50,6 +59,12 @@ const getEventColor = (type: EventType) => {
       return "text-blue-500 bg-blue-500/10 border-blue-500/20";
     case "Fundraiser":
       return "text-kenya-gold bg-kenya-gold/10 border-kenya-gold/20";
+    case "MeetUp":
+      return "text-kenya-green bg-kenya-green/10 border-kenya-green/20";
+    case "Press":
+      return "text-purple-500 bg-purple-500/10 border-purple-500/20";
+    case "Launch":
+      return "text-brand-primary bg-brand-primary/10 border-brand-primary/20";
     default:
       return "text-gray-500 bg-gray-500/10 border-gray-500/20";
   }
@@ -177,6 +192,8 @@ export default function EventsPage() {
                   <option value="TownHall">Town Hall</option>
                   <option value="Fundraiser">Fundraiser</option>
                   <option value="MeetUp">Meet-up</option>
+                  <option value="Press">Press Conference</option>
+                  <option value="Launch">Policy Launch</option>
                 </select>
               </div>
             </div>
@@ -197,16 +214,24 @@ export default function EventsPage() {
                 <Input
                   type="date"
                   value={
-                    newEvent.date
+                    newEvent.date && !isNaN(new Date(newEvent.date).getTime())
                       ? new Date(newEvent.date).toISOString().split("T")[0]
                       : ""
                   }
-                  onChange={(e) =>
-                    setNewEvent({
-                      ...newEvent,
-                      date: new Date(e.target.value).toISOString(),
-                    })
-                  }
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (!val) {
+                      setNewEvent({ ...newEvent, date: undefined });
+                      return;
+                    }
+                    const date = new Date(val);
+                    if (!isNaN(date.getTime())) {
+                      setNewEvent({
+                        ...newEvent,
+                        date: date.toISOString(),
+                      });
+                    }
+                  }}
                 />
               </div>
               <div className="space-y-2">
@@ -255,13 +280,14 @@ export default function EventsPage() {
                 type="number"
                 placeholder="0"
                 className="w-32"
-                value={newEvent.volunteers_needed || ""}
-                onChange={(e) =>
+                value={newEvent.volunteers_needed ?? ""}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value);
                   setNewEvent({
                     ...newEvent,
-                    volunteers_needed: parseInt(e.target.value),
-                  })
-                }
+                    volunteers_needed: isNaN(val) ? 0 : val,
+                  });
+                }}
               />
             </div>
 

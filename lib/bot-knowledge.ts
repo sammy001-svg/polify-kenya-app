@@ -123,7 +123,7 @@ export const PLATFORM_KNOWLEDGE: KnowledgeEntry[] = [
     response:
       "Check out the Mashinani Campaign Pulse to see real-time updates from political rallies, town halls, and policy launches across the country.",
     link: "/live",
-    actionText: "View Campaign Pulse",
+    linkText: "View Campaign Pulse",
   },
   {
     category: "general",
