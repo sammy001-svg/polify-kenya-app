@@ -18,7 +18,10 @@ export const createClient = () => {
     return supabaseInstance;
   } catch (e) {
     console.error('Failed to create Supabase client:', e);
-    // Return a dummy client as a last resort
-    return createBrowserClient('https://tlrmxgptetlfdekxegyp.supabase.co', 'placeholder');
+    // Return a dummy client as a last resort, but singletonize it
+    if (!supabaseInstance) {
+        supabaseInstance = createBrowserClient('https://tlrmxgptetlfdekxegyp.supabase.co', 'placeholder');
+    }
+    return supabaseInstance;
   }
 }

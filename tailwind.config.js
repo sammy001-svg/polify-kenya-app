@@ -24,6 +24,9 @@ module.exports = {
         border: "var(--border)",
         ring: "var(--ring)",
       },
+      fontFamily: {
+        baskerville: ["var(--font-baskerville)", "serif"],
+      },
     },
   },
   plugins: [],

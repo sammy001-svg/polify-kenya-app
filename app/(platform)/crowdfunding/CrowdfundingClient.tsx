@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { createClient } from "@/lib/supabase";
 import { CrowdfundingCard } from "@/components/crowdfunding/CrowdfundingCard";
 import { CreateCrowdfundingDialog } from "@/components/crowdfunding/CreateCrowdfundingDialog";
@@ -25,7 +25,7 @@ export function CrowdfundingClient({ initialCampaigns }: CrowdfundingClientProps
   const [campaigns, setCampaigns] = useState<Crowdfunding[]>(initialCampaigns);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   const categories = [
     "All",
@@ -118,8 +118,8 @@ export function CrowdfundingClient({ initialCampaigns }: CrowdfundingClientProps
           <Badge className="w-fit bg-brand-primary/20 text-brand-primary border-brand-primary/30 py-1 px-4 font-black uppercase tracking-widest italic animate-pulse">
             Direct Impact
           </Badge>
-          <h1 className="text-4xl md:text-6xl font-black italic tracking-tighter text-white leading-none">
-            MKENYA <span className="text-brand-primary">CROWDFUNDING</span>
+          <h1 className="text-4xl md:text-6xl font-bold italic tracking-tighter text-white leading-none">
+            MKENYA <span className="title-green">CROWDFUNDING</span>
           </h1>
           <p className="text-lg text-white/70 font-medium leading-relaxed">
             Raise funds for community projects, medical emergencies, or social

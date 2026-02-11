@@ -19,6 +19,8 @@ import {
   FileCheck,
   MessageSquare,
   UserCircle,
+  Briefcase,
+  ShoppingBag,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -206,6 +208,20 @@ export function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
           label="Mkenya Crowdfunding"
           href="/crowdfunding"
           isActive={pathname.startsWith("/crowdfunding")}
+          onClick={onLinkClick}
+        />
+        <SidebarItem
+          icon={Briefcase}
+          label="Job Board"
+          href="/jobs"
+          isActive={pathname.startsWith("/jobs")}
+          onClick={onLinkClick}
+        />
+        <SidebarItem
+          icon={ShoppingBag}
+          label="Mkenya Marketplace"
+          href="/marketplace"
+          isActive={pathname.startsWith("/marketplace")}
           onClick={onLinkClick}
         />
         <SidebarItem

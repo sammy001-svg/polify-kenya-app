@@ -1,7 +1,5 @@
 import * as React from "react";
-// import { Slot } from "@radix-ui/react-slot"
-
-// Actually, since I didn't install radix, I will keep it simple for now and just use props.
+import { Slot } from "@radix-ui/react-slot";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -10,6 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  asChild?: boolean;
   variant?:
     | "primary"
     | "secondary"
@@ -22,7 +21,9 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = "primary", size = "md", ...props }, ref) => {
+  ({ className, variant = "primary", size = "md", asChild = false, ...props }, ref) => {
+    const Comp = asChild ? Slot : "button";
+
     // Base styles: Youtube-like rounded, medium weight, smooth transition
     const baseStyles =
       "inline-flex items-center justify-center rounded-full font-bold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95 disabled:pointer-events-none disabled:opacity-50";
@@ -49,7 +50,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     };
 
     return (
-      <button
+      <Comp
         className={cn(baseStyles, variants[variant], sizes[size], className)}
         ref={ref}
         {...props}
