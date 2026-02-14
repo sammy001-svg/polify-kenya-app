@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { registerBusiness, BusinessProfile } from "./business-actions";
 import Link from "next/link";
+import { useCart } from "@/hooks/use-cart";
 
 interface MarketplaceClientProps {
   initialItems: MarketplaceItem[];
@@ -30,6 +31,7 @@ export function MarketplaceClient({ initialItems, businessProfile }: Marketplace
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [isRegistering, setIsRegistering] = useState(false);
+  const { cartCount } = useCart();
 
   const categories = ["All", "Agriculture", "Handicrafts", "Services", "Clothing", "Tech", "Other"];
 
@@ -185,6 +187,17 @@ export function MarketplaceClient({ initialItems, businessProfile }: Marketplace
           </div>
           <div className="h-8 w-px bg-white/10 hidden md:block" />
           <Filter className="w-4 h-4 text-brand-text-muted cursor-pointer hover:text-brand-primary transition-colors hidden md:block" />
+          <Button asChild size="sm" className="bg-brand-primary/10 text-brand-primary hover:bg-brand-primary hover:text-black font-bold ml-2 relative">
+            <Link href="/marketplace/cart">
+              <ShoppingBag className="w-4 h-4 mr-2" />
+              View Cart
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border border-black shadow-sm">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
+          </Button>
         </div>
 
         <div className="flex gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 no-scrollbar items-center">

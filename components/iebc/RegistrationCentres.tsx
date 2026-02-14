@@ -17,7 +17,7 @@ export function RegistrationCentres() {
   );
 
   return (
-    <Card className="bg-brand-surface border-white/5 h-full">
+    <Card className="bg-brand-surface border-white/5">
       <CardHeader>
         <div className="flex items-center justify-between">
             <div>

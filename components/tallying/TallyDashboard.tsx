@@ -121,7 +121,7 @@ export function TallyDashboard() {
     <div className="flex flex-col space-y-4 md:space-y-6 relative">
       <LiveTicker />
 
-      <div className="sticky top-16 z-30 flex flex-col md:flex-row gap-3 md:gap-4 justify-between items-start md:items-center bg-black/80 p-3 md:p-4 rounded-2xl border-x border-b border-white/10 backdrop-blur-2xl shrink-0 shadow-2xl transition-all duration-300">
+      <div className="sticky top-16 z-30 flex flex-col md:flex-row gap-3 md:gap-4 justify-between items-start md:items-center bg-kenya-deep p-3 md:p-4 rounded-2xl border border-kenya-green/20 shrink-0 shadow-2xl transition-all duration-300">
         <div className="flex flex-col">
           <h2 className="text-xl md:text-2xl font-black bg-clip-text text-transparent bg-linear-to-r from-kenya-red via-white to-kenya-green flex items-center gap-3">
             <span className="w-2 h-2 md:w-3 md:h-3 bg-red-600 rounded-full animate-pulse shadow-[0_0_10px_red]" />

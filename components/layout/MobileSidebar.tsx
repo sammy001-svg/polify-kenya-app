@@ -48,7 +48,7 @@ export function MobileSidebar() {
         </DialogDescription>
 
         <div className="h-full bg-[#0B3D0B] border-r border-white/10 flex flex-col relative overflow-hidden">
-          <div className="noise-overlay opacity-[0.02]" />
+
 
           {/* Mobile Sidebar Brand Header */}
           <div className="p-6 border-b border-white/5 flex items-center gap-3">

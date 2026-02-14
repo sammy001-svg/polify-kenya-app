@@ -36,7 +36,7 @@ export function ReportingProgress({ stats }: ReportingProgressProps) {
       </div>
 
       {/* Progress Bar Container */}
-      <div className="h-4 w-full bg-white/5 rounded-full overflow-hidden relative">
+      <div className="h-4 w-full bg-kenya-green/10 rounded-full overflow-hidden relative">
         {/* Striped Animation Background */}
         <div className="absolute inset-0 w-full h-full opacity-20 bg-[linear-gradient(45deg,rgba(255,255,255,0.1)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.1)_50%,rgba(255,255,255,0.1)_75%,transparent_75%,transparent)] bg-size-[20px_20px] animate-[progress-stripes_1s_linear_infinite]" />
 

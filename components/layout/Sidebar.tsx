@@ -274,7 +274,7 @@ export function Sidebar({ forceShow }: SidebarProps) {
         !forceShow && "hidden md:flex transform translate-x-0",
       )}
     >
-      <div className="noise-overlay opacity-[0.01]" />
+
       <SidebarContent />
     </aside>
   );

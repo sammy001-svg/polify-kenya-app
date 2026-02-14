@@ -60,3 +60,46 @@ export async function getMarketplaceItems(): Promise<MarketplaceItem[]> {
     contact_phone: item.businesses[0]?.contact_phone || "",
   }));
 }
+
+export async function getMarketplaceItem(id: string): Promise<MarketplaceItem | null> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("marketplace_items")
+    .select(`
+      id,
+      title,
+      description,
+      price,
+      image_url,
+      category,
+      location,
+      created_at,
+      stock_quantity,
+      businesses (
+        name,
+        contact_phone
+      )
+    `)
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    console.error("Error fetching marketplace item:", error);
+    return null;
+  }
+
+  return {
+    id: data.id,
+    title: data.title,
+    price: data.price,
+    description: data.description,
+    image_url: data.image_url || "https://images.unsplash.com/photo-1556740758-90de374c12ad?q=80&w=2670&auto=format&fit=crop",
+    category: data.category,
+    location: data.location,
+    seller_name: data.businesses[0]?.name || "Unknown Seller",
+    seller_rating: 5.0,
+    posted_at: data.created_at,
+    contact_phone: data.businesses[0]?.contact_phone || "",
+  };
+}

@@ -16,7 +16,10 @@
     "Kalonzo",
     "Maandamano",
     "KMPDU",
-    "EACC"
+    "EACC",
+    "Pesa",
+    "PESA",
+    "BOMAS"
   ],
   "ignorePaths": [
     "node_modules",

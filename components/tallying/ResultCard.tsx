@@ -52,7 +52,7 @@ export function ResultCard({ result }: ResultCardProps) {
         </div>
       </div>
 
-      <div className="relative h-2 md:h-3 w-full bg-white/5 rounded-full overflow-hidden">
+      <div className="relative h-2 md:h-3 w-full bg-kenya-green/10 rounded-full overflow-hidden">
         <div
           className={`h-full ${result.party_color} transition-all duration-1000 ease-out relative`}
           style={{ width: `${result.percentage}%` }}

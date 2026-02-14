@@ -21,7 +21,7 @@ export function BottomNav() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 h-16 bg-brand-bg/85 bg-linear-to-t from-kenya-green/10 via-transparent to-transparent glass backdrop-blur-2xl border-t border-white/5 flex items-center justify-around px-2 z-50 md:hidden safe-area-bottom">
-      <div className="noise-overlay opacity-[0.01]" />
+
 
       {navItems.map((item) => {
         const Icon = item.icon;

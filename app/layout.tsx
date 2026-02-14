@@ -11,13 +11,25 @@ const libre_baskerville = Libre_Baskerville({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://polify-kenya-app.vercel.app'),
+  metadataBase: new URL("https://polify-kenya-app.vercel.app"),
   title: {
     default: "PoliFy Kenya | AI-Powered Civic Intelligence",
-    template: "%s | PoliFy Kenya"
+    template: "%s | PoliFy Kenya",
   },
-  description: "Empowering Kenyan citizens with real-time transparency, accountability, and grassroots AI crowd-sourcing. Track budgets, monitor parliament, and report community issues.",
-  keywords: ["Kenya", "Politics", "Transparency", "Accountability", "Government", "Budget", "Parliament", "Civic Tech", "AI", "Democracy"],
+  description:
+    "Empowering Kenyan citizens with real-time transparency, accountability, and grassroots AI crowd-sourcing. Track budgets, monitor parliament, and report community issues.",
+  keywords: [
+    "Kenya",
+    "Politics",
+    "Transparency",
+    "Accountability",
+    "Government",
+    "Budget",
+    "Parliament",
+    "Civic Tech",
+    "AI",
+    "Democracy",
+  ],
   authors: [{ name: "PoliFy Kenya Team" }],
   creator: "PoliFy Kenya",
   openGraph: {
@@ -26,12 +38,14 @@ export const metadata: Metadata = {
     url: "/",
     siteName: "PoliFy Kenya",
     title: "PoliFy Kenya | AI-Powered Civic Intelligence",
-    description: "The future of civic engagement in Kenya. Track leaders, visualize budgets, and make your voice count with AI.",
+    description:
+      "The future of civic engagement in Kenya. Track leaders, visualize budgets, and make your voice count with AI.",
   },
   twitter: {
     card: "summary_large_image",
     title: "PoliFy Kenya | AI-Powered Civic Intelligence",
-    description: "The future of civic engagement in Kenya. Track leaders, visualize budgets, and make your voice count with AI.",
+    description:
+      "The future of civic engagement in Kenya. Track leaders, visualize budgets, and make your voice count with AI.",
     creator: "@polify_kenya",
   },
   icons: {
@@ -46,7 +60,7 @@ export const viewport = {
   initialScale: 1,
 };
 
-import { BackgroundGrain } from "@/components/ui/BackgroundGrain";
+
 
 export default function RootLayout({
   children,
@@ -55,8 +69,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.variable} ${libre_baskerville.variable} antialiased bg-brand-bg text-brand-text min-h-screen relative`}>
-        <BackgroundGrain />
+      <body
+        className={`${inter.variable} ${libre_baskerville.variable} antialiased bg-black text-brand-text min-h-screen relative`}
+      >
         {children}
       </body>
     </html>

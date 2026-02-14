@@ -1,0 +1,11 @@
+import { CheckoutClient } from "@/components/marketplace/CheckoutClient";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Checkout",
+  description: "Complete your purchase",
+};
+
+export default function CheckoutPage() {
+  return <CheckoutClient />;
+}

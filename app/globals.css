@@ -30,7 +30,7 @@
 
 :root {
   /* Kenyan Identity Palette - High-Fidelity HSL */
-  --background: hsl(25 100% 20%);
+  --background: hsl(0 0% 0%);
   --surface-primary: hsl(240 10% 6%);
   --surface-secondary: hsl(240 10% 9%);
   --surface-highlight: hsl(240 10% 12%);
@@ -110,11 +110,11 @@
 
   /* Interactive Card Base */
   .card-premium {
-    @apply relative overflow-hidden rounded-3xl bg-brand-surface/40 border border-white/10 glass-dark transition-all duration-300;
+    @apply relative overflow-hidden rounded-3xl bg-kenya-deep border border-kenya-gold/20 transition-all duration-300;
   }
 
   .card-premium:hover {
-    @apply border-white/20 bg-brand-surface/60 scale-[1.01] shadow-2xl;
+    @apply border-kenya-gold/50 scale-[1.01] shadow-2xl;
   }
 }
 
@@ -136,7 +136,7 @@
 
   .title-green {
     font-family: var(--font-baskerville), serif !important;
-    color: #008C51 !important; /* Kenya Green Hardcoded */
+    color: #008c51 !important; /* Kenya Green Hardcoded */
   }
 
   /* Premium Text Gradients */
@@ -160,9 +160,9 @@
     background: linear-gradient(
       90deg,
       #000000 0%,
-      #922529 33%, /* Kenya Red */
-      #008C51 66%, /* Kenya Green */
-      #000000 100%
+      #922529 33%,
+      /* Kenya Red */ #008c51 66%,
+      /* Kenya Green */ #000000 100%
     );
     background-clip: text;
     -webkit-background-clip: text;
@@ -170,12 +170,7 @@
   }
 
   .text-gradient-gold {
-    background: linear-gradient(
-      to bottom right,
-      #ffd700,
-      #fdb931,
-      #d4af37
-    );
+    background: linear-gradient(to bottom right, #ffd700, #fdb931, #d4af37);
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -185,16 +180,6 @@
     to {
       background-position: 200% center;
     }
-  }
-
-  /* Noise Texture Overlay */
-  .noise-overlay {
-    position: absolute;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-    opacity: 0.02;
-    pointer-events: none;
-    z-index: 50;
   }
 
   /* Custom Scrollbar - Cross Browser Support */

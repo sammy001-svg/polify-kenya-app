@@ -40,7 +40,7 @@ export function EventCard({ event }: EventCardProps) {
   };
 
   return (
-    <Card className="group overflow-hidden bg-brand-surface/40 backdrop-blur-md border-white/10 hover:border-brand-primary/30 transition-all duration-500 shadow-2xl relative">
+    <Card className="group overflow-hidden bg-kenya-deep border-kenya-green/20 hover:border-kenya-green/50 transition-all duration-500 shadow-2xl relative">
       <div className="relative h-56 w-full overflow-hidden">
         <Image
           src={event.image_url}

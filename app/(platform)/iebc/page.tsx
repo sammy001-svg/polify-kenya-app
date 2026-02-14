@@ -1,4 +1,5 @@
 import { VoterStats } from "@/components/iebc/VoterStats";
+import { VoterTrendsChart } from "@/components/iebc/VoterTrendsChart";
 import { RegistrationCentres } from "@/components/iebc/RegistrationCentres";
 import { NewsAndJobs } from "@/components/iebc/NewsAndJobs";
 import { AIAnalyst } from "@/components/iebc/AIAnalyst";
@@ -84,6 +85,7 @@ export default function IEBCPage() {
             {/* Left Column: Education and Centres (Takes up 2 cols) */}
             <div className="lg:col-span-2 space-y-10">
               <VoterEducation />
+              <VoterTrendsChart />
               <RegistrationCentres />
             </div>
 
