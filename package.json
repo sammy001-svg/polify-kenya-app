@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "generate-docs": "node scripts/generate-docs.js",
+    "generate-marketing": "node scripts/generate-marketing.js"
   },
   "dependencies": {
     "@mozilla/readability": "^0.6.0",
@@ -57,6 +59,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.1.4",
+    "markdown-pdf": "^11.0.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   },

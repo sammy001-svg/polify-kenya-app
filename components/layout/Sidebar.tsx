@@ -247,7 +247,33 @@ export function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
         />
       </div>
 
-      <div className="mt-auto pt-8 pb-4 px-4">
+      <div className="mt-auto pt-8 pb-4 px-4 space-y-4">
+        <a
+           href="/PROJECT_DOCUMENTATION.pdf"
+           download="Political_Intelligence_Documentation.pdf"
+           className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all group"
+        >
+          <div className="p-1.5 rounded-lg bg-kenya-green/10 text-kenya-green group-hover:scale-110 transition-transform">
+            <BookOpen className="w-4 h-4" />
+          </div>
+          <span className="text-[11px] font-bold text-brand-text-muted group-hover:text-white transition-colors">
+            Download Docs
+          </span>
+        </a>
+
+        <a
+           href="/MARKETING_PRESENTATION.pdf"
+           download="Political_Intelligence_Marketing.pdf"
+           className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all group"
+        >
+          <div className="p-1.5 rounded-lg bg-kenya-red/10 text-kenya-red group-hover:scale-110 transition-transform">
+            <Sparkles className="w-4 h-4" />
+          </div>
+          <span className="text-[11px] font-bold text-brand-text-muted group-hover:text-white transition-colors">
+            Marketing Deck
+          </span>
+        </a>
+
         <div className="p-4 rounded-2xl bg-white/5 border border-white/5 glass-dark relative overflow-hidden group">
           <div className="absolute inset-0 bg-linear-to-br from-kenya-red/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
           <p className="relative z-10 text-[10px] font-black text-white tracking-widest uppercase mb-1">
