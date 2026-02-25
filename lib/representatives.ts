@@ -11,10 +11,25 @@ export type PositionType =
 export type PartyAffiliation = 
   | 'UDA' 
   | 'ODM' 
-  | 'Jubilee' 
   | 'Wiper' 
+  | 'Jubilee'
+  | 'ANC'
+  | 'Ford Kenya'
   | 'Independent' 
   | 'Other';
+
+export const PARTY_METADATA: Record<string, { color: string, photo: string }> = {
+    'UDA': { color: 'bg-yellow-400', photo: '/images/candidates/william_ruto.png' },
+    'ODM': { color: 'bg-orange-500', photo: '/images/candidates/raila_odinga.png' },
+    'WIPER': { color: 'bg-blue-400', photo: '/images/candidates/kalonzo.jpg' },
+    'ROOTS': { color: 'bg-green-600', photo: '/images/candidates/george_wajackoyah.png' },
+    'AGANO': { color: 'bg-gray-500', photo: '/images/candidates/david_mwaure.png' },
+    'Jubilee': { color: 'bg-red-600', photo: '/placeholder-avatar.jpg' },
+    'ANC': { color: 'bg-green-400', photo: '/placeholder-avatar.jpg' },
+    'Ford Kenya': { color: 'bg-green-700', photo: '/placeholder-avatar.jpg' },
+    'Independent': { color: 'bg-sky-500', photo: '/placeholder-avatar.jpg' },
+    'Other': { color: 'bg-gray-400', photo: '/placeholder-avatar.jpg' },
+};
 
 export interface County {
   id: string;

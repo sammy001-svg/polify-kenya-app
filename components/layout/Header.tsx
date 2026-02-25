@@ -38,7 +38,7 @@ export function Header() {
   }, [supabase]);
 
   return (
-    <header className="fixed top-0 left-0 right-0 h-16 bg-black border-b border-white/10 flex items-center justify-between px-4 md:px-6 z-50 overflow-hidden">
+    <header className="fixed top-0 left-0 right-0 h-16 glass z-overlay flex items-center justify-between px-4 md:px-6 shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
       {/* HUD Scanline Effect */}
       <div className="absolute inset-0 bg-scanline opacity-[0.02] pointer-events-none" />
 
@@ -46,8 +46,8 @@ export function Header() {
       {/* Left: Menu & Brand */}
       <div className="flex items-center gap-3 md:gap-4 shrink-0">
         <MobileSidebar />
-        <Link href="/" className="flex items-center gap-2 group relative">
-          <div className="w-9 h-9 md:w-10 md:h-10 overflow-hidden rounded-full shadow-lg border border-white/10 group-hover:scale-105 transition-all duration-500 bg-white relative">
+        <Link href="/" className="flex items-center gap-2 group relative press-effect">
+          <div className="w-9 h-9 md:w-10 md:h-10 overflow-hidden rounded-full shadow-lg border border-white/10 group-hover:scale-110 group-hover:glow-gold transition-all duration-500 bg-white relative">
             <Image
               src="/polify-logo.jpg"
               alt="PoliFy Logo"
@@ -56,7 +56,7 @@ export function Header() {
             />
           </div>
           <div className="flex flex-col -space-y-1">
-            <span className="font-black text-xl md:text-2xl tracking-tighter bg-linear-to-r from-kenya-red via-white to-kenya-green bg-clip-text text-transparent ml-1">
+            <span className="font-black text-xl md:text-2xl tracking-tighter bg-linear-to-r from-kenya-red via-white to-kenya-green bg-clip-text text-transparent ml-1 drop-shadow-sm">
               PoliFy
             </span>
             <span className="text-[10px] uppercase font-black tracking-widest text-brand-text-muted ml-1 hide-on-mobile">
@@ -73,11 +73,12 @@ export function Header() {
 
       {/* Right: Actions - Collapsed on tiny mobile */}
       <div className="flex items-center gap-2 md:gap-3 shrink-0">
-        <Link href="/shorts" className="hide-on-mobile">
+        <Link href="/shorts" className="hide-on-mobile relative group press-effect">
+          <div className="absolute top-1 right-1 w-2 h-2 bg-kenya-red rounded-full animate-pulse z-10" />
           <Button
             variant="ghost"
             size="icon"
-            className="text-brand-text-muted hover:text-white transition-colors"
+            className="text-brand-text-muted group-hover:text-white transition-colors"
             title="Bunge Bites (Shorts)"
           >
             <Video className="w-5 h-5 md:w-6 md:h-6" />
@@ -88,7 +89,9 @@ export function Header() {
           <div className="flex items-center gap-2 md:gap-3">
             <NotificationsPopover />
             <div className="w-px h-6 bg-white/10 mx-1 hide-on-mobile" />
-            <UserMenu />
+            <div className="hover-lift">
+              <UserMenu />
+            </div>
           </div>
         ) : (
           <Link href="/auth/signin">

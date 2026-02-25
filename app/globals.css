@@ -142,6 +142,12 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+
+  :focus-visible {
+    outline: 2px solid var(--accent-gold);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px var(--background);
+  }
 }
 
 /* Custom Utilities (Tailwind v4) */
@@ -162,6 +168,13 @@
   background: rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+@utility glass-gold {
+  background: rgba(253, 185, 49, 0.05);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(253, 185, 49, 0.2);
+  box-shadow: 0 0 30px -10px rgba(253, 185, 49, 0.1);
 }
 
 /* Premium Layout & Components */
@@ -195,6 +208,25 @@
     text-shadow:
       0 0 10px rgba(0, 255, 128, 0.5),
       0 0 20px rgba(0, 255, 128, 0.2);
+    animation: hologram-flicker 5s ease-in-out infinite;
+  }
+
+  .hover-lift {
+    @apply transition-all duration-300;
+  }
+
+  .hover-lift:hover {
+    @apply -translate-y-1 shadow-2xl;
+    box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.5);
+  }
+
+  .press-effect {
+    @apply transition-transform duration-75 active:scale-95;
+  }
+
+  @keyframes hologram-flicker {
+    0%, 100% { opacity: 1; filter: brightness(1); }
+    50% { opacity: 0.8; filter: brightness(1.2); }
   }
 }
 
@@ -256,6 +288,26 @@
     -webkit-text-fill-color: transparent;
   }
 
+  .text-hologram {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.8) 0%,
+      rgba(0, 255, 128, 0.5) 25%,
+      rgba(253, 185, 49, 0.5) 50%,
+      rgba(0, 255, 128, 0.5) 75%,
+      rgba(255, 255, 255, 0.8) 100%
+    );
+    background-size: 200% auto;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: holographic-slide 8s linear infinite;
+  }
+
+  @keyframes holographic-slide {
+    to { background-position: 200% center; }
+  }
+
   @keyframes shine {
     to {
       background-position: 200% center;
@@ -271,7 +323,8 @@
 
   /* Webkit */
   ::-webkit-scrollbar {
-    width: 4px;
+    width: 6px;
+    height: 6px;
   }
 
   ::-webkit-scrollbar-track {
@@ -279,13 +332,18 @@
   }
 
   ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 100px;
+    transition: all 0.3s ease;
+  }
+
+  body:hover ::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--accent-gold);
+    opacity: 0.5;
   }
 
   /* Hide scrollbar for Chrome, Safari and Opera */
@@ -320,5 +378,18 @@
     );
     background-size: 100% 4px;
     pointer-events: none;
+    z-index: var(--z-scanline);
   }
+
+  /* Semantic Z-Index Layering */
+  :root {
+    --z-hologram: 10;
+    --z-scanline: 20;
+    --z-overlay: 30;
+    --z-modal: 50;
+  }
+
+  .z-hologram { z-index: var(--z-hologram); }
+  .z-scanline { z-index: var(--z-scanline); }
+  .z-overlay { z-index: var(--z-overlay); }
 }

@@ -4,8 +4,9 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { createClient } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MessageSquare, Send, Trash2, User } from "lucide-react";
+import { MessageSquare, Send, Trash2, User, Ghost } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { toast } from "sonner";
 
 /* cSpell:ignore supabase */
 
@@ -72,32 +73,57 @@ export function PolicyComments({ policyId }: PolicyCommentsProps) {
     e.preventDefault();
     if (!newComment.trim() || !currentUser) return;
 
+    const content = newComment.trim();
+    setNewComment("");
     setLoading(true);
+
+    // Optimistic Update
+    const optimisticComment: Comment = {
+      id: `temp-${Date.now()}`,
+      content: content,
+      created_at: new Date().toISOString(),
+      user_id: currentUser.id,
+      profiles: {
+        full_name: "You"
+      }
+    };
+
+    setComments(prev => [optimisticComment, ...prev.filter(c => !c.id.startsWith('temp-'))]);
+
     const { error } = await supabase
       .from('policy_comments')
       .insert({
         policy_id: policyId,
         user_id: currentUser.id,
-        content: newComment.trim()
+        content: content
       });
 
-    if (!error) {
-      setNewComment("");
-      // Real-time listener will fetch the new comment automatically
-    } else {
+    if (error) {
       console.error("Comment Error:", error);
-      alert(`Could not post comment: ${error.message}`);
+      toast.error(`Could not post comment: ${error.message}`);
+      // Revert optimistic update on error
+      fetchComments();
+    } else {
+      toast.success("Comment posted!");
     }
     setLoading(false);
   };
 
   const handleDelete = async (commentId: string) => {
+    // Optimistic Delete
+    setComments(prev => prev.filter(c => c.id !== commentId));
+
     const { error } = await supabase
       .from('policy_comments')
       .delete()
       .eq('id', commentId);
     
-    if (error) alert("Error deleting comment.");
+    if (error) {
+      toast.error("Error deleting comment.");
+      fetchComments(); // Revert
+    } else {
+      toast.success("Comment deleted");
+    }
   };
 
   return (
@@ -107,51 +133,56 @@ export function PolicyComments({ policyId }: PolicyCommentsProps) {
         <h4 className="text-xs font-bold uppercase tracking-widest">Community Discussion</h4>
       </div>
 
-      <div className="space-y-3 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
+      <div className="space-y-3 max-h-80 overflow-y-auto pr-2 no-scrollbar">
         {comments.length === 0 ? (
-          <p className="text-sm text-brand-text-muted italic px-1">No comments yet. Be the first to weigh in!</p>
+          <div className="flex flex-col items-center justify-center py-8 text-center glass rounded-2xl border-dashed border-white/10">
+            <Ghost className="w-8 h-8 text-brand-text-muted mb-2 animate-pulse" />
+            <p className="text-xs text-brand-text-muted italic px-4">No comments yet. Be the first to weigh in!</p>
+          </div>
         ) : (
           comments.map((comment) => (
-            <div key={comment.id} className="bg-brand-surface p-3 rounded-xl border border-border group relative">
+            <div key={comment.id} className="glass p-3 rounded-xl border border-white/5 group relative hover-lift transition-all">
               <div className="flex justify-between items-start mb-1">
                 <div className="flex items-center gap-2">
-                  <div className="w-5 h-5 rounded-full bg-brand-surface-highlight flex items-center justify-center">
-                    <User className="w-3 h-3 text-brand-text-muted" />
+                  <div className="w-6 h-6 rounded-full bg-brand-surface-highlight flex items-center justify-center border border-white/10">
+                    <User className="w-3.5 h-3.5 text-brand-text-muted" />
                   </div>
-                  <span className="text-xs font-black text-kenya-gold">{comment.profiles.full_name}</span>
-                  <span className="text-[10px] text-brand-text-muted">
-                    {formatDistanceToNow(new Date(comment.created_at))} ago
-                  </span>
+                  <div className="flex flex-col">
+                    <span className="text-[11px] font-black text-kenya-gold leading-none">{comment.profiles?.full_name || 'Anonymous'}</span>
+                    <span className="text-[9px] text-brand-text-muted mt-0.5">
+                      {formatDistanceToNow(new Date(comment.created_at))} ago
+                    </span>
+                  </div>
                 </div>
-                {currentUser?.id === comment.user_id && (
+                {currentUser?.id === comment.user_id && !comment.id.startsWith('temp-') && (
                   <button 
                     onClick={() => handleDelete(comment.id)}
-                    className="opacity-0 group-hover:opacity-100 p-1 hover:text-kenya-red transition-all"
+                    className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-kenya-red/20 hover:text-kenya-red rounded-full transition-all"
                   >
-                    <Trash2 className="w-3 h-3" />
+                    <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 )}
               </div>
-              <p className="text-sm text-brand-text leading-relaxed">{comment.content}</p>
+              <p className="text-sm text-brand-text leading-relaxed pl-8">{comment.content}</p>
             </div>
           ))
         )}
       </div>
 
       {currentUser ? (
-        <form onSubmit={handleSubmit} className="flex gap-2">
+        <form onSubmit={handleSubmit} className="flex gap-2 group/form">
           <Input 
             placeholder="Share your thoughts..."
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
-            className="flex-1 bg-brand-surface h-10 rounded-full text-xs"
+            className="flex-1 bg-white/5 border-white/10 h-10 rounded-full text-xs focus:ring-1 focus:ring-kenya-gold transition-all"
           />
           <Button 
             disabled={loading || !newComment.trim()} 
             size="icon" 
-            className="bg-kenya-gold text-black rounded-full shrink-0"
+            className="bg-kenya-gold text-black rounded-full shrink-0 press-effect hover:scale-105 transition-transform"
           >
-            <Send className="w-4 h-4" />
+            <Send className="w-4 h-4 ml-0.5" />
           </Button>
         </form>
       ) : (

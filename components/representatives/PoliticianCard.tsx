@@ -1,8 +1,9 @@
 "use client";
 
-import { PoliticianProfile } from "@/lib/representatives";
+import { PoliticianProfile, PARTY_METADATA } from "@/lib/representatives";
 import { BadgeCheck, Phone, Mail, MapPin, TrendingUp, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useEffect, useMemo } from "react";
 import { createClient } from "@/lib/supabase";
 import { FollowButton } from "@/components/ui/FollowButton";
@@ -35,50 +36,46 @@ export function PoliticianCard({ politician, showPosition = true }: PoliticianCa
     switch (position) {
       case 'President':
       case 'Deputy President':
-        return 'bg-purple-500';
+        return 'bg-purple-600 shadow-[0_0_15px_rgba(147,51,234,0.3)]';
       case 'Governor':
       case 'Senator':
-        return 'bg-kenya-red';
+        return 'bg-kenya-red shadow-[0_0_15px_rgba(187,25,25,0.3)]';
       case 'MP':
       case 'Woman Rep':
-        return 'bg-kenya-gold';
+        return 'bg-kenya-gold text-black shadow-[0_0_15px_rgba(253,185,49,0.3)]';
       case 'MCA':
-        return 'bg-kenya-green';
+        return 'bg-kenya-green shadow-[0_0_15px_rgba(0,140,81,0.3)]';
       default:
-        return 'bg-blue-500';
+        return 'bg-blue-600 shadow-[0_0_15px_rgba(37,99,235,0.3)]';
     }
   };
   
-  const getPartyColor = (party: string) => {
-    switch (party) {
-      case 'UDA':
-        return 'bg-kenya-gold';
-      case 'ODM':
-        return 'bg-orange-500';
-      case 'Jubilee':
-        return 'bg-red-500';
-      case 'Wiper':
-        return 'bg-blue-500';
-      case 'Independent':
-        return 'bg-gray-500';
-      default:
-        return 'bg-gray-600';
-    }
-  };
+  const partyInfo = PARTY_METADATA[politician.party] || { color: 'bg-gray-600', photo: '' };
   
   return (
     <Link 
       href={`/representatives/${politician.id}`}
-      className="block bg-brand-surface border border-white/5 rounded-2xl overflow-hidden hover:border-kenya-gold/30 transition-all group relative"
+      className="block glass border border-white/5 rounded-2xl overflow-hidden hover:border-kenya-gold/40 transition-all group relative hover-lift press-effect"
     >
-      <div className="absolute inset-0 bg-linear-to-b from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+      <div className="absolute inset-x-0 top-0 h-32 bg-linear-to-b from-kenya-gold/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
       <div className="p-6 space-y-4">
         {/* Header */}
         <div className="flex items-start gap-4">
-          {/* Avatar */}
-          <div className="relative w-24 h-24 rounded-2xl bg-linear-to-br from-brand-surface-highlight to-brand-surface border border-white/10 flex items-center justify-center text-white font-black text-3xl shrink-0 overflow-hidden group-hover:border-kenya-gold/20 transition-all">
-            <div className="absolute inset-0 bg-linear-to-tr from-kenya-red/10 to-kenya-gold/10 opacity-50" />
-            <span className="relative z-10">{politician.name.split(' ').map(n => n[0]).join('')}</span>
+          {/* Avatar Area */}
+          <div className="relative w-24 h-24 rounded-2xl glass-brand border border-white/10 flex items-center justify-center text-white font-black text-3xl shrink-0 overflow-hidden group-hover:border-kenya-gold/30 group-hover:glow-gold transition-all duration-500 shadow-xl">
+             {politician.photo ? (
+                <Image 
+                   src={politician.photo} 
+                   alt={politician.name} 
+                   fill 
+                   className="object-cover group-hover:scale-110 transition-transform duration-700"
+                />
+             ) : (
+                <>
+                  <div className="absolute inset-0 bg-linear-to-tr from-kenya-red/20 to-kenya-gold/20 opacity-50" />
+                  <span className="relative z-10 drop-shadow-md">{politician.name.split(' ').map(n => n[0]).join('')}</span>
+                </>
+             )}
           </div>
           
           {/* Info */}
@@ -86,7 +83,7 @@ export function PoliticianCard({ politician, showPosition = true }: PoliticianCa
             <div className="flex items-start justify-between gap-2 mb-2">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <h3 className="font-bold text-lg text-brand-text group-hover:text-white transition-colors truncate">
+                  <h3 className="font-bold text-lg text-brand-text group-hover:text-hologram transition-all truncate">
                     {politician.name}
                   </h3>
                   {politician.verified && (
@@ -95,11 +92,11 @@ export function PoliticianCard({ politician, showPosition = true }: PoliticianCa
                 </div>
                 {showPosition && (
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className={`${getPositionColor(politician.position)} text-white px-2 py-0.5 rounded text-xs font-bold`}>
+                    <span className={`${getPositionColor(politician.position)} text-white px-2 py-0.5 rounded-full text-[10px] uppercase font-black tracking-tight`}>
                       {politician.position}
                     </span>
                     {politician.isIncumbent && (
-                      <span className="bg-green-500/20 text-green-400 px-2 py-0.5 rounded text-xs font-bold">
+                      <span className="bg-kenya-green/20 text-kenya-green px-2 py-0.5 rounded-full text-[10px] uppercase font-black tracking-tight border border-kenya-green/20">
                         Incumbent
                       </span>
                     )}
@@ -118,9 +115,9 @@ export function PoliticianCard({ politician, showPosition = true }: PoliticianCa
               </span>
             </div>
             
-            {/* Party */}
+            {/* Party Tag */}
             <div className="flex items-center gap-2">
-              <span className={`${getPartyColor(politician.party)} text-white px-3 py-1 rounded-full text-xs font-bold`}>
+              <span className={`${partyInfo.color} text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-black/20 border border-white/10`}>
                 {politician.party}
               </span>
             </div>
@@ -128,8 +125,8 @@ export function PoliticianCard({ politician, showPosition = true }: PoliticianCa
         </div>
         
         {/* Slogan */}
-        <div className="bg-black/20 rounded-xl p-4 border border-white/5 group-hover:border-kenya-gold/10 transition-colors">
-          <p className="text-sm font-bold text-white italic leading-relaxed">
+        <div className="glass-dark rounded-2xl p-4 border border-white/5 group-hover:border-kenya-gold/20 transition-all shadow-inner">
+          <p className="text-sm font-bold text-white italic leading-relaxed text-center">
             &quot;{politician.slogan}&quot;
           </p>
         </div>
@@ -154,63 +151,65 @@ export function PoliticianCard({ politician, showPosition = true }: PoliticianCa
           </ul>
         </div>
         
-        {/* Track Record (if incumbent) */}
+        {/* Track Record Stats */}
         {politician.isIncumbent && politician.trackRecord && (
-          <div className="grid grid-cols-3 gap-3 pt-3 border-t border-border">
-            <div className="text-center">
-              <div className="flex items-center justify-center mb-1">
+          <div className="grid grid-cols-3 gap-3 pt-4 border-t border-white/5">
+            <div className="text-center group/stat">
+              <div className="flex items-center justify-center mb-1 group-hover/stat:scale-110 transition-transform">
                 <TrendingUp className="w-4 h-4 text-kenya-green" />
               </div>
-              <p className="text-lg font-bold text-brand-text">{politician.trackRecord.projectsCompleted}</p>
-              <p className="text-[10px] text-brand-text-muted uppercase">Projects</p>
+              <p className="text-lg font-black text-brand-text leading-none">{politician.trackRecord.projectsCompleted}</p>
+              <p className="text-[10px] text-brand-text-muted uppercase font-black tracking-tighter">Projects</p>
             </div>
-            <div className="text-center border-l border-r border-border">
-              <p className="text-lg font-bold text-brand-text">{politician.trackRecord.billsSponsored}</p>
-              <p className="text-[10px] text-brand-text-muted uppercase">Bills</p>
+            <div className="text-center border-x border-white/5 group/stat">
+              <p className="text-lg font-black text-brand-text leading-none">{politician.trackRecord.billsSponsored}</p>
+              <p className="text-[10px] text-brand-text-muted uppercase font-black tracking-tighter">Bills</p>
             </div>
-            <div className="text-center">
-              <p className="text-lg font-bold text-brand-text">
+            <div className="text-center group/stat">
+              <p className="text-lg font-black text-brand-text leading-none transition-all group-hover/stat:text-kenya-gold">
                 {followers !== null ? followers : (politician.followers || 0)}
               </p>
-              <p className="text-[10px] text-brand-text-muted uppercase">Followers</p>
+              <p className="text-[10px] text-brand-text-muted uppercase font-black tracking-tighter">Followers</p>
             </div>
           </div>
         )}
         
         {/* If not incumbent, still show followers */}
         {!politician.isIncumbent && (
-          <div className="flex items-center justify-center py-3 border-t border-border">
-            <div className="text-center">
-               <p className="text-lg font-bold text-brand-text">
+          <div className="flex items-center justify-center py-4 border-t border-white/5">
+            <div className="text-center group/stat">
+               <p className="text-2xl font-black text-brand-text group-hover/stat:text-kenya-gold transition-colors leading-none">
                 {followers !== null ? followers : (politician.followers || 0)}
               </p>
-              <p className="text-[10px] text-brand-text-muted uppercase tracking-widest">Followers</p>
+              <p className="text-[11px] text-brand-text-muted uppercase font-black tracking-widest mt-1">Followers</p>
             </div>
           </div>
         )}
         
-        {/* Contact Actions */}
-        <div className="flex items-center justify-between pt-3 border-t border-border">
+        {/* Contact & Dynamic Actions */}
+        <div className="flex items-center justify-between pt-4 border-t border-white/5">
           <div className="flex items-center gap-2">
             {politician.phone && (
-              <button className="p-2 bg-brand-surface-highlight hover:bg-brand-surface-secondary rounded-lg transition-colors">
+              <button className="p-2 glass-brand hover:bg-white/10 rounded-xl transition-all hover:scale-110 active:scale-95">
                 <Phone className="w-4 h-4 text-brand-text" />
               </button>
             )}
             {politician.email && (
-              <button className="p-2 bg-brand-surface-highlight hover:bg-brand-surface-secondary rounded-lg transition-colors">
+              <button className="p-2 glass-brand hover:bg-white/10 rounded-xl transition-all hover:scale-110 active:scale-95">
                 <Mail className="w-4 h-4 text-brand-text" />
               </button>
             )}
           </div>
           
           <div className="flex items-center gap-3">
-             <FollowButton 
-                targetId={politician.id} 
-                targetType="politician" 
-                onFollowChange={(active: boolean) => setFollowers(prev => (prev || 0) + (active ? 1 : -1))}
-             />
-             <div className="flex items-center gap-1 text-sm font-semibold text-kenya-gold group-hover:text-kenya-red transition-colors">
+             <div className="scale-90 md:scale-100">
+               <FollowButton 
+                  targetId={politician.id} 
+                  targetType="politician" 
+                  onFollowChange={(active: boolean) => setFollowers(prev => (prev || 0) + (active ? 1 : -1))}
+               />
+             </div>
+             <div className="flex items-center gap-1 text-sm font-black uppercase tracking-tighter text-kenya-gold group-hover:text-kenya-red transition-all group-hover:translate-x-1">
                 <span>View</span>
                 <ArrowRight className="w-4 h-4" />
              </div>

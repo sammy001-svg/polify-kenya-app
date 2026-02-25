@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase-server";
+import { PARTY_METADATA } from "@/lib/representatives";
 
 export interface CandidateResult {
     candidate_id: string;
@@ -30,13 +31,7 @@ export interface TallyResults {
     stats: TallyStats;
 }
 
-export const PARTY_METADATA: Record<string, { color: string, photo: string }> = {
-    'UDA': { color: 'bg-yellow-400', photo: '/images/candidates/william_ruto.png' },
-    'ODM': { color: 'bg-orange-500', photo: '/images/candidates/raila_odinga.png' },
-    'WIPER': { color: 'bg-blue-400', photo: '/placeholder-avatar.jpg' },
-    'ROOTS': { color: 'bg-green-600', photo: '/images/candidates/george_wajackoyah.png' },
-    'AGANO': { color: 'bg-gray-500', photo: '/images/candidates/david_mwaure.png' },
-};
+
 
 export interface StationResult {
     station_id: string;
@@ -150,13 +145,7 @@ export async function getResults(level: 'national' | 'county' | 'constituency' |
         const countiesAbove25 = candidateCountyStats[candidate.party] || 0;
 
         // Candidate Image Mapping
-        let photo_url = candidate.photo_url || partyInfo.photo;
-        if (!candidate.photo_url) {
-            if (candidate.name.includes("William Ruto")) photo_url = PARTY_METADATA['UDA'].photo;
-            if (candidate.name.includes("Raila Odinga")) photo_url = PARTY_METADATA['ODM'].photo;
-            if (candidate.name.includes("Wajackoyah")) photo_url = PARTY_METADATA['ROOTS'].photo;
-            if (candidate.name.includes("Mwaure")) photo_url = PARTY_METADATA['AGANO'].photo;
-        }
+        const photo_url = candidate.photo_url || partyInfo.photo;
 
         return {
             candidate_id: candidate.id,
@@ -423,12 +412,9 @@ export async function getRegionalBreakdown(level: 'national' | 'county' | 'const
         const winner = candidates[0];
         const winnerCandidate = winner.election_candidates;
 
-        // Determine color
-        let color = 'bg-gray-500';
-        if (winnerCandidate.party === 'UDA') color = 'bg-yellow-400';
-        if (winnerCandidate.party === 'ODM') color = 'bg-orange-500';
-        if (winnerCandidate.party === 'WIPER') color = 'bg-blue-400';
-        if (winnerCandidate.party === 'ROOTS') color = 'bg-green-600';
+        // Determine color from central metadata
+        const partyInfo = PARTY_METADATA[winnerCandidate.party] || { color: 'bg-gray-500' };
+        const color = partyInfo.color;
 
         return {
             location,
@@ -479,14 +465,21 @@ export async function exportTallyData(level: 'national' | 'county' | 'constituen
     
     if (!results.length) return "";
 
-    // Generate CSV content
+    // Generate CSV content with proper escaping
+    const escapeCsv = (val: string) => {
+        const escaped = val.replace(/"/g, '""');
+        return escaped.includes(',') || escaped.includes('"') || escaped.includes('\n')
+            ? `"${escaped}"`
+            : escaped;
+    };
+
     const headers = ["Candidate", "Party", "Votes", "Percentage", "Integrity Hash"];
     const rows = results.map(r => [
-        r.candidate_name,
-        r.party,
+        escapeCsv(r.candidate_name),
+        escapeCsv(r.party),
         r.votes.toString(),
         r.percentage.toFixed(4) + '%',
-        r.integrity_hash
+        escapeCsv(r.integrity_hash)
     ]);
 
     const csvContent = [
