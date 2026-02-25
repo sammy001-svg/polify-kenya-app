@@ -71,10 +71,10 @@ export function TaxCalculator() {
               />
             </div>
 
-            <div className="pt-4 p-4 border border-brand-primary/20 bg-brand-primary/5 rounded-xl">
+            <div className="pt-4 p-4 border border-kenya-gold/20 bg-kenya-gold/5 rounded-xl">
                <div className="flex items-center gap-2 mb-2">
-                 <Receipt className="w-4 h-4 text-brand-primary" />
-                 <span className="text-xs font-black uppercase tracking-widest text-brand-primary">Estimated Annual Tax</span>
+                 <Receipt className="w-4 h-4 text-kenya-gold" />
+                 <span className="text-xs font-black uppercase tracking-widest text-kenya-gold">Estimated Annual Tax</span>
                </div>
                <div className="text-3xl font-black text-white">KES {(totalTax / 1e3).toFixed(1)}k</div>
             </div>
@@ -97,7 +97,7 @@ export function TaxCalculator() {
                       </div>
                       <div className="w-full bg-white/5 h-1 rounded-full">
                         <div 
-                          className="bg-brand-primary h-full rounded-full" 
+                          className="bg-kenya-gold h-full rounded-full" 
                           style={{ width: `${(sector.amountAllocated / totalBudget) * 100}%` }} 
                         />
                       </div>

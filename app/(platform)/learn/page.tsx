@@ -1,14 +1,29 @@
 "use client";
 
-import { LEARNING_PATHS, MOCK_USER_PROGRESS } from "@/lib/gamification";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { BookOpen, Filter, Trophy, Sparkles } from "lucide-react";
+import { createClient } from "@/lib/supabase";
+import { GamificationService } from "@/lib/gamification-service";
+import { LEARNING_PATHS, MOCK_USER_PROGRESS } from "@/lib/gamification";
 import { LearningPathCard } from "@/components/learning/LearningPathCard";
-import { BookOpen, Filter, Trophy } from "lucide-react";
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
 export default function LearnPage() {
   const [filter, setFilter] = useState<string>("all");
+  const [userProgress, setUserProgress] = useState(MOCK_USER_PROGRESS);
+
+  useEffect(() => {
+    const fetchData = async () => {
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+            const progress = await GamificationService.getUserProgress(user.id, supabase);
+            if (progress) setUserProgress(progress);
+        }
+    };
+    fetchData();
+  }, []);
   
   const filters = ["all", "beginner", "intermediate", "advanced", "practical", "foundations"];
   
@@ -22,12 +37,12 @@ export default function LearnPage() {
   
   // Calculate path progress
   const getPathProgress = (pathId: string) => {
-    if (MOCK_USER_PROGRESS.completedPaths.includes(pathId)) return 100;
+    if (userProgress.completedPaths.includes(pathId)) return 100;
     const path = LEARNING_PATHS.find(p => p.id === pathId);
     if (!path) return 0;
     
     const completedModules = path.modules.filter(m => 
-      MOCK_USER_PROGRESS.completedModules.includes(m.id)
+      userProgress.completedModules.includes(m.id)
     ).length;
     
     return Math.round((completedModules / path.modules.length) * 100);
@@ -36,65 +51,84 @@ export default function LearnPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="text-center space-y-3 py-6">
-        <div className="flex items-center justify-center gap-3">
-          <BookOpen className="w-10 h-10 text-kenya-green" />
-          <h1 className="text-5xl font-black tracking-tight">Learning Paths</h1>
-        </div>
-        <p className="text-lg text-brand-text-muted max-w-3xl mx-auto">
+      <div className="space-y-2 py-4">
+        <h1 className="text-3xl font-black uppercase tracking-tighter text-white flex items-center gap-3">
+          <BookOpen className="w-8 h-8 text-kenya-green" />
+          Learning Paths
+        </h1>
+        <p className="text-brand-text-muted max-w-2xl">
           Structured civic education journeys. Complete modules, earn badges, and become a knowledgeable citizen.
         </p>
       </div>
       
       {/* Stats */}
-      <div className="bg-brand-surface-secondary border border-border rounded-xl p-6">
-        <div className="grid grid-cols-3 gap-6 text-center">
-          <div>
-            <p className="text-3xl font-bold text-kenya-gold">{LEARNING_PATHS.length}</p>
-            <p className="text-sm text-brand-text-muted mt-1">Total Paths</p>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-brand-surface border border-white/5 rounded-2xl p-5 flex items-center gap-4 group hover:border-kenya-gold/30 transition-all">
+            <div className="w-12 h-12 rounded-xl bg-kenya-gold/10 flex items-center justify-center shrink-0">
+                <BookOpen className="w-6 h-6 text-kenya-gold" />
+            </div>
+            <div>
+                <p className="text-2xl font-black text-white">{LEARNING_PATHS.length}</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-brand-text-muted">Total Paths</p>
+            </div>
           </div>
-          <div>
-            <p className="text-3xl font-bold text-kenya-green">{MOCK_USER_PROGRESS.completedPaths.length}</p>
-            <p className="text-sm text-brand-text-muted mt-1">Completed</p>
+          
+          <div className="bg-brand-surface border border-white/5 rounded-2xl p-5 flex items-center gap-4 group hover:border-kenya-green/30 transition-all">
+            <div className="w-12 h-12 rounded-xl bg-kenya-green/10 flex items-center justify-center shrink-0">
+                <Trophy className="w-6 h-6 text-kenya-green" />
+            </div>
+            <div>
+                <p className="text-2xl font-black text-white">{userProgress.completedPaths.length}</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-brand-text-muted">Completed</p>
+            </div>
           </div>
-          <div>
-            <p className="text-3xl font-bold text-brand-text">
-              {LEARNING_PATHS.reduce((sum, p) => sum + p.totalXP, 0)}
-            </p>
-            <p className="text-sm text-brand-text-muted mt-1">Total XP Available</p>
+
+          <div className="bg-brand-surface border border-white/5 rounded-2xl p-5 flex items-center gap-4 group hover:border-brand-primary/30 transition-all">
+            <div className="w-12 h-12 rounded-xl bg-brand-primary/10 flex items-center justify-center shrink-0">
+                <Sparkles className="w-6 h-6 text-brand-primary" />
+            </div>
+            <div>
+                <p className="text-2xl font-black text-white">
+                  {LEARNING_PATHS.reduce((sum, p) => sum + p.totalXP, 0)}
+                </p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-brand-text-muted">XP Available</p>
+            </div>
           </div>
-        </div>
       </div>
 
       {/* Interactive Tools CTA */}
-      <div className="bg-brand-surface-highlight border border-kenya-green/30 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-4">
-        <div>
-          <h3 className="text-xl font-bold flex items-center gap-2">
-            <span className="text-2xl">🗳️</span>
-            Practice for Election Day!
+      <div className="bg-linear-to-br from-kenya-green/20 to-brand-bg border border-kenya-green/30 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden group">
+        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform">
+            <Sparkles className="w-24 h-24" />
+        </div>
+        <div className="relative z-10">
+          <h3 className="text-xl font-black text-white uppercase tracking-tight flex items-center gap-2">
+            Practice for Election Day
           </h3>
-          <p className="text-brand-text-muted mt-1">
-            Try our new interactive Ballot Simulator to learn how to vote correctly.
+          <p className="text-brand-text-muted mt-1 max-w-md">
+            Try our new interactive <span className="text-white font-bold">Ballot Simulator</span> to learn how to vote correctly and avoid spoilt votes.
           </p>
         </div>
-        <Link href="/learn/simulators/ballot">
-          <Button size="lg" className="bg-kenya-green hover:bg-kenya-green/90 text-white font-bold">
+        <Link href="/learn/simulators/ballot" className="w-full md:w-auto relative z-10">
+          <Button size="lg" className="w-full bg-kenya-green hover:bg-white text-white hover:text-black font-black uppercase text-xs rounded-xl tracking-widest shadow-lg shadow-kenya-green/20">
             Launch Simulator
           </Button>
         </Link>
       </div>
       
       {/* Filters */}
-      <div className="flex items-center gap-4 border-b border-border pb-4">
-        <Filter className="w-5 h-5 text-brand-text-muted" />
-        <div className="flex gap-2">
+      <div className="flex items-center gap-4 border-b border-white/5 pb-4">
+        <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center shrink-0">
+            <Filter className="w-4 h-4 text-brand-text-muted" />
+        </div>
+        <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
           {filters.map(f => (
             <Button
               key={f}
               onClick={() => setFilter(f)}
               variant={filter === f ? "primary" : "secondary"}
               size="sm"
-              className="capitalize"
+              className="capitalize whitespace-nowrap"
             >
               {f === "all" ? "All Paths" : f}
             </Button>

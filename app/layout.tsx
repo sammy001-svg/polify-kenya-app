@@ -55,7 +55,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport = {
-  themeColor: "#ffffff",
+  themeColor: "#01605A",
   width: "device-width",
   initialScale: 1,
 };
@@ -68,9 +68,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.variable} ${libre_baskerville.variable} antialiased bg-brand-bg text-brand-text min-h-screen relative`}
+        className={`${inter.variable} ${libre_baskerville.variable} antialiased bg-brand-bg text-brand-text min-h-screen relative selection:bg-kenya-gold selection:text-black`}
       >
         {children}
       </body>

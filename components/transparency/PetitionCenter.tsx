@@ -23,32 +23,32 @@ export function PetitionCenter() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-4">
          <div className="space-y-1">
             <h2 className="text-2xl font-black text-white italic tracking-tighter uppercase flex items-center gap-2">
-              <FileSignature className="w-6 h-6 text-brand-primary" /> Momentum Petitions
+              <FileSignature className="w-6 h-6 text-kenya-gold" /> Momentum Petitions
             </h2>
             <p className="text-sm text-brand-text-muted">Direct citizen pressure on legislative and executive branches.</p>
          </div>
          <Button variant="outline" className="h-12 px-8 font-black uppercase tracking-widest text-[10px] border-white/10 hover:bg-white/5 rounded-2xl group transition-all">
-            <span className="group-hover:text-brand-primary transition-colors">Start Collective Action</span>
+            <span className="group-hover:text-kenya-gold transition-colors">Start Collective Action</span>
          </Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 px-4">
         {petitions.map((petition, idx) => (
-          <div key={petition.id} className="relative bg-white/2 border border-white/5 rounded-[32px] p-8 flex flex-col gap-6 group hover:border-brand-primary/30 transition-all duration-500 overflow-hidden">
+          <div key={petition.id} className="relative bg-white/2 border border-white/5 rounded-[32px] p-8 flex flex-col gap-6 group hover:border-kenya-gold/30 transition-all duration-500 overflow-hidden">
              {/* Momentum Indicator Background */}
              <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none group-hover:scale-110 transition-transform">
-                <FileSignature className="w-32 h-32 text-brand-primary" />
+                <FileSignature className="w-32 h-32 text-kenya-gold" />
              </div>
 
              <div className="relative z-10 space-y-4">
                 <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-primary/60">{petition.category}</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-kenya-gold/60">{petition.category}</span>
                     <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10">
-                        <span className="w-1.5 h-1.5 rounded-full bg-brand-primary animate-pulse" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-kenya-gold animate-pulse" />
                         <span className="text-[10px] font-bold text-white/40 uppercase">Trending Now</span>
                     </div>
                 </div>
-                <h3 className="text-xl font-black text-white group-hover:text-brand-primary transition-colors tracking-tight leading-none italic">{petition.title}</h3>
+                <h3 className="text-xl font-black text-white group-hover:text-kenya-gold transition-colors tracking-tight leading-none italic">{petition.title}</h3>
                 <p className="text-sm text-brand-text-muted leading-relaxed line-clamp-2 italic">&quot;{petition.description}&quot;</p>
              </div>
 
@@ -57,13 +57,13 @@ export function PetitionCenter() {
                     <div className="space-y-1">
                         <div className="text-[9px] font-black text-white/30 uppercase tracking-widest">Growth Velocity</div>
                         <div className="flex items-center gap-2">
-                            <Users className="w-4 h-4 text-brand-primary/60" />
+                            <Users className="w-4 h-4 text-kenya-gold/60" />
                             <span className="text-sm font-black text-white">{petition.signatures.toLocaleString()}</span>
                             <span className="text-[10px] text-white/20 font-mono italic">/ {petition.threshold.toLocaleString()} GOAL</span>
                         </div>
                     </div>
                     <div className="text-right">
-                        <span className="text-xl font-black text-brand-primary italic tracking-tighter">
+                        <span className="text-xl font-black text-kenya-gold italic tracking-tighter">
                             {Math.round((petition.signatures / petition.threshold) * 100)}%
                         </span>
                     </div>
@@ -73,7 +73,7 @@ export function PetitionCenter() {
                         initial={{ width: 0 }}
                         whileInView={{ width: `${(petition.signatures / petition.threshold) * 100}%` }}
                         transition={{ duration: 1.5, delay: idx * 0.1 }}
-                        className="h-full bg-linear-to-r from-brand-primary/60 to-brand-primary rounded-full relative z-10 shadow-[0_0_10px_rgba(0,255,128,0.3)]" 
+                        className="h-full bg-linear-to-r from-kenya-gold/60 to-kenya-gold rounded-full relative z-10 shadow-[0_0_10px_rgba(255,191,0,0.3)]" 
                     />
                     <div className="absolute inset-0 bg-white/5" />
                 </div>
@@ -97,7 +97,7 @@ export function PetitionCenter() {
                      "h-10 px-6 font-black text-[10px] uppercase tracking-widest rounded-xl transition-all shadow-xl",
                      signedIds.includes(petition.id) 
                        ? 'bg-kenya-green/10 text-kenya-green border border-kenya-green/30 cursor-default' 
-                       : 'bg-brand-primary text-black hover:scale-105 active:scale-95'
+                       : 'bg-kenya-gold text-black hover:scale-105 active:scale-95'
                    )}
                 >
                    {signedIds.includes(petition.id) ? (

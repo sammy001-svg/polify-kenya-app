@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { AUDIT_REPORTS, AuditReport } from "@/lib/auditor-data";
 import { AuditReportCard } from "@/components/auditor/AuditReportCard";
 import { Search, ShieldAlert, Database, Scale, Filter, Info, ChevronDown } from "lucide-react";
@@ -13,16 +13,42 @@ import { motion } from "framer-motion";
 export default function AuditorGeneralPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeReport, setActiveReport] = useState<AuditReport | null>(null);
+  const [visibleCount, setVisibleCount] = useState(9);
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
 
-  const filteredReports = AUDIT_REPORTS.filter(r => {
-    const matchesSearch = r.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          r.entity.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesSearch;
-  });
+  const filteredReports = useMemo(() => {
+    const query = searchQuery.toLowerCase();
+    return AUDIT_REPORTS.filter(r => 
+      r.title.toLowerCase().includes(query) || 
+      r.entity.toLowerCase().includes(query) ||
+      r.summary.toLowerCase().includes(query) ||
+      r.opinion.toLowerCase().includes(query) ||
+      r.keyFindings.some(f => f.toLowerCase().includes(query))
+    );
+  }, [searchQuery]);
 
-  const criticalFindings = AUDIT_REPORTS.filter(r => r.opinion === "Adverse").length;
-  const totalQueried = "KES 14.2B"; // Mock aggregated value
+
+  const criticalFindings = useMemo(() => 
+    AUDIT_REPORTS.filter(r => r.opinion === "Adverse").length, 
+  []);
+
+  const totalQueried = useMemo(() => {
+    // Correctly normalize Trillions, Billions, and Millions into a single Billion-unit sum
+    const totalInBillions = AUDIT_REPORTS.reduce((sum, r) => {
+        if (!r.financialLoss) return sum;
+        const lossStr = r.financialLoss.toUpperCase();
+        const value = parseFloat(lossStr.replace(/[^0-9.]/g, ''));
+        if (isNaN(value)) return sum;
+        
+        if (lossStr.includes('TRILLION') || lossStr.includes(' T ')) return sum + (value * 1000);
+        if (lossStr.includes('MILLION') || lossStr.includes(' M ')) return sum + (value / 1000);
+        return sum + value; // Default to Billion
+    }, 0);
+
+    return totalInBillions > 1000 
+        ? `KES ${(totalInBillions / 1000).toFixed(2)}T` 
+        : `KES ${totalInBillions.toFixed(1)}B`;
+  }, []);
 
   const handleInvestigate = (report: AuditReport) => {
     setActiveReport(report);
@@ -114,7 +140,10 @@ export default function AuditorGeneralPage() {
                     <input 
                         type="text" 
                         value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onChange={(e) => {
+                            setSearchQuery(e.target.value);
+                            setVisibleCount(9);
+                        }}
                         placeholder="Filter by Entity or Keyword..." 
                         className="bg-white/3 border border-white/5 rounded-xl py-3 pl-12 pr-4 text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-brand-primary/30 transition-all w-full md:w-80"
                     />
@@ -127,12 +156,12 @@ export default function AuditorGeneralPage() {
 
         {/* Reports Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
-            {filteredReports.slice(0, 9).map((report, idx) => (
+            {filteredReports.slice(0, visibleCount).map((report, idx) => (
                 <motion.div
                     key={report.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: idx * 0.05 }}
+                    transition={{ delay: idx % 12 * 0.05 }}
                 >
                     <AuditReportCard 
                       report={report} 
@@ -144,15 +173,21 @@ export default function AuditorGeneralPage() {
         </div>
 
         {/* Pagination / Load More HUD */}
-        <div className="flex flex-col items-center gap-4 py-12">
-            <div className="h-px w-32 bg-linear-to-r from-transparent via-white/10 to-transparent" />
-            <Button variant="outline" className="rounded-full border-white/10 hover:bg-white/5 text-xs font-black uppercase tracking-widest h-12 px-10 gap-2">
-                Scan More Documents <ChevronDown className="w-4 h-4" />
-            </Button>
-            <div className="flex items-center gap-2 text-[10px] text-white/20 font-mono">
-                [ SHOWING {Math.min(9, filteredReports.length)} OF {filteredReports.length} ENTRIES ]
+        {visibleCount < filteredReports.length && (
+            <div className="flex flex-col items-center gap-4 py-12">
+                <div className="h-px w-32 bg-linear-to-r from-transparent via-white/10 to-transparent" />
+                <Button 
+                    variant="outline" 
+                    onClick={() => setVisibleCount(prev => prev + 9)}
+                    className="rounded-full border-white/10 hover:bg-white/5 text-xs font-black uppercase tracking-widest h-12 px-10 gap-2"
+                >
+                    Scan More Documents <ChevronDown className="w-4 h-4" />
+                </Button>
+                <div className="flex items-center gap-2 text-[10px] text-white/20 font-mono">
+                    [ SHOWING {Math.min(visibleCount, filteredReports.length)} OF {filteredReports.length} ENTRIES ]
+                </div>
             </div>
-        </div>
+        )}
       </div>
 
       {/* Support / Request Section */}

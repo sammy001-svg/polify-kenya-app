@@ -20,8 +20,8 @@ export function CandidateDashboard() {
         {CAMPAIGN_METRICS.map((metric) => {
           const Icon = iconMap[metric.icon];
           return (
-            <div key={metric.label} className="bg-brand-surface/40 backdrop-blur-md border border-white/5 p-5 rounded-2xl relative overflow-hidden group hover:border-brand-primary/30 transition-all duration-500 shadow-xl">
-              <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 group-hover:scale-125 transition-all duration-700 text-brand-primary">
+            <div key={metric.label} className="bg-brand-surface/40 backdrop-blur-md border border-white/5 p-5 rounded-2xl relative overflow-hidden group hover:border-kenya-gold/30 transition-all duration-500 shadow-xl">
+              <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 group-hover:scale-125 transition-all duration-700 text-kenya-gold">
                 <Icon className="w-16 h-16" />
               </div>
               
@@ -67,11 +67,11 @@ export function CandidateDashboard() {
 
          {/* Alerts & Insights Feed */}
          <div className="bg-brand-surface border border-white/5 rounded-3xl p-6 space-y-6 h-full flex flex-col shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-brand-primary/5 rounded-full blur-3xl -mr-16 -mt-16" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-kenya-gold/5 rounded-full blur-3xl -mr-16 -mt-16" />
             
             <div className="flex items-center justify-between relative z-10">
               <h3 className="font-black text-white text-xs uppercase tracking-[0.2em] flex items-center gap-2">
-                <Activity className="w-4 h-4 text-brand-primary animate-pulse" /> Live Intel
+                <Activity className="w-4 h-4 text-kenya-gold animate-pulse" /> Live Intel
               </h3>
               <span className="text-[9px] font-bold bg-white/5 px-2 py-1 rounded text-brand-text-muted uppercase tracking-wider">Realtime</span>
             </div>
@@ -101,7 +101,7 @@ export function CandidateDashboard() {
               ))}
             </div>
 
-            <button className="w-full py-4 mt-auto bg-brand-primary text-white font-black text-xs uppercase tracking-[0.2em] rounded-2xl hover:bg-white hover:text-black transition-all shadow-xl shadow-brand-primary/10 border border-brand-primary/20 relative z-10 overflow-hidden group">
+            <button className="w-full py-4 mt-auto bg-kenya-gold text-black font-black text-xs uppercase tracking-[0.2em] rounded-2xl hover:bg-white transition-all shadow-xl shadow-kenya-gold/10 border border-kenya-gold/20 relative z-10 overflow-hidden group">
                <span className="relative z-10">Generate Comprehensive Report</span>
                <div className="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
             </button>

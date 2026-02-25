@@ -94,14 +94,14 @@
   --foreground-muted: rgba(255, 255, 255, 0.7);
 
   /* Accents - The Flag 🇰🇪 Optimized for Dark Theme */
-  --accent-red: hsl(0 72% 51%);
+  --accent-red: #BB1919;
   --accent-green: #008C51;
   --accent-deep-green: #01605A;
-  --accent-gold: hsl(35 92% 50%);
+  --accent-gold: #FDB931;
   --accent-dark-orange: #C2410C;
 
   --border: rgba(255, 255, 255, 0.1);
-  --ring: #FDB931; /* Gold */
+  --ring: var(--accent-gold);
 
   --radius: 0.75rem;
 
@@ -144,15 +144,22 @@
 
 /* Custom Utilities (Tailwind v4) */
 @utility glass {
-  background: hsla(0, 0%, 100%, 0.75);
+  background: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(12px) saturate(180%);
-  border: 1px solid hsla(0, 0%, 0%, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+@utility glass-brand {
+  background: var(--surface-primary);
+  background-opacity: 0.1;
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 @utility glass-dark {
-  background: hsla(0, 0%, 98%, 0.9);
+  background: rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(20px);
-  border: 1px solid hsla(0, 0%, 0%, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 /* Premium Layout & Components */
@@ -207,7 +214,7 @@
 
   .title-green {
     font-family: var(--font-baskerville), serif !important;
-    color: #008c51 !important; /* Kenya Green Hardcoded */
+    color: var(--accent-green) !important;
   }
 
   /* Premium Text Gradients */
@@ -231,9 +238,9 @@
     background: linear-gradient(
       90deg,
       #000000 0%,
-      #922529 33%,
-      /* Kenya Red */ #008c51 66%,
-      /* Kenya Green */ #000000 100%
+      var(--accent-red) 33%,
+      var(--accent-green) 66%,
+      #000000 100%
     );
     background-clip: text;
     -webkit-background-clip: text;
@@ -270,12 +277,13 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: hsla(0, 0%, 0%, 0.15);
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: hsla(0, 0%, 0%, 0.25);
+    background: rgba(255, 255, 255, 0.2);
   }
 
   /* Hide scrollbar for Chrome, Safari and Opera */
@@ -299,5 +307,16 @@
     .show-on-mobile {
       display: none !important;
     }
+  }
+
+  .bg-scanline {
+    background: linear-gradient(
+      to bottom,
+      transparent 50%,
+      rgba(0, 0, 0, 0.2) 51%,
+      rgba(0, 0, 0, 0.2) 100%
+    );
+    background-size: 100% 4px;
+    pointer-events: none;
   }
 }

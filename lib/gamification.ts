@@ -859,9 +859,9 @@ export function getXPForNextLevel(currentLevel: UserLevel): number {
 
 // Demo Leaderboard Data
 export const DEMO_LEADERBOARD = [
-  { rank: 1, name: 'Sarah Kimani', level: 6, xp: 14500, avatar: 'S', badge: 'Champion', isTrendUp: true },
-  { rank: 2, name: 'David Omondi', level: 5, xp: 9800, avatar: 'D', badge: 'Advocate', isTrendUp: true },
-  { rank: 3, name: 'Grace Wanjiru', level: 5, xp: 8200, avatar: 'G', badge: 'Advocate', isTrendUp: false },
-  { rank: 4, name: 'You', level: 3, xp: 2100, avatar: 'Y', badge: 'Contributor', isTrendUp: true, highlight: true },
-  { rank: 5, name: 'John Kamau', level: 3, xp: 1950, avatar: 'J', badge: 'Contributor', isTrendUp: false }
+  { rank: 1, userId: 'demo-1', name: 'Sarah Kimani', level: 6, xp: 14500, avatar: 'S', badges: [], badge: 'Champion', isTrendUp: true },
+  { rank: 2, userId: 'demo-2', name: 'David Omondi', level: 5, xp: 9800, avatar: 'D', badges: [], badge: 'Advocate', isTrendUp: true },
+  { rank: 3, userId: 'demo-3', name: 'Grace Wanjiru', level: 5, xp: 8200, avatar: 'G', badges: [], badge: 'Advocate', isTrendUp: false },
+  { rank: 4, userId: 'demo-4', name: 'You', level: 3, xp: 2100, avatar: 'Y', badges: [], badge: 'Contributor', isTrendUp: true, highlight: true },
+  { rank: 5, userId: 'demo-5', name: 'John Kamau', level: 3, xp: 1950, avatar: 'J', badges: [], badge: 'Contributor', isTrendUp: false }
 ];

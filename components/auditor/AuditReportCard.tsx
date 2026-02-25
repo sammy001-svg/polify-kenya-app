@@ -14,7 +14,7 @@ interface AuditReportCardProps {
 const getOpinionColor = (opinion: AuditReport["opinion"]) => {
   switch (opinion) {
     case "Unmodified (Clean)": return "text-kenya-green border-kenya-green/20 bg-kenya-green/10";
-    case "Qualified": return "text-yellow-500 border-yellow-500/20 bg-yellow-500/10";
+    case "Qualified": return "text-kenya-gold border-kenya-gold/20 bg-kenya-gold/10";
     case "Adverse": return "text-kenya-dark-orange border-kenya-dark-orange/20 bg-kenya-dark-orange/10";
     case "Disclaimer": return "text-brand-text-muted border-white/20 bg-white/5";
     default: return "text-brand-text-muted";
@@ -25,7 +25,7 @@ export function AuditReportCard({ report, onInvestigate, isActive }: AuditReport
   return (
     <div className={cn(
       "group relative bg-brand-surface border rounded-2xl p-6 transition-all duration-300 hover:shadow-lg overflow-hidden",
-      isActive ? "border-brand-primary ring-1 ring-brand-primary/30 shadow-[0_0_20px_rgba(0,255,128,0.1)]" : "border-white/5 hover:border-brand-primary/50"
+      isActive ? "border-kenya-gold ring-1 ring-kenya-gold/30 shadow-[0_0_20px_rgba(253,185,49,0.1)]" : "border-white/5 hover:border-kenya-gold/50"
     )}>
       {/* Background Gradient for Adverse/Qualified */}
       {report.opinion === "Adverse" && (
@@ -37,7 +37,7 @@ export function AuditReportCard({ report, onInvestigate, isActive }: AuditReport
             <div className="text-xs font-semibold text-brand-text-muted uppercase tracking-wider mb-1">
                 {report.fiscalYear} • {report.entity}
             </div>
-            <h3 className="text-lg font-bold text-white group-hover:text-brand-primary transition-colors tracking-tight leading-none italic uppercase">
+            <h3 className="text-lg font-bold text-white group-hover:text-kenya-gold transition-colors tracking-tight leading-none italic uppercase">
                 {report.title}
             </h3>
         </div>
@@ -67,13 +67,13 @@ export function AuditReportCard({ report, onInvestigate, isActive }: AuditReport
       )}
 
       <div className="flex items-center justify-between pt-4 border-t border-white/5">
-         <button 
+          <button 
             onClick={() => onInvestigate?.(report)}
-            className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-white hover:text-brand-primary transition-colors group/btn"
+            className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-white hover:text-kenya-gold transition-colors group/btn"
           >
             {isActive ? "Currently Inspecting" : "Initiate Audit"}
-            <Fingerprint className={cn("w-4 h-4 transition-transform", !isActive && "group-hover:scale-110")} />
-         </button>
+            <Fingerprint className={cn("w-4 h-4 transition-transform", !isActive && "group-hover:scale-110", isActive && "text-kenya-gold")} />
+          </button>
          <div className="flex gap-2">
             <button className="p-2 text-brand-text-muted hover:text-white transition-colors" title="Download OAG PDF">
                 <Download className="w-4 h-4" />

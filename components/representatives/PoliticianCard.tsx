@@ -69,14 +69,16 @@ export function PoliticianCard({ politician, showPosition = true }: PoliticianCa
   return (
     <Link 
       href={`/representatives/${politician.id}`}
-      className="block bg-brand-surface-secondary border border-border rounded-xl overflow-hidden hover:border-kenya-gold/50 transition-all group"
+      className="block bg-brand-surface border border-white/5 rounded-2xl overflow-hidden hover:border-kenya-gold/30 transition-all group relative"
     >
+      <div className="absolute inset-0 bg-linear-to-b from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
       <div className="p-6 space-y-4">
         {/* Header */}
         <div className="flex items-start gap-4">
           {/* Avatar */}
-          <div className="w-20 h-20 rounded-full bg-linear-to-br from-kenya-red to-kenya-gold flex items-center justify-center text-white font-bold text-2xl shrink-0">
-            {politician.name.split(' ').map(n => n[0]).join('')}
+          <div className="relative w-24 h-24 rounded-2xl bg-linear-to-br from-brand-surface-highlight to-brand-surface border border-white/10 flex items-center justify-center text-white font-black text-3xl shrink-0 overflow-hidden group-hover:border-kenya-gold/20 transition-all">
+            <div className="absolute inset-0 bg-linear-to-tr from-kenya-red/10 to-kenya-gold/10 opacity-50" />
+            <span className="relative z-10">{politician.name.split(' ').map(n => n[0]).join('')}</span>
           </div>
           
           {/* Info */}
@@ -126,8 +128,8 @@ export function PoliticianCard({ politician, showPosition = true }: PoliticianCa
         </div>
         
         {/* Slogan */}
-        <div className="bg-brand-surface-highlight rounded-lg p-3">
-          <p className="text-sm font-bold text-brand-text italic">
+        <div className="bg-black/20 rounded-xl p-4 border border-white/5 group-hover:border-kenya-gold/10 transition-colors">
+          <p className="text-sm font-bold text-white italic leading-relaxed">
             &quot;{politician.slogan}&quot;
           </p>
         </div>
@@ -139,13 +141,13 @@ export function PoliticianCard({ politician, showPosition = true }: PoliticianCa
         
         {/* Key Agenda - Top 3 */}
         <div>
-          <p className="text-xs font-bold uppercase tracking-wider text-brand-text-muted mb-2">
-            Key Agenda
+          <p className="text-[10px] font-black uppercase tracking-widest text-brand-text-muted mb-3 flex items-center gap-2">
+            <TrendingUp className="w-3 h-3 text-kenya-gold" /> Key Agenda
           </p>
           <ul className="space-y-1">
             {politician.keyAgenda.slice(0, 3).map((item, index) => (
-              <li key={index} className="flex gap-2 text-sm text-brand-text">
-                <span className="text-kenya-gold font-bold shrink-0">{index + 1}.</span>
+              <li key={index} className="flex gap-2 text-sm text-brand-text-muted group-hover:text-brand-text transition-colors">
+                <div className="w-1.5 h-1.5 rounded-full bg-kenya-gold mt-1.5 shrink-0" />
                 <span className="line-clamp-1">{item}</span>
               </li>
             ))}

@@ -38,7 +38,9 @@ export function Header() {
   }, [supabase]);
 
   return (
-    <header className="fixed top-0 left-0 right-0 h-16 bg-black border-b border-white/5 flex items-center justify-between px-4 md:px-6 z-50">
+    <header className="fixed top-0 left-0 right-0 h-16 bg-black border-b border-white/10 flex items-center justify-between px-4 md:px-6 z-50 overflow-hidden">
+      {/* HUD Scanline Effect */}
+      <div className="absolute inset-0 bg-scanline opacity-[0.02] pointer-events-none" />
 
 
       {/* Left: Menu & Brand */}
@@ -54,7 +56,7 @@ export function Header() {
             />
           </div>
           <div className="flex flex-col -space-y-1">
-            <span className="font-black text-xl md:text-2xl tracking-tighter bg-linear-to-r from-[#922529] via-white to-[#008C51] bg-clip-text text-transparent ml-1">
+            <span className="font-black text-xl md:text-2xl tracking-tighter bg-linear-to-r from-kenya-red via-white to-kenya-green bg-clip-text text-transparent ml-1">
               PoliFy
             </span>
             <span className="text-[10px] uppercase font-black tracking-widest text-brand-text-muted ml-1 hide-on-mobile">

@@ -24,7 +24,7 @@ export function CampaignTemplateCard({ template, onSelect, isSelected }: Campaig
       {/* Background with subtle glow */}
       <div className={cn(
         "absolute inset-0 bg-brand-surface/50 backdrop-blur-xl border-2 transition-all duration-500",
-        isSelected ? "border-kenya-green shadow-lg shadow-kenya-green/20" : "border-white/5 group-hover:border-white/20 group-hover:bg-brand-surface/70"
+        isSelected ? "border-kenya-gold shadow-lg shadow-kenya-gold/20" : "border-white/5 group-hover:border-white/20 group-hover:bg-brand-surface/70"
       )} />
 
       {/* Gloss Effect */}
@@ -32,18 +32,18 @@ export function CampaignTemplateCard({ template, onSelect, isSelected }: Campaig
 
       <div className="relative z-10 p-6 space-y-6">
         <div className="flex items-start justify-between">
-          <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:bg-brand-primary/10 group-hover:border-brand-primary/30 transition-all duration-500">
-            <Icon className={cn("w-6 h-6 transition-colors duration-500", isSelected ? "text-kenya-green" : "text-brand-text-muted group-hover:text-brand-primary")} />
+          <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:bg-kenya-gold/10 group-hover:border-kenya-gold/30 transition-all duration-500">
+            <Icon className={cn("w-6 h-6 transition-colors duration-500", isSelected ? "text-kenya-gold" : "text-brand-text-muted group-hover:text-kenya-gold")} />
           </div>
           {isSelected && (
-            <div className="bg-kenya-green text-black px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-kenya-green/30 animate-in fade-in zoom-in duration-300">
+            <div className="bg-kenya-gold text-black px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-kenya-gold/30 animate-in fade-in zoom-in duration-300">
               Selected
             </div>
           )}
         </div>
 
         <div className="space-y-2">
-            <h3 className="text-xl font-black text-white group-hover:text-brand-primary transition-colors duration-500">{template.title}</h3>
+            <h3 className="text-xl font-black text-white group-hover:text-kenya-gold transition-colors duration-500">{template.title}</h3>
             <p className="text-xs text-brand-text-muted leading-relaxed line-clamp-2 font-medium opacity-80 group-hover:opacity-100">{template.description}</p>
         </div>
 
@@ -54,7 +54,7 @@ export function CampaignTemplateCard({ template, onSelect, isSelected }: Campaig
             <ul className="space-y-2">
                 {template.mandate.slice(0, 2).map((item, i) => (
                     <li key={i} className="flex items-start gap-3">
-                        <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-kenya-green/40 shrink-0" />
+                        <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-kenya-gold/40 shrink-0" />
                         <span className="text-[11px] text-brand-text-muted font-medium leading-normal group-hover:text-brand-text transition-colors duration-300">{item}</span>
                     </li>
                 ))}
@@ -64,7 +64,7 @@ export function CampaignTemplateCard({ template, onSelect, isSelected }: Campaig
       
       {/* Selection Overlay */}
       {isSelected && (
-        <div className="absolute bottom-0 left-0 w-full h-1 bg-kenya-green" />
+        <div className="absolute bottom-0 left-0 w-full h-1 bg-kenya-gold" />
       )}
     </div>
   );

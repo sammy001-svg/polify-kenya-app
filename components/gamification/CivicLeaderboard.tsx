@@ -3,20 +3,20 @@
 import { Trophy, TrendingUp, Minus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DEMO_LEADERBOARD } from "@/lib/gamification";
+import Image from "next/image";
 
 export interface LeaderboardUser {
-    id?: string;
-    userId?: string;
-    name: string;
-    score?: number; // mock
-    xp: number;     // real
-    avatar: string;
     rank: number;
+    userId: string;
+    name: string;
+    avatar: string; // URL or Initials
+    level: number;
+    xp: number;
+    badges: string[];
+    department?: string;
     highlight?: boolean;
-    badge?: string; // mock uses single badge name
-    badges?: string[]; // real uses array of IDs
-    level?: number;
     isTrendUp?: boolean;
+    badge?: string; // For mock data compatibility
 }
 
 export function CivicLeaderboard({ users }: { users?: LeaderboardUser[] }) {
@@ -60,8 +60,17 @@ export function CivicLeaderboard({ users }: { users?: LeaderboardUser[] }) {
             </div>
 
             {/* Avatar */}
-            <div className="w-8 h-8 rounded-full bg-brand-surface-highlight flex items-center justify-center text-xs font-bold text-brand-text">
-              {user.avatar}
+            <div className="w-8 h-8 rounded-full bg-brand-surface-highlight border border-white/10 flex items-center justify-center text-[10px] font-black text-white relative overflow-hidden shrink-0">
+               {user.avatar.startsWith('http') || user.avatar.startsWith('/') ? (
+                  <Image 
+                    src={user.avatar} 
+                    alt={user.name} 
+                    fill 
+                    className="object-cover"
+                  />
+               ) : (
+                  <span className="relative z-10">{user.avatar}</span>
+               )}
             </div>
 
             {/* Info */}
@@ -85,7 +94,7 @@ export function CivicLeaderboard({ users }: { users?: LeaderboardUser[] }) {
             {/* XP & Trend */}
             <div className="text-right">
               <p className="text-sm font-black text-brand-text tabular-nums">
-                {(user.xp || user.score || 0).toLocaleString()}
+                {(user.xp || 0).toLocaleString()}
               </p>
               <div className="flex justify-end">
                 {user.isTrendUp ? (

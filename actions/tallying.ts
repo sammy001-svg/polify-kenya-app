@@ -25,6 +25,19 @@ export interface TallyStats {
     last_updated: string;
 }
 
+export interface TallyResults {
+    results: CandidateResult[];
+    stats: TallyStats;
+}
+
+export const PARTY_METADATA: Record<string, { color: string, photo: string }> = {
+    'UDA': { color: 'bg-yellow-400', photo: '/images/candidates/william_ruto.png' },
+    'ODM': { color: 'bg-orange-500', photo: '/images/candidates/raila_odinga.png' },
+    'WIPER': { color: 'bg-blue-400', photo: '/placeholder-avatar.jpg' },
+    'ROOTS': { color: 'bg-green-600', photo: '/images/candidates/george_wajackoyah.png' },
+    'AGANO': { color: 'bg-gray-500', photo: '/images/candidates/david_mwaure.png' },
+};
+
 export interface StationResult {
     station_id: string;
     station_name: string;
@@ -74,12 +87,12 @@ interface RawQueryResult {
     };
 }
 
-export async function getResults(level: 'national' | 'county' | 'constituency' | 'ward', locationName: string = 'Kenya') {
+export async function getResults(level: 'national' | 'county' | 'constituency' | 'ward', locationName: string = 'Kenya'): Promise<TallyResults> {
     const supabase = await createClient();
 
     // 1. Get Active Election
     const election = await getActiveElection();
-    if (!election) return { results: [], stats: null };
+    if (!election) return { results: [], stats: { reporting_stations: 0, total_stations: 0, last_updated: new Date().toISOString() } };
 
     // 2. Get Results for this level and location
     const { data: queryData, error } = await supabase
@@ -105,7 +118,7 @@ export async function getResults(level: 'national' | 'county' | 'constituency' |
     
     if (error) {
         console.error("Error fetching results:", error);
-        return { results: [], stats: null };
+        return { results: [], stats: { reporting_stations: 0, total_stations: 0, last_updated: new Date().toISOString() } };
     }
 
     // 3. Format Data & Calculate Compliance
@@ -131,29 +144,25 @@ export async function getResults(level: 'national' | 'county' | 'constituency' |
         const total = r.total_valid_votes || 1; 
         const percentage = (r.votes / total) * 100;
         
-        let color = 'bg-gray-500';
-        if (candidate.party === 'UDA') color = 'bg-yellow-400';
-        if (candidate.party === 'ODM') color = 'bg-orange-500';
-        if (candidate.party === 'WIPER') color = 'bg-blue-400';
-        if (candidate.party === 'ROOTS') color = 'bg-green-600';
+        const partyInfo = PARTY_METADATA[candidate.party] || { color: 'bg-gray-500', photo: '/placeholder-avatar.jpg' };
 
         // Compliance logic
         const countiesAbove25 = candidateCountyStats[candidate.party] || 0;
 
         // Candidate Image Mapping
-        let photo_url = candidate.photo_url;
-        if (!photo_url) {
-            if (candidate.name.includes("William Ruto")) photo_url = "/images/candidates/william_ruto.png";
-            if (candidate.name.includes("Raila Odinga")) photo_url = "/images/candidates/raila_odinga.png";
-            if (candidate.name.includes("Wajackoyah")) photo_url = "/images/candidates/george_wajackoyah.png";
-            if (candidate.name.includes("Mwaure")) photo_url = "/images/candidates/david_mwaure.png";
+        let photo_url = candidate.photo_url || partyInfo.photo;
+        if (!candidate.photo_url) {
+            if (candidate.name.includes("William Ruto")) photo_url = PARTY_METADATA['UDA'].photo;
+            if (candidate.name.includes("Raila Odinga")) photo_url = PARTY_METADATA['ODM'].photo;
+            if (candidate.name.includes("Wajackoyah")) photo_url = PARTY_METADATA['ROOTS'].photo;
+            if (candidate.name.includes("Mwaure")) photo_url = PARTY_METADATA['AGANO'].photo;
         }
 
         return {
             candidate_id: candidate.id,
             candidate_name: candidate.name,
             party: candidate.party,
-            party_color: color,
+            party_color: partyInfo.color,
             photo_url: photo_url || "/placeholder-avatar.jpg",
             votes: r.votes,
             total_valid_votes: r.total_valid_votes,
@@ -188,10 +197,10 @@ export async function getProjections(): Promise<CandidateResult[]> {
 
     // Simplified Linear Projection with custom weighting
     // (In reality, this would use turnout-by-stronghold weighting)
-    const projectedResults = results.map(r => {
+    const projectedResults: CandidateResult[] = results.map(r => {
         const projectedVotes = Math.floor(r.votes / reportingRate);
         const totalProjected = Math.floor(r.total_valid_votes / reportingRate);
-        const projectedPct = (projectedVotes / totalProjected) * 100;
+        const projectedPct = (projectedVotes / Math.max(1, totalProjected)) * 100;
 
         // Simulate geographical spread based on current leading
         const projectedCounties = Math.min(47, Math.floor(r.counties_above_25pct / reportingRate));
@@ -361,11 +370,12 @@ export async function getPartyDistribution(level: 'national' | 'county' | 'const
     });
     
     // Convert to array
+    const totalVotes = Object.values(distribution).reduce((acc, d) => acc + d.votes, 0);
     return Object.entries(distribution).map(([party, data]) => ({
         party,
         votes: data.votes,
         color: data.color,
-        percentage: 0 // Will calc on frontend or here
+        percentage: totalVotes > 0 ? (data.votes / totalVotes) * 100 : 0
     }));
 }
 
@@ -434,7 +444,7 @@ export async function getRegionalBreakdown(level: 'national' | 'county' | 'const
 
 
 // 8. Tally Reporting & Certification
-export async function generateTallyCertificate(level: string, location: string) {
+export async function generateTallyCertificate(level: 'national' | 'county' | 'constituency' | 'ward', location: string) {
     const { results, stats } = await getResults(level as 'national' | 'county' | 'constituency' | 'ward', location);
     
     if (!results.length) return { success: false, message: "No data available to certify." };
@@ -464,7 +474,7 @@ export async function generateTallyCertificate(level: string, location: string) 
     };
 }
 
-export async function exportTallyData(level: string, location: string) {
+export async function exportTallyData(level: 'national' | 'county' | 'constituency' | 'ward', location: string): Promise<string> {
     const { results } = await getResults(level as 'national' | 'county' | 'constituency' | 'ward', location);
     
     if (!results.length) return "";

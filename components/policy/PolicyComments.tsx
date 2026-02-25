@@ -118,7 +118,7 @@ export function PolicyComments({ policyId }: PolicyCommentsProps) {
                   <div className="w-5 h-5 rounded-full bg-brand-surface-highlight flex items-center justify-center">
                     <User className="w-3 h-3 text-brand-text-muted" />
                   </div>
-                  <span className="text-xs font-black text-brand-primary">{comment.profiles.full_name}</span>
+                  <span className="text-xs font-black text-kenya-gold">{comment.profiles.full_name}</span>
                   <span className="text-[10px] text-brand-text-muted">
                     {formatDistanceToNow(new Date(comment.created_at))} ago
                   </span>
@@ -149,7 +149,7 @@ export function PolicyComments({ policyId }: PolicyCommentsProps) {
           <Button 
             disabled={loading || !newComment.trim()} 
             size="icon" 
-            className="bg-brand-primary rounded-full shrink-0"
+            className="bg-kenya-gold text-black rounded-full shrink-0"
           >
             <Send className="w-4 h-4" />
           </Button>

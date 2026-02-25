@@ -28,7 +28,7 @@ export default function TransparencyPage() {
 
   const TABS: { id: Tab; label: string; icon: React.ElementType; color: string }[] = [
     { id: 'finance', label: 'Public Finance', icon: Coins, color: 'text-kenya-gold' },
-    { id: 'platform', label: 'Platform Algo', icon: Server, color: 'text-brand-primary' },
+    { id: 'platform', label: 'Platform Algo', icon: Server, color: 'text-kenya-gold' },
     { id: 'local', label: 'County & Integrity', icon: MapPin, color: 'text-kenya-red' },
     { id: 'action', label: 'Collective Action', icon: FileSignature, color: 'text-kenya-green' },
   ];
@@ -38,17 +38,17 @@ export default function TransparencyPage() {
       {/* Transparency HUD Header */}
       <div className="relative p-8 bg-brand-bg rounded-[40px] border border-white/5 overflow-hidden shadow-2xl">
         <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
-            <ShieldCheck className="w-64 h-64 text-brand-primary" />
+            <ShieldCheck className="w-64 h-64 text-kenya-gold" />
         </div>
         
         <div className="relative z-10 space-y-6">
             <div className="space-y-4">
                 <div className="flex items-center gap-3">
-                    <div className="w-12 h-1 border border-brand-primary bg-brand-primary" />
-                    <span className="text-[10px] font-black text-brand-primary uppercase tracking-[0.4em]">Integrated Accountability Hub</span>
+                    <div className="w-12 h-1 border border-kenya-gold bg-kenya-gold" />
+                    <span className="text-[10px] font-black text-kenya-gold uppercase tracking-[0.4em]">Integrated Accountability Hub</span>
                 </div>
                 <h1 className="text-4xl md:text-6xl font-black text-white tracking-tighter leading-none italic uppercase">
-                    Transparency <span className="text-brand-primary">Protocol</span>
+                    Transparency <span className="text-kenya-gold">Protocol</span>
                 </h1>
                 <p className="text-brand-text-muted max-w-2xl text-lg leading-relaxed">
                     Bridging the gap between government spending and platform information. 

@@ -116,26 +116,26 @@ export function LearningPathCard({ path, progress = 0, isLocked = false }: Learn
         
         {/* CTA Button */}
         {!isLocked && (
-          <button className={`w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition-all ${
+          <button className={`w-full py-3 rounded-lg font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 transition-all ${
             isCompleted
-              ? 'bg-kenya-green text-white'
+              ? 'bg-kenya-green text-white shadow-lg shadow-kenya-green/20'
               : progress > 0
-              ? 'bg-kenya-gold text-black hover:bg-kenya-red hover:text-white'
-              : 'bg-linear-to-r from-kenya-red to-kenya-gold text-white hover:scale-105'
+              ? 'bg-kenya-gold text-black hover:bg-white transition-all'
+              : 'bg-white text-black hover:bg-kenya-gold transition-all'
           }`}>
             {isCompleted ? (
               <>
-                <CheckCircle2 className="w-5 h-5" />
+                <CheckCircle2 className="w-4 h-4" />
                 View Certificate
               </>
             ) : progress > 0 ? (
               <>
-                <Play className="w-5 h-5" />
+                <Play className="w-4 h-4 fill-current" />
                 Continue Learning
               </>
             ) : (
               <>
-                <Play className="w-5 h-5" />
+                <Play className="w-4 h-4 fill-current" />
                 Start Path
               </>
             )}

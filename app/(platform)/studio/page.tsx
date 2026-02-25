@@ -12,7 +12,7 @@ export default function StudioDashboard() {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Studio Command Center</h1>
+          <h1 className="text-4xl font-black tracking-tight text-white mb-1">Studio Command Center</h1>
           <p className="text-brand-text-muted flex items-center gap-2">
             Welcome back, Hon. Representative 
             <span className="flex items-center text-blue-500 bg-blue-500/10 px-2 py-0.5 rounded-full text-xs font-bold gap-1">
@@ -22,7 +22,7 @@ export default function StudioDashboard() {
         </div>
         <div className="flex gap-3">
           <Link href="/studio/upload">
-            <Button className="bg-brand-primary text-black hover:bg-brand-primary/90">
+            <Button className="bg-kenya-gold text-black hover:bg-white font-black uppercase tracking-widest text-xs">
               <Sparkles className="w-4 h-4 mr-2" /> Start Creation
             </Button>
           </Link>
@@ -77,20 +77,20 @@ export default function StudioDashboard() {
           <CardContent>
             <div className="flex items-end justify-between mb-2">
                 <div>
-                     <div className="text-2xl font-bold flex items-center gap-2">
-                        64% <span className="text-sm font-normal text-kenya-green">Positive</span>
+                     <div className="text-2xl font-black flex items-center gap-2 text-white">
+                        64% <span className="text-[10px] font-black uppercase tracking-widest text-kenya-green bg-kenya-green/10 px-2 py-0.5 rounded">Positive</span>
                      </div>
-                     <p className="text-xs text-brand-text-muted">Based on last 3 uploads</p>
+                     <p className="text-[10px] font-bold uppercase tracking-widest text-brand-text-muted mt-1">Last 3 uploads</p>
                 </div>
                 <div className="text-right">
-                    <div className="text-sm font-bold text-red-500">12% Neg</div>
+                    <div className="text-[10px] font-black uppercase tracking-widest text-kenya-red bg-kenya-red/10 px-2 py-0.5 rounded">12% Neg</div>
                 </div>
             </div>
             {/* Sentiment Bar */}
-            <div className="w-full h-2 bg-brand-surface-secondary rounded-full overflow-hidden flex">
+            <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden flex gap-0.5 mt-4">
                 <div className="h-full bg-kenya-green transition-all" style={{ width: '64%' }}></div>
-                <div className="h-full bg-gray-500 transition-all" style={{ width: '24%' }}></div>
-                <div className="h-full bg-red-500 transition-all" style={{ width: '12%' }}></div>
+                <div className="h-full bg-white/20 transition-all" style={{ width: '24%' }}></div>
+                <div className="h-full bg-kenya-red transition-all" style={{ width: '12%' }}></div>
             </div>
           </CardContent>
         </Card>
@@ -103,20 +103,20 @@ export default function StudioDashboard() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="p-3 bg-brand-surface-secondary rounded-lg">
-                    <p className="text-xs text-brand-text-muted mb-1 uppercase tracking-wider">Health</p>
-                    <p className="font-bold">#NHIFChanges</p>
-                    <p className="text-xs text-kenya-green mt-1">+24% Engagement</p>
+                <div className="p-4 bg-black/20 rounded-xl border border-white/5 hover:border-kenya-gold/20 transition-all group">
+                    <p className="text-[10px] text-brand-text-muted mb-2 uppercase tracking-widest font-black">Health</p>
+                    <p className="font-bold text-white mb-1">#NHIFChanges</p>
+                    <p className="text-[10px] font-black text-kenya-green uppercase tracking-widest">+24% Eng</p>
                 </div>
-                <div className="p-3 bg-brand-surface-secondary rounded-lg">
-                    <p className="text-xs text-brand-text-muted mb-1 uppercase tracking-wider">Infrastructure</p>
-                    <p className="font-bold">#GreenParkSafety</p>
-                    <p className="text-xs text-kenya-green mt-1">+18% Engagement</p>
+                <div className="p-4 bg-black/20 rounded-xl border border-white/5 hover:border-kenya-gold/20 transition-all group">
+                    <p className="text-[10px] text-brand-text-muted mb-2 uppercase tracking-widest font-black">Infra</p>
+                    <p className="font-bold text-white mb-1">#GreenParkSafety</p>
+                    <p className="text-[10px] font-black text-kenya-green uppercase tracking-widest">+18% Eng</p>
                 </div>
-                <div className="p-3 bg-brand-surface-secondary rounded-lg">
-                    <p className="text-xs text-brand-text-muted mb-1 uppercase tracking-wider">Education</p>
-                    <p className="font-bold">#CBCReview</p>
-                    <p className="text-xs text-brand-text-muted mt-1">Steady</p>
+                <div className="p-4 bg-black/20 rounded-xl border border-white/5 hover:border-kenya-gold/20 transition-all group">
+                    <p className="text-[10px] text-brand-text-muted mb-2 uppercase tracking-widest font-black">Education</p>
+                    <p className="font-bold text-white mb-1">#CBCReview</p>
+                    <p className="text-[10px] font-black text-brand-text-muted uppercase tracking-widest">Steady</p>
                 </div>
             </div>
           </CardContent>
@@ -129,23 +129,24 @@ export default function StudioDashboard() {
             <CardTitle>Recent Content</CardTitle>
           </CardHeader>
           <CardContent>
-             <div className="space-y-4">
+             <div className="space-y-3">
                 {DEMO_UPLOADS.map((item) => (
-                    <div key={item.id} className="flex items-center justify-between p-4 bg-brand-surface-secondary rounded-lg">
+                    <div key={item.id} className="flex items-center justify-between p-4 bg-black/20 rounded-xl border border-white/5 hover:bg-black/30 transition-all">
                         <div className="flex items-center gap-4">
-                            <Image 
-                              src={item.thumbnail} 
-                              alt={item.title} 
-                              width={64} 
-                              height={36} 
-                              className="rounded object-cover" 
-                            />
+                            <div className="relative w-20 h-11 shrink-0 rounded-lg overflow-hidden border border-white/10">
+                                <Image 
+                                  src={item.thumbnail} 
+                                  alt={item.title} 
+                                  fill
+                                  className="object-cover" 
+                                />
+                            </div>
                             <div>
-                                <p className="font-semibold">{item.title}</p>
-                                <p className="text-xs text-brand-text-muted">Published • {item.date}</p>
+                                <p className="font-bold text-white text-sm line-clamp-1">{item.title}</p>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-brand-text-muted mt-1">Published • {item.date}</p>
                             </div>
                         </div>
-                        <div className="text-sm font-medium">{item.views} Views</div>
+                        <div className="text-xs font-black uppercase tracking-widest text-white bg-white/5 px-3 py-1.5 rounded-full">{item.views} Views</div>
                     </div>
                 ))}
              </div>

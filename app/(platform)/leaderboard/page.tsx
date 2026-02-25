@@ -12,27 +12,17 @@ import {
   MOCK_USER_PROGRESS,
   ACHIEVEMENT_BADGES,
   LEARNING_PATHS,
+  Badge,
 } from "@/lib/gamification";
 import { GamificationService } from "@/lib/gamification-service";
+import { LeaderboardUser } from "@/components/gamification/CivicLeaderboard";
 
 export default function LeaderboardPage() {
-  const [leaderboard, setLeaderboard] = useState<
-    {
-      rank: number;
-      userId: string;
-      name: string;
-      avatar: string;
-      level: number;
-      xp: number;
-      badges: string[];
-      department: string;
-    }[]
-  >([]);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
   const [userProgress, setUserProgress] = useState(MOCK_USER_PROGRESS);
-  // const [currentUser, setCurrentUser] = useState<{ id: string } | null>(null); // Removed unused state
 
   // Combine all possible badges for the showcase
-  const allBadges = [
+  const allBadges: Badge[] = [
     ...ACHIEVEMENT_BADGES,
     ...LEARNING_PATHS.map((path) => path.badge),
   ];

@@ -16,7 +16,7 @@ const ALGO_WEIGHTS = [
   { label: "Verification Status", weight: 35, icon: ShieldCheck, color: "text-blue-400", desc: "Sourced from verified officials or trusted agencies." },
   { label: "Thoughtful Dialogue", weight: 25, icon: Users, color: "text-kenya-green", desc: "Long-form constructive discussion over rapid reactions." },
   { label: "Viewpoint Diversity", weight: 20, icon: Scale, color: "text-kenya-gold", desc: "Ensuring feed balance across diverse perspectives." },
-  { label: "Recency & Context", weight: 15, icon: Clock, color: "text-brand-primary", desc: "Timely information relevant to your local interests." },
+  { label: "Recency & Context", weight: 15, icon: Clock, color: "text-kenya-gold", desc: "Timely information relevant to your local interests." },
   { label: "Engagement Quality", weight: 5, icon: Zap, color: "text-kenya-red", desc: "Meaningful interactions and fact-check citations." },
 ];
 
@@ -35,13 +35,13 @@ export function AlgoTransparencyNode() {
       <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-4">
             <div className="flex items-center gap-3">
-                <div className="p-2 bg-brand-primary/20 rounded-lg">
-                    <Cpu className="w-5 h-5 text-brand-primary" />
+                <div className="p-2 bg-kenya-gold/20 rounded-lg">
+                    <Cpu className="w-5 h-5 text-kenya-gold" />
                 </div>
-                <span className="text-[10px] font-black text-brand-primary uppercase tracking-[0.4em]">Algorithm_Transparency_Core</span>
+                <span className="text-[10px] font-black text-kenya-gold uppercase tracking-[0.4em]">Algorithm_Transparency_Core</span>
             </div>
             <h3 className="text-3xl font-black text-white italic tracking-tighter uppercase leading-none">
-                Neutral <span className="text-brand-primary">Ranking</span> Engine
+                Neutral <span className="text-kenya-gold">Ranking</span> Engine
             </h3>
             <p className="text-sm text-brand-text-muted max-w-md leading-relaxed">
                 Unlike traditional feeds that optimize for outrage, PoliFy optimizes for 
@@ -50,9 +50,9 @@ export function AlgoTransparencyNode() {
         </div>
 
         <div className="flex items-center gap-4">
-            <div className="px-4 py-2 bg-brand-primary/10 border border-brand-primary/30 rounded-full flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-brand-primary animate-pulse" />
-                <span className="text-[10px] font-black text-brand-primary uppercase tracking-widest">Model: Civic-V2-Release</span>
+            <div className="px-4 py-2 bg-kenya-gold/10 border border-kenya-gold/30 rounded-full flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-kenya-gold animate-pulse" />
+                <span className="text-[10px] font-black text-kenya-gold uppercase tracking-widest">Model: Civic-V2-Release</span>
             </div>
         </div>
       </div>
@@ -75,7 +75,7 @@ export function AlgoTransparencyNode() {
                             </div>
                             <span className="text-sm font-bold text-white/70 group-hover/item:text-white transition-colors">{item.label}</span>
                         </div>
-                        <span className="text-xs font-mono font-black text-brand-primary">{item.weight}%</span>
+                        <span className="text-xs font-mono font-black text-kenya-gold">{item.weight}%</span>
                     </div>
                     <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden relative">
                         <motion.div 
@@ -125,10 +125,10 @@ export function AlgoTransparencyNode() {
             <div className="pt-4 border-t border-white/5 flex justify-between items-center">
                 <div className="flex gap-1">
                     {[...Array(5)].map((_, i) => (
-                        <div key={i} className="w-1.5 h-1.5 rounded-full bg-brand-primary/20" />
+                        <div key={i} className="w-1.5 h-1.5 rounded-full bg-kenya-gold/20" />
                     ))}
                 </div>
-                <button className="text-[9px] font-black text-brand-primary uppercase tracking-widest hover:underline">
+                <button className="text-[9px] font-black text-kenya-gold uppercase tracking-widest hover:underline">
                     View Full Calc Log →
                 </button>
             </div>

@@ -32,7 +32,7 @@ export function BudgetBreakdown() {
 
        <div className="space-y-4">
           <h3 className="text-lg font-bold text-white flex items-center gap-2">
-             <TrendingUp className="w-5 h-5 text-brand-primary" /> Sector Allocation & Risk Analysis
+             <TrendingUp className="w-5 h-5 text-kenya-gold" /> Sector Allocation & Risk Analysis
           </h3>
           
           <div className="grid grid-cols-1 gap-4">

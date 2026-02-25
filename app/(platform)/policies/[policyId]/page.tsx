@@ -44,7 +44,7 @@ export default async function PolicyDetailPage({ params }: { params: Promise<{ p
             <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
                 <div>
                      <div className="flex items-center gap-3 mb-2">
-                        <span className="px-2 py-1 rounded bg-brand-primary/10 text-brand-primary text-xs font-bold uppercase tracking-widest border border-brand-primary/20">
+                        <span className="px-2 py-1 rounded bg-kenya-gold/10 text-kenya-gold text-xs font-bold uppercase tracking-widest border border-kenya-gold/20">
                             {policy.category}
                         </span>
                         <span className="text-xs text-brand-text-muted font-mono">
@@ -67,13 +67,13 @@ export default async function PolicyDetailPage({ params }: { params: Promise<{ p
                     </div>
                     <div className="w-px bg-white/10" />
                     <div className="text-center">
-                        <div className="text-[10px] text-brand-text-muted uppercase tracking-wider mb-1">Cost</div>
-                        <div className="text-2xl font-black text-kenya-red">{policy.fiscalLoad}</div>
+                        <div className="text-[10px] text-brand-text-muted uppercase tracking-wider mb-1">Load</div>
+                        <div className="text-2xl font-black text-kenya-red">{policy.fiscalLoad}%</div>
                     </div>
                     <div className="w-px bg-white/10" />
                     <div className="text-center">
                         <div className="text-[10px] text-brand-text-muted uppercase tracking-wider mb-1">Feasibility</div>
-                        <div className="text-2xl font-black text-brand-primary">{policy.feasibility}%</div>
+                        <div className="text-2xl font-black text-kenya-gold">{policy.feasibility}%</div>
                     </div>
                 </div>
             </div>
@@ -86,8 +86,8 @@ export default async function PolicyDetailPage({ params }: { params: Promise<{ p
                 <div className="lg:col-span-2 space-y-8">
                     
                     {/* Impact Statement */}
-                    <div className="p-6 rounded-2xl bg-linear-to-br from-brand-primary/10 to-transparent border border-brand-primary/20">
-                        <h3 className="flex items-center gap-2 text-sm font-black uppercase tracking-widest text-brand-primary mb-3">
+                    <div className="p-6 rounded-2xl bg-linear-to-br from-kenya-gold/10 to-transparent border border-kenya-gold/20">
+                        <h3 className="flex items-center gap-2 text-sm font-black uppercase tracking-widest text-kenya-gold mb-3">
                             <Zap className="w-4 h-4" /> The Bottom Line
                         </h3>
                         <p className="text-white text-lg font-medium leading-relaxed">

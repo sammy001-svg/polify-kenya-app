@@ -61,7 +61,7 @@ export default function RepresentativesPage() {
       <div className="text-center space-y-3 py-6">
         <div className="flex items-center justify-center gap-3">
           <Users className="w-10 h-10 text-kenya-gold" />
-          <h1 className="text-5xl font-black tracking-tight">My Representative</h1>
+          <h1 className="text-5xl font-black tracking-tight text-white">My Representatives</h1>
         </div>
         <p className="text-lg text-brand-text-muted max-w-3xl mx-auto">
           Find your elected leaders from MCA to President. Discover their campaigns, track their promises, and hold them accountable.
@@ -141,14 +141,14 @@ export default function RepresentativesPage() {
         </div>
         
         {/* Position Filter */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
           {positions.map(pos => (
             <Button
               key={pos}
               onClick={() => setSelectedPosition(pos)}
               variant={selectedPosition === pos ? "primary" : "secondary"}
               size="sm"
-              className="capitalize"
+              className="whitespace-nowrap font-black uppercase tracking-widest text-[10px]"
             >
               {pos === "all" ? "All Positions" : pos}
             </Button>
@@ -228,15 +228,18 @@ export default function RepresentativesPage() {
       )}
       
       {/* Call to Action */}
-      <div className="bg-linear-to-r from-kenya-red to-kenya-gold rounded-xl p-8 text-center">
-        <h3 className="text-2xl font-bold text-white mb-3">Are You a Politician?</h3>
-        <p className="text-white/90 mb-6 max-w-2xl mx-auto">
+      <div className="bg-linear-to-r from-kenya-red/20 to-kenya-gold/20 border border-kenya-gold/30 rounded-2xl p-8 text-center backdrop-blur-sm relative overflow-hidden group">
+        <div className="absolute inset-0 bg-scanline pointer-events-none opacity-5" />
+        <h3 className="text-2xl font-black text-white mb-3 uppercase tracking-tight">Are You a Politician?</h3>
+        <p className="text-brand-text-muted mb-6 max-w-2xl mx-auto font-medium">
           Create your campaign profile, share your manifesto, and connect directly with voters across Kenya.
         </p>
         <Link href="/representatives/create-campaign">
-          <button className="bg-brand-primary text-black font-bold px-8 py-3 rounded-lg hover:bg-brand-primary/90 transition-colors">
+          <Button 
+            className="bg-kenya-gold text-black font-black uppercase tracking-widest px-8 py-6 rounded-xl hover:bg-white transition-all shadow-lg shadow-kenya-gold/20"
+          >
             Start Your Campaign
-          </button>
+          </Button>
         </Link>
       </div>
     </div>
