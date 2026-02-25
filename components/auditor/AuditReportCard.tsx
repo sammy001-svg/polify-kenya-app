@@ -1,29 +1,35 @@
-import Link from "next/link";
+"use client";
+
 import { AuditReport } from "@/lib/auditor-data";
-import { AlertCircle, CheckCircle, FileWarning, HelpCircle, ArrowRight, Download } from "lucide-react";
+import { AlertCircle, CheckCircle, FileWarning, HelpCircle, Download, Fingerprint } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 interface AuditReportCardProps {
   report: AuditReport;
+  onInvestigate?: (report: AuditReport) => void;
+  isActive?: boolean;
 }
 
 const getOpinionColor = (opinion: AuditReport["opinion"]) => {
   switch (opinion) {
     case "Unmodified (Clean)": return "text-kenya-green border-kenya-green/20 bg-kenya-green/10";
     case "Qualified": return "text-yellow-500 border-yellow-500/20 bg-yellow-500/10";
-    case "Adverse": return "text-kenya-red border-kenya-red/20 bg-kenya-red/10";
+    case "Adverse": return "text-kenya-dark-orange border-kenya-dark-orange/20 bg-kenya-dark-orange/10";
     case "Disclaimer": return "text-brand-text-muted border-white/20 bg-white/5";
     default: return "text-brand-text-muted";
   }
 };
 
-export function AuditReportCard({ report }: AuditReportCardProps) {
+export function AuditReportCard({ report, onInvestigate, isActive }: AuditReportCardProps) {
   return (
-    <div className="group relative bg-brand-surface border border-white/5 rounded-2xl p-6 hover:border-brand-primary/50 transition-all duration-300 hover:shadow-lg overflow-hidden">
+    <div className={cn(
+      "group relative bg-brand-surface border rounded-2xl p-6 transition-all duration-300 hover:shadow-lg overflow-hidden",
+      isActive ? "border-brand-primary ring-1 ring-brand-primary/30 shadow-[0_0_20px_rgba(0,255,128,0.1)]" : "border-white/5 hover:border-brand-primary/50"
+    )}>
       {/* Background Gradient for Adverse/Qualified */}
       {report.opinion === "Adverse" && (
-        <div className="absolute top-0 right-0 w-32 h-32 bg-kenya-red/5 blur-3xl rounded-full pointer-events-none" />
+        <div className="absolute top-0 right-0 w-32 h-32 bg-kenya-dark-orange/5 blur-3xl rounded-full pointer-events-none" />
       )}
 
       <div className="flex justify-between items-start mb-4">
@@ -31,7 +37,7 @@ export function AuditReportCard({ report }: AuditReportCardProps) {
             <div className="text-xs font-semibold text-brand-text-muted uppercase tracking-wider mb-1">
                 {report.fiscalYear} • {report.entity}
             </div>
-            <h3 className="text-lg font-bold text-white group-hover:text-brand-primary transition-colors">
+            <h3 className="text-lg font-bold text-white group-hover:text-brand-primary transition-colors tracking-tight leading-none italic uppercase">
                 {report.title}
             </h3>
         </div>
@@ -44,30 +50,35 @@ export function AuditReportCard({ report }: AuditReportCardProps) {
         </Badge>
       </div>
 
-      <p className="text-sm text-brand-text-muted mb-6 line-clamp-3">
+      <p className="text-xs text-brand-text-muted mb-6 line-clamp-2 italic">
         {report.summary}
       </p>
 
       {report.financialLoss && (
-        <div className="mb-6 p-3 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center gap-3">
-             <div className="p-2 bg-red-500/20 rounded-full">
-                <AlertCircle className="w-4 h-4 text-kenya-red" />
+        <div className="mb-6 p-3 bg-kenya-dark-orange/10 border border-kenya-dark-orange/20 rounded-lg flex items-center gap-3">
+             <div className="p-2 bg-kenya-dark-orange/20 rounded-full">
+                <AlertCircle className="w-4 h-4 text-kenya-dark-orange" />
              </div>
              <div>
-                <p className="text-[10px] text-red-300 font-semibold uppercase tracking-wider">Potential Loss</p>
-                <p className="text-sm font-bold text-white">{report.financialLoss}</p>
+                <p className="text-[9px] text-kenya-dark-orange font-black uppercase tracking-widest">Potential Leakage</p>
+                <p className="text-base font-black text-white italic tracking-tighter">{report.financialLoss}</p>
              </div>
         </div>
       )}
 
       <div className="flex items-center justify-between pt-4 border-t border-white/5">
-         <Link href={`/auditor/${report.id}`} className="flex items-center gap-2 text-sm font-medium text-white hover:text-brand-primary transition-colors">
-            Read Full Report
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-         </Link>
-         <button className="text-brand-text-muted hover:text-white transition-colors" title="Download PDF">
-            <Download className="w-4 h-4" />
+         <button 
+            onClick={() => onInvestigate?.(report)}
+            className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-white hover:text-brand-primary transition-colors group/btn"
+          >
+            {isActive ? "Currently Inspecting" : "Initiate Audit"}
+            <Fingerprint className={cn("w-4 h-4 transition-transform", !isActive && "group-hover:scale-110")} />
          </button>
+         <div className="flex gap-2">
+            <button className="p-2 text-brand-text-muted hover:text-white transition-colors" title="Download OAG PDF">
+                <Download className="w-4 h-4" />
+            </button>
+         </div>
       </div>
     </div>
   );

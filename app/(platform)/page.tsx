@@ -21,6 +21,7 @@ import { TrustIndicator } from "@/components/trust/TrustIndicator";
 import { HeroFeedCarousel } from "@/components/feed/HeroFeedCarousel";
 
 export default function Home() {
+  const [activeCategory, setActiveCategory] = useState("All");
   const [activeHeroVideo, setActiveHeroVideo] = useState<FeedItem | null>(null);
   // const [isHeroPlaying, setIsHeroPlaying] = useState(false);
   const [theaterVideo, setTheaterVideo] = useState<FeedItem | null>(null);
@@ -28,6 +29,19 @@ export default function Home() {
   const [isScanning, setIsScanning] = useState(false);
   const [newUpdateCount, setNewUpdateCount] = useState(0);
   const [mobileTab, setMobileTab] = useState<"feed" | "dashboard">("feed");
+
+  const categories = [
+    "All",
+    "Parliament",
+    "County Assemblies",
+    "Explainer Videos",
+    "Interviews",
+    "Town Halls",
+  ];
+
+  const filteredItems = activeCategory === "All" 
+    ? feedItems 
+    : feedItems.filter(item => item.category === activeCategory);
 
   const handleVideoClick = (item: FeedItem) => {
     setActiveHeroVideo(item);
@@ -172,19 +186,13 @@ export default function Home() {
         <div className="flex-1 p-4 space-y-8">
           <div className="flex items-center justify-between gap-4">
             <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none">
-              {[
-                "All",
-                "Parliament",
-                "County Assemblies",
-                "Explainer Videos",
-                "Interviews",
-                "Town Halls",
-              ].map((filter, i) => (
+              {categories.map((filter) => (
                 <Button
                   key={filter}
-                  variant={i === 0 ? "primary" : "secondary"}
+                  variant={activeCategory === filter ? "primary" : "secondary"}
                   size="sm"
                   className="whitespace-nowrap transition-transform hover:scale-105"
+                  onClick={() => setActiveCategory(filter)}
                 >
                   {filter}
                 </Button>
@@ -254,106 +262,129 @@ export default function Home() {
                 className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
               >
                 <AnimatePresence mode="popLayout">
-                  {feedItems.map((item) => (
-                    <motion.div
-                      layout
-                      key={item.id}
-                      initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <Card
-                        className="border-0 bg-transparent shadow-none group cursor-pointer h-full"
-                        onClick={() => handleVideoClick(item)}
+                  {filteredItems.length > 0 ? (
+                    filteredItems.map((item) => (
+                      <motion.div
+                        layout
+                        key={item.id}
+                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        transition={{ duration: 0.3 }}
                       >
-                        <div className="relative aspect-video rounded-xl bg-brand-surface-highlight mb-3 overflow-hidden border border-white/5 shadow-lg group-hover:border-kenya-red/30 transition-all">
-                          <Image
-                            src={item.thumbnailUrl}
-                            alt={item.title}
-                            fill
-                            className="object-cover group-hover:scale-110 transition-transform duration-700"
-                          />
-
-                          <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors opacity-0 group-hover:opacity-100 duration-300">
-                            <PolifyPlayIcon size="md" />
-                          </div>
-
-                          <div className="absolute bottom-2 right-2 px-1.5 py-0.5 bg-black/80 rounded text-xs font-medium text-white z-10">
-                            {item.duration}
-                          </div>
-
-                          <div
-                            className="absolute top-2 left-2 z-10 pointer-events-auto"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <TrustIndicator
-                              status={item.verificationStatus}
-                              citations={item.citations}
-                              compact
-                            />
-                          </div>
-
-                          {item.isNew && (
-                            <div className="absolute top-2 left-20 ml-2 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider backdrop-blur-md z-10 bg-brand-primary text-white flex items-center gap-1 shadow-lg shadow-brand-primary/20">
-                              <Sparkles className="w-3 h-3 fill-current" /> AI
-                              Pick
-                            </div>
-                          )}
-
-                          <HoverCard>
-                            <HoverCardTrigger asChild>
-                              <button className="absolute top-2 right-2 p-1.5 rounded-full bg-black/70 hover:bg-black/90 transition-colors z-10">
-                                <Info className="w-3.5 h-3.5 text-white" />
-                              </button>
-                            </HoverCardTrigger>
-                            <HoverCardContent className="w-64 bg-brand-surface border-border shadow-2xl">
-                              <div className="space-y-2">
-                                <h4 className="text-xs font-bold text-brand-text-muted uppercase tracking-widest">
-                                  PoliFy Recs
-                                </h4>
-                                <p className="text-sm text-brand-text leading-relaxed">
-                                  {item.recommendationReason}
-                                </p>
-                                <a
-                                  href="/transparency"
-                                  className="text-xs text-blue-400 hover:underline block pt-2 border-t border-border/50"
-                                >
-                                  Learn about our algorithm →
-                                </a>
-                              </div>
-                            </HoverCardContent>
-                          </HoverCard>
-                        </div>
-                        <div className="flex gap-3">
-                          <div className="relative w-10 h-10 rounded-full bg-brand-surface-highlight shrink-0 overflow-hidden border border-white/10 ring-2 ring-white/5">
+                        <Card
+                          className="border-0 bg-transparent shadow-none group cursor-pointer h-full"
+                          onClick={() => handleVideoClick(item)}
+                        >
+                          <div className="relative aspect-video rounded-xl bg-brand-surface-highlight mb-3 overflow-hidden border border-white/5 shadow-lg group-hover:border-kenya-red/30 transition-all">
                             <Image
                               src={item.thumbnailUrl}
-                              alt={item.host}
+                              alt={item.title}
                               fill
-                              className="object-cover opacity-90"
+                              className="object-cover group-hover:scale-110 transition-transform duration-700"
                             />
+
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors opacity-0 group-hover:opacity-100 duration-300">
+                              <PolifyPlayIcon size="md" />
+                            </div>
+
+                            <div className="absolute bottom-2 right-2 px-1.5 py-0.5 bg-black/80 rounded text-xs font-medium text-white z-10">
+                              {item.duration}
+                            </div>
+
+                            <div
+                              className="absolute top-2 left-2 z-10 pointer-events-auto"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <TrustIndicator
+                                status={item.verificationStatus}
+                                citations={item.citations}
+                                compact
+                              />
+                            </div>
+
+                            {item.isNew && (
+                              <div className="absolute top-2 left-20 ml-2 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider backdrop-blur-md z-10 bg-brand-primary text-white flex items-center gap-1 shadow-lg shadow-brand-primary/20">
+                                <Sparkles className="w-3 h-3 fill-current" /> AI
+                                Pick
+                              </div>
+                            )}
+
+                            <HoverCard>
+                              <HoverCardTrigger asChild>
+                                <button className="absolute top-2 right-2 p-1.5 rounded-full bg-black/70 hover:bg-black/90 transition-colors z-10">
+                                  <Info className="w-3.5 h-3.5 text-white" />
+                                </button>
+                              </HoverCardTrigger>
+                              <HoverCardContent className="w-64 bg-brand-surface border-border shadow-2xl">
+                                <div className="space-y-2">
+                                  <h4 className="text-xs font-bold text-brand-text-muted uppercase tracking-widest">
+                                    PoliFy Recs
+                                  </h4>
+                                  <p className="text-sm text-brand-text leading-relaxed">
+                                    {item.recommendationReason}
+                                  </p>
+                                  <a
+                                    href="/transparency"
+                                    className="text-xs text-blue-400 hover:underline block pt-2 border-t border-border/50"
+                                  >
+                                    Learn about our algorithm →
+                                  </a>
+                                </div>
+                              </HoverCardContent>
+                            </HoverCard>
                           </div>
-                          <div className="flex-1 space-y-1">
-                            <h3 className="font-bold leading-snug line-clamp-2 group-hover:text-kenya-red transition-colors duration-300">
-                              {item.title}
-                            </h3>
-                            <div className="flex items-center gap-1 text-sm text-brand-text-muted">
-                              <span className="font-medium hover:text-white transition-colors">
-                                {item.host}
-                              </span>
-                              {item.isVerifiedChannel && (
-                                <BadgeCheck className="w-4 h-4 text-blue-500 fill-blue-500/10" />
-                              )}
-                              <span>
-                                • {item.views} • {item.timeAgo}
-                              </span>
+                          <div className="flex gap-3">
+                            <div className="relative w-10 h-10 rounded-full bg-brand-surface-highlight shrink-0 overflow-hidden border border-white/10 ring-2 ring-white/5">
+                              <Image
+                                src={item.thumbnailUrl}
+                                alt={item.host}
+                                fill
+                                className="object-cover opacity-90"
+                              />
+                            </div>
+                            <div className="flex-1 space-y-1">
+                              <h3 className="font-bold leading-snug line-clamp-2 text-brand-text group-hover:text-kenya-red transition-colors duration-300">
+                                {item.title}
+                              </h3>
+                              <div className="flex items-center gap-1 text-sm text-brand-text-muted">
+                                <span className="font-medium hover:text-white transition-colors">
+                                  {item.host}
+                                </span>
+                                {item.isVerifiedChannel && (
+                                  <BadgeCheck className="w-4 h-4 text-blue-500 fill-blue-500/10" />
+                                )}
+                                <span>
+                                  • {item.views} • {item.timeAgo}
+                                </span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </Card>
+                        </Card>
+                      </motion.div>
+                    ))
+                  ) : (
+                    <motion.div 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="col-span-full py-20 text-center space-y-4"
+                    >
+                      <div className="w-20 h-20 bg-brand-surface rounded-full flex items-center justify-center mx-auto mb-4 border border-white/5">
+                        <Info className="w-10 h-10 text-brand-text-muted" />
+                      </div>
+                      <h4 className="text-xl font-bold text-white">No updates found in {activeCategory}</h4>
+                      <p className="text-brand-text-muted max-w-xs mx-auto">
+                        Our AI is constantly scanning Kenyan channels. Try another category or check back later!
+                      </p>
+                      <Button 
+                        variant="secondary" 
+                        onClick={() => setActiveCategory("All")}
+                        className="mt-4"
+                      >
+                        Back to All Feed
+                      </Button>
                     </motion.div>
-                  ))}
+                  )}
                 </AnimatePresence>
               </motion.div>
             </div>

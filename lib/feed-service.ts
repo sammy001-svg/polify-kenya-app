@@ -99,9 +99,21 @@ export const FeedService = {
 
         if (!isRelevant) return null;
 
+        const lowerText = video.title.toLowerCase();
         const channelConfig =
           KENYAN_MEDIA_CHANNELS.find((c) => c.id === video.channelKey) ||
           KENYAN_MEDIA_CHANNELS[0];
+
+        let category = "Town Halls";
+        if (channelConfig.id === "parliament" || lowerText.includes("parliament") || lowerText.includes("senate") || lowerText.includes("national assembly")) {
+          category = "Parliament";
+        } else if (lowerText.includes("county") || lowerText.includes("assembly") || lowerText.includes("mca") || lowerText.includes("governor")) {
+          category = "County Assemblies";
+        } else if (lowerText.includes("explain") || lowerText.includes("how to") || lowerText.includes("guide")) {
+          category = "Explainer Videos";
+        } else if (lowerText.includes("interview") || lowerText.includes("exclusive") || lowerText.includes("converses")) {
+          category = "Interviews";
+        }
 
         const item: FeedItem = {
           id: video.id, // YouTube Video ID
@@ -111,8 +123,7 @@ export const FeedService = {
           timeAgo: "Just now", // In a real app we'd parse video.published relative to now
           duration: "New",
           thumbnailUrl: `https://i.ytimg.com/vi/${video.id}/hqdefault.jpg`, // Real YouTube Thumbnail
-          category:
-            channelConfig.id === "parliament" ? "Parliament" : "Town Hall",
+          category: category as StreamItem["category"],
           verificationStatus: "Verified", // Trusted source
           citations: [
             {

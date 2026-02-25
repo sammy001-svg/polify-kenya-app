@@ -20,6 +20,7 @@ module.exports = {
           green: "var(--accent-green)",
           gold: "var(--accent-gold)",
           orange: "var(--accent-gold)", // Alias for semantic usage
+          "dark-orange": "var(--accent-dark-orange)",
         },
         border: "var(--border)",
         ring: "var(--ring)",

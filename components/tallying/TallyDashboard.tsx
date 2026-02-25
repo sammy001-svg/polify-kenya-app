@@ -1,89 +1,55 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import {
   getResults,
-  simulateIncomingVotes,
-  getTurnoutStats,
-  getPartyDistribution,
-  getRegionalBreakdown,
   getProjections,
   CandidateResult,
   TallyStats,
-  TurnoutStats,
-  PartyDistributionData,
-  RegionalBreakdownData,
 } from "@/actions/tallying";
-import { ResultCard } from "./ResultCard";
-import { TurnoutCard } from "./TurnoutCard";
-import { PartyDistributionChart } from "./PartyDistributionChart";
-import { CountyMap } from "./CountyMap";
-import { TallyReportGenerator } from "./TallyReportGenerator";
-import { BarChart3, TrendingUp, RefreshCcw, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { LiveTicker } from "./LiveTicker";
-import { ReportingProgress } from "./ReportingProgress";
-import { AILogConsole } from "./AILogConsole";
-import { ComplianceTracker } from "./ComplianceTracker";
-import { AuditVault } from "./AuditVault";
-import { DiscrepancyCentre } from "./DiscrepancyCentre";
 import { createClient } from "@/lib/supabase";
 import { Toaster } from "sonner";
+import { VerifiedBadge } from "./VerifiedBadge";
+import { FuturisticNewsFeed } from "./FuturisticNewsFeed";
+import { DataStreamsTable } from "./DataStreamsTable";
+import { AIVerificationNode } from "./AIVerificationNode";
+import { CandidateResultsGrid } from "./CandidateResultsGrid";
+import { LiveTicker } from "./LiveTicker";
+import { DataVelocityHub } from "./DataVelocityHub";
+import { Shield, Activity } from "lucide-react";
 
 export function TallyDashboard() {
-  const [level, setLevel] = useState<
+  const [level] = useState<
     "national" | "county" | "constituency" | "ward"
   >("national");
-  const [locationName, setLocationName] = useState<string>("Kenya");
+  const [locationName] = useState<string>("Kenya");
 
   const [results, setResults] = useState<CandidateResult[]>([]);
   const [stats, setStats] = useState<TallyStats | null>(null);
-  const [turnout, setTurnout] = useState<TurnoutStats | null>(null);
-  const [partyData, setPartyData] = useState<PartyDistributionData[]>([]);
-  const [regionalData, setRegionalData] = useState<RegionalBreakdownData[]>([]);
 
   const [loading, setLoading] = useState(true);
-  const [simulating, setSimulating] = useState(false);
-  const [showProjections, setShowProjections] = useState(false);
-  const [activeView, setActiveView] = useState<"tally" | "audit" | "conflicts">(
-    "tally",
-  );
+  const [showProjections] = useState(false);
 
-  const supabase = createClient();
-
-  useEffect(() => {
-    console.log("Tallying Centre: Scrollable Layout Active (v3)");
-  }, []);
+  const supabase = useMemo(() => createClient(), []);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [resData, turnoutData, partyStats, regData] = await Promise.all([
-        showProjections && level === "national"
-          ? getProjections().then((r) => ({ results: r, stats }))
-          : getResults(level, locationName),
-        getTurnoutStats(level, locationName),
-        getPartyDistribution(level, locationName),
-        getRegionalBreakdown(level),
-      ]);
+      const resData = await (showProjections && level === "national"
+          ? getProjections()
+          : getResults(level, locationName));
 
-      setResults(resData.results);
-      if (resData.stats) setStats(resData.stats);
-      setTurnout(turnoutData);
-      setPartyData(partyStats);
-      setRegionalData(regData);
+      setResults(Array.isArray(resData) ? resData : resData.results);
+      if (!(Array.isArray(resData)) && resData.stats) setStats(resData.stats);
     } catch (error) {
       console.error("Failed to fetch data:", error);
     } finally {
       setLoading(false);
     }
-  }, [level, locationName, showProjections, stats]);
+  }, [level, locationName, showProjections]);
 
   useEffect(() => {
     fetchData();
-
-    // REALTIME SUBSCRIPTION
     const channel = supabase
       .channel("public:election_results")
       .on(
@@ -91,7 +57,7 @@ export function TallyDashboard() {
         { event: "*", schema: "public", table: "election_results" },
         () => {
           fetchData();
-        },
+        }
       )
       .subscribe();
 
@@ -100,222 +66,140 @@ export function TallyDashboard() {
     };
   }, [fetchData, supabase]);
 
-  const handleSimulate = async () => {
-    setSimulating(true);
-    await simulateIncomingVotes();
-    setSimulating(false);
-  };
-
-  const handleRegionSelect = (regionName: string) => {
-    setLocationName(regionName);
-    setLevel("county");
-  };
-
-  const handleTabChange = (val: string) => {
-    const newLevel = val as "national" | "county" | "constituency" | "ward";
-    setLevel(newLevel);
-    if (newLevel === "national") setLocationName("Kenya");
-  };
+  // Derived stat values
+  const totalVotes = results.reduce((acc, c) => acc + (c.votes || 0), 0);
+  const stationsReportingPct = stats
+    ? ((stats.reporting_stations / stats.total_stations) * 100).toFixed(1)
+    : "--";
 
   return (
-    <div className="flex flex-col space-y-4 md:space-y-6 relative">
+    <div className="flex flex-col gap-0 min-h-screen lg:h-screen lg:max-h-[1080px] bg-brand-bg rounded-[48px] border border-white/10 relative overflow-hidden shadow-[0_0_150px_rgba(0,0,0,1)]">
+      {/* Live Ticker at the absolute top */}
       <LiveTicker />
 
-      <div className="sticky top-16 z-30 flex flex-col md:flex-row gap-3 md:gap-4 justify-between items-start md:items-center bg-kenya-deep p-3 md:p-4 rounded-2xl border border-kenya-green/20 shrink-0 shadow-2xl transition-all duration-300">
-        <div className="flex flex-col">
-          <h2 className="text-xl md:text-2xl font-black bg-clip-text text-transparent bg-linear-to-r from-kenya-red via-white to-kenya-green flex items-center gap-3">
-            <span className="w-2 h-2 md:w-3 md:h-3 bg-red-600 rounded-full animate-pulse shadow-[0_0_10px_red]" />
-            {showProjections
-              ? "AI OUTCOME PROJECTION"
-              : locationName === "Kenya"
-                ? "PRESIDENTIAL TALLY"
-                : `${locationName.toUpperCase()} TALLY`}
-          </h2>
-          <p className="text-[10px] md:text-xs text-brand-text-muted font-black uppercase tracking-widest pl-5 md:pl-6">
-            {showProjections
-              ? "PROBABILISTIC FORECAST V2.0"
-              : "LIVE FROM BOMAS OF KENYA"}
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto no-scrollbar pb-1 md:pb-0">
-          <div className="flex bg-white/5 border border-white/10 rounded-xl p-0.5 shrink-0">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setActiveView("tally")}
-              className={`text-[9px] md:text-[10px] h-7 px-3 md:px-4 font-black tracking-tighter transition-all rounded-lg ${activeView === "tally" ? "bg-kenya-red text-white" : "text-gray-500 hover:text-white"}`}
-            >
-              DASHBOARD
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setActiveView("audit")}
-              className={`text-[9px] md:text-[10px] h-7 px-3 md:px-4 font-black tracking-tighter transition-all rounded-lg ${activeView === "audit" ? "bg-kenya-red text-white" : "text-gray-500 hover:text-white"}`}
-            >
-              AUDIT
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setActiveView("conflicts")}
-              className={`text-[9px] md:text-[10px] h-7 px-3 md:px-4 font-black tracking-tighter transition-all rounded-lg ${activeView === "conflicts" ? "bg-kenya-red text-white" : "text-gray-500 hover:text-white"}`}
-            >
-              CONTROL
-            </Button>
-          </div>
-
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowProjections(!showProjections)}
-            className={`text-[10px] md:text-xs h-8 font-bold border rounded-lg transition-all shrink-0 ${showProjections ? "bg-kenya-gold text-black border-kenya-gold" : "bg-white/5 border-white/10 text-gray-400 hover:text-white"}`}
-          >
-            {showProjections ? (
-              <BarChart3 className="h-3 w-3 md:h-4 md:w-4 mr-1.5" />
-            ) : (
-              <TrendingUp className="h-3 w-3 md:h-4 md:w-4 mr-1.5" />
-            )}
-            {showProjections ? "Tally" : "AI"}
-          </Button>
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleSimulate}
-            disabled={simulating}
-            className="text-[10px] md:text-xs h-8 border-white/10 bg-white/5 hover:bg-white/10 hover:text-white rounded-lg shrink-0"
-          >
-            {simulating ? (
-              <Loader2 className="h-3 w-3 md:h-4 md:w-4 animate-spin mr-1.5" />
-            ) : (
-              <RefreshCcw className="h-3 w-3 md:h-4 md:w-4 mr-1.5" />
-            )}
-            {simulating ? "..." : "Simulate"}
-          </Button>
-        </div>
+      {/* Background HUD Grid & Scanline */}
+      <div className="absolute inset-0 pointer-events-none mt-10">
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_0%,rgba(0,255,128,0.08),transparent_70%)]" />
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10" />
+        <div className="absolute top-0 left-0 w-full h-1/2 bg-linear-to-b from-brand-primary/2 to-transparent" />
+        <div className="absolute inset-0 opacity-10 bg-[linear-gradient(transparent_0%,rgba(0,255,128,0.05)_50%,transparent_100%)] bg-size-[100%_4px] animate-scanline" />
       </div>
 
-      <div className="pr-1">
-        {activeView === "tally" && (
-          <div className="space-y-6 pb-20 md:pb-6">
-            <ReportingProgress stats={stats} />
+      <div className="p-4 md:p-8 flex flex-col h-full relative z-10 pt-16">
+        {/* Top Header Section */}
+        <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-6 border-b border-white/5 pb-6 mb-6">
+            <div className="flex items-center gap-6">
+                {/* Kenya Flag - Premium HUD Styled */}
+                <div className="w-14 h-9 border border-white/20 rounded-lg shadow-[0_0_20px_rgba(255,255,255,0.05)] overflow-hidden flex flex-col relative shrink-0 group">
+                    <div className="h-[30%] bg-black" />
+                    <div className="h-[5%] bg-white" />
+                    <div className="h-[30%] bg-kenya-red" />
+                    <div className="h-[5%] bg-white" />
+                    <div className="h-[30%] bg-kenya-green" />
+                </div>
 
-            {level === "national" && (
-              <ComplianceTracker candidate={results[0]} />
-            )}
-
-            <div className="animate-in fade-in slide-in-from-bottom-10 duration-1000">
-              <AILogConsole />
+                <div className="space-y-0.5">
+                    <div className="flex items-center gap-2">
+                        {/* ELEC_SYNC_001_ACTIVE */}
+                        <span className="text-[8px] font-black text-white/30 uppercase tracking-[0.4em]">ELEC_SYNC_001_ACTIVE</span>
+                    </div>
+                    <h2 className="text-2xl md:text-3xl font-black tracking-tighter text-white uppercase holographic-glow flex items-center gap-3">
+                        TALLYING_CENTRE <span className="text-white/20 text-xl font-thin">{" // "}</span> <span className="text-brand-primary">HUD_V2</span>
+                    </h2>
+                </div>
             </div>
 
-            <Tabs
-              value={level}
-              onValueChange={handleTabChange}
-              className="w-full"
-            >
-              <div className="flex justify-between items-center mb-6 overflow-x-auto no-scrollbar">
-                <TabsList className="bg-black/50 border border-white/10 h-10 p-1 rounded-xl">
-                  <TabsTrigger
-                    value="national"
-                    className="text-[10px] md:text-xs rounded-lg data-[state=active]:bg-kenya-red data-[state=active]:text-white uppercase font-black"
-                  >
-                    NATIONAL
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="county"
-                    className="text-[10px] md:text-xs rounded-lg data-[state=active]:bg-kenya-red data-[state=active]:text-white uppercase font-black"
-                  >
-                    COUNTY
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="constituency"
-                    className="text-[10px] md:text-xs rounded-lg data-[state=active]:bg-kenya-red data-[state=active]:text-white uppercase font-black"
-                  >
-                    CONSTITUENCY
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="ward"
-                    className="text-[10px] md:text-xs rounded-lg data-[state=active]:bg-kenya-red data-[state=active]:text-white uppercase font-black"
-                  >
-                    WARD
-                  </TabsTrigger>
-                </TabsList>
-              </div>
-
-              {loading ? (
-                <div className="h-[300px] flex items-center justify-center">
-                  <Loader2 className="h-8 w-8 animate-spin text-kenya-red" />
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  {/* Results List */}
-                  <div className="xl:col-span-1 space-y-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-text-muted">
-                        Live Results
-                      </h3>
-                      <div className="px-2 py-0.5 rounded-full bg-kenya-green/10 border border-kenya-green/20 text-[9px] font-black text-kenya-green uppercase tracking-widest">
-                        Certified
-                      </div>
-                    </div>
-                    <div className="space-y-4">
-                      {results.map((result) => (
-                        <ResultCard key={result.candidate_id} result={result} />
-                      ))}
-                    </div>
-                    {results.length === 0 && (
-                      <div className="text-center py-20 text-gray-500 bg-white/5 rounded-3xl border border-white/5">
-                        No results available for this level yet.
-                      </div>
-                    )}
+            <div className="flex gap-4 items-center">
+               <div className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl flex items-center gap-3 backdrop-blur-xl">
+                  <div className="flex -space-x-2">
+                     {[1,2,3].map(i => (
+                        <div key={i} className="w-6 h-6 rounded-full border border-black bg-brand-surface flex items-center justify-center">
+                           <Shield className="w-3 h-3 text-brand-primary" />
+                        </div>
+                     ))}
                   </div>
-
-                  {/* Visualizations Column */}
-                  <div className="xl:col-span-2 space-y-6">
-                    {/* Map & Distribution Group */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                      <div className="card-premium p-1">
-                        <CountyMap
-                          data={regionalData}
-                          onRegionSelect={handleRegionSelect}
-                        />
-                      </div>
-                      <div className="card-premium">
-                        <PartyDistributionChart data={partyData} />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                      <div className="lg:col-span-2">
-                        <TurnoutCard stats={turnout} />
-                      </div>
-                      <div className="lg:col-span-1">
-                        <TallyReportGenerator
-                          level={level}
-                          location={locationName}
-                        />
-                      </div>
-                    </div>
+                  <div className="text-left leading-none">
+                     <span className="text-[7px] font-black text-white/30 uppercase block">Trust Rating</span>
+                     <span className="text-[10px] font-black text-white">AA+ CERTIFIED</span>
                   </div>
+               </div>
+               <VerifiedBadge variant="small" />
+            </div>
+        </div>
+
+        {/* Main Tripartite Layout - Fixed Unified Height */}
+        <div className="grid grid-cols-12 gap-6 flex-1 min-h-0">
+            
+            {/* LEFT SIDEBAR: AI Auditor & Feed */}
+            <div className="col-span-12 lg:col-span-3 flex flex-col gap-6 h-full min-h-0">
+                 <div className="flex-3 min-h-0">
+                    <AIVerificationNode />
+                 </div>
+                
+                <div className="flex-2 min-h-0 bg-black/40 backdrop-blur-md border border-white/5 rounded-[32px] p-5 shadow-inner overflow-hidden">
+                    <FuturisticNewsFeed />
                 </div>
-              )}
-            </Tabs>
-          </div>
-        )}
+            </div>
 
-        {activeView === "audit" && (
-          <div className="animate-in fade-in slide-in-from-bottom-10 duration-1000 pb-20 md:pb-6">
-            <AuditVault />
-          </div>
-        )}
+            {/* CENTER: Main Results Grid & Stats */}
+            <div className="col-span-12 lg:col-span-6 flex flex-col gap-6 h-full min-h-0">
+                {/* 1. Candidate Results Grid */}
+                <div className="flex-4 min-h-0">
+                    <div className="flex items-center justify-between mb-4 px-2">
+                        <h3 className="text-[10px] font-black text-white uppercase tracking-[0.4em] flex items-center gap-2">
+                            <Activity className="w-4 h-4 text-brand-primary" />
+                            Live_Candidate_Telemetry
+                        </h3>
+                        {loading && <span className="text-[8px] font-black text-brand-primary animate-pulse tracking-widest uppercase">Fetching_Data...</span>}
+                    </div>
+                    <div className="h-full overflow-y-auto no-scrollbar">
+                        <CandidateResultsGrid candidates={results} />
+                    </div>
+                </div>
 
-        {activeView === "conflicts" && (
-          <div className="animate-in fade-in slide-in-from-bottom-10 duration-1000 pb-20 md:pb-6">
-            <DiscrepancyCentre />
-          </div>
-        )}
+                {/* 2. Secondary stats */}
+                <div className="flex-[1.8] bg-white/2 border border-white/10 rounded-[40px] p-6 relative overflow-hidden group min-h-0">
+                    <div className="grid grid-cols-2 gap-6 h-full relative z-10">
+                        <div className="p-5 bg-white/3 border border-white/5 rounded-[32px] group/stat hover:border-brand-primary/20 transition-all flex flex-col justify-center">
+                            <div className="text-[9px] font-black text-white/20 uppercase tracking-[0.3em] mb-2 flex justify-between">
+                                <span>Total_Votes</span>
+                                <span className="text-brand-primary">SYNC_OK</span>
+                            </div>
+                            <div className="text-3xl font-black text-white tracking-tighter">
+                                {totalVotes.toLocaleString()}
+                            </div>
+                        </div>
+                        <div className="p-5 bg-white/3 border border-white/5 rounded-[32px] group/stat hover:border-kenya-green/20 transition-all flex flex-col justify-center">
+                            <div className="text-[9px] font-black text-white/20 uppercase tracking-[0.3em] mb-2 flex justify-between">
+                                <span>Station_Sync</span>
+                                <span className="text-kenya-green">LIVE</span>
+                            </div>
+                            <div className="text-3xl font-black text-kenya-green tracking-tighter">
+                                {stationsReportingPct}%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* RIGHT SIDEBAR: Data Streams & Velocity */}
+            <div className="col-span-12 lg:col-span-3 flex flex-col gap-6 h-full min-h-0">
+                <div className="flex-[1.5]">
+                    <DataVelocityHub />
+                </div>
+                
+                <div className="flex-[2.5] min-h-0 bg-black/40 backdrop-blur-md border border-white/5 rounded-[32px] p-6 shadow-2xl relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-4">
+                        <div className="w-1.5 h-1.5 rounded-full bg-kenya-red animate-ping" />
+                    </div>
+                    <DataStreamsTable />
+                </div>
+
+                <div className="p-6 bg-linear-to-br from-brand-primary/10 to-transparent border border-brand-primary/20 rounded-[40px] shadow-2xl relative group shrink-0">
+                   <VerifiedBadge variant="large" />
+                </div>
+            </div>
+        </div>
       </div>
 
       <Toaster position="top-right" theme="dark" />

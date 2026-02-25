@@ -18,12 +18,12 @@ export default function PlatformLayout({
   return (
     <>
       <Header />
-      <div className="flex pt-16 min-h-screen bg-black relative">
+      <div className="flex pt-16 min-h-screen bg-brand-bg relative">
 
 
         <Sidebar />
 
-        <main className="flex-1 md:ml-72 relative bg-black border-l border-white/5">
+        <main className="flex-1 md:ml-72 relative bg-brand-bg border-l border-brand-border">
           <div className="main-content-container py-6 pb-24 md:pb-8 min-h-[calc(100vh-4rem)]">
             {children}
           </div>

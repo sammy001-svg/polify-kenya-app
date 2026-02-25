@@ -1,9 +1,8 @@
 'use client';
 
 import { CampaignTemplate } from '@/lib/campaign-data';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { BookOpen } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface CampaignTemplateCardProps {
   template: CampaignTemplate;
@@ -15,41 +14,58 @@ export function CampaignTemplateCard({ template, onSelect, isSelected }: Campaig
   const Icon = template.icon;
 
   return (
-    <Card 
-      className={`relative cursor-pointer transition-all hover:scale-[1.02] ${
-        isSelected ? 'border-kenya-green ring-2 ring-kenya-green/20' : 'border-border hover:border-kenya-green/50'
-      }`}
+    <div 
+      className={cn(
+        "relative cursor-pointer transition-all duration-500 group rounded-3xl overflow-hidden",
+        isSelected ? "scale-[1.02]" : "hover:scale-[1.02]"
+      )}
       onClick={onSelect}
     >
-      <CardHeader className="pb-3">
+      {/* Background with subtle glow */}
+      <div className={cn(
+        "absolute inset-0 bg-brand-surface/50 backdrop-blur-xl border-2 transition-all duration-500",
+        isSelected ? "border-kenya-green shadow-lg shadow-kenya-green/20" : "border-white/5 group-hover:border-white/20 group-hover:bg-brand-surface/70"
+      )} />
+
+      {/* Gloss Effect */}
+      <div className="absolute inset-0 bg-linear-to-br from-white/10 to-transparent pointer-events-none" />
+
+      <div className="relative z-10 p-6 space-y-6">
         <div className="flex items-start justify-between">
-          <div className="space-y-1">
-            <CardTitle className="flex items-center gap-2">
-              <Icon className="w-5 h-5 text-kenya-red" />
-              {template.title}
-            </CardTitle>
-            <CardDescription>{template.description}</CardDescription>
+          <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:bg-brand-primary/10 group-hover:border-brand-primary/30 transition-all duration-500">
+            <Icon className={cn("w-6 h-6 transition-colors duration-500", isSelected ? "text-kenya-green" : "text-brand-text-muted group-hover:text-brand-primary")} />
           </div>
-          {isSelected && <Badge className="bg-kenya-green text-white">Selected</Badge>}
+          {isSelected && (
+            <div className="bg-kenya-green text-black px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-kenya-green/30 animate-in fade-in zoom-in duration-300">
+              Selected
+            </div>
+          )}
         </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Mandate Preview - Show first 2 */}
-        <div>
-            <h4 className="text-xs font-bold uppercase text-brand-text-muted mb-2 flex items-center gap-1">
-                <BookOpen className="w-3 h-3" /> Constitutional Mandate
+
+        <div className="space-y-2">
+            <h3 className="text-xl font-black text-white group-hover:text-brand-primary transition-colors duration-500">{template.title}</h3>
+            <p className="text-xs text-brand-text-muted leading-relaxed line-clamp-2 font-medium opacity-80 group-hover:opacity-100">{template.description}</p>
+        </div>
+
+        <div className="pt-4 border-t border-white/5 space-y-3">
+            <h4 className="text-[10px] font-black uppercase text-brand-text-muted/60 tracking-[0.2em] flex items-center gap-2">
+                <BookOpen className="w-3.5 h-3.5" /> Core Mandate
             </h4>
-            <ul className="space-y-1 text-sm">
+            <ul className="space-y-2">
                 {template.mandate.slice(0, 2).map((item, i) => (
-                    <li key={i} className="flex items-start gap-2">
-                        <span className="text-kenya-green">•</span>
-                        {item}
+                    <li key={i} className="flex items-start gap-3">
+                        <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-kenya-green/40 shrink-0" />
+                        <span className="text-[11px] text-brand-text-muted font-medium leading-normal group-hover:text-brand-text transition-colors duration-300">{item}</span>
                     </li>
                 ))}
             </ul>
         </div>
-
-      </CardContent>
-    </Card>
+      </div>
+      
+      {/* Selection Overlay */}
+      {isSelected && (
+        <div className="absolute bottom-0 left-0 w-full h-1 bg-kenya-green" />
+      )}
+    </div>
   );
 }

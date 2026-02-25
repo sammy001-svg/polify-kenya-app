@@ -156,7 +156,7 @@ export function RegionalTileMap({ data, onRegionSelect }: RegionalTileMapProps) 
                                                     <p className="text-[10px] font-mono text-gray-500">{regionData.votes.toLocaleString()} votes processed</p>
                                                 </>
                                             ) : (
-                                                <p className="text-xs text-gray-500 italic py-2">Waiting for results...</p>
+                                                <p className="text-xs text-gray-500 py-2">Waiting for results...</p>
                                             )}
                                             {hasData && <p className="text-[9px] text-kenya-green mt-2 font-mono border-t border-white/10 pt-1 tracking-wider">CLICK TO DRILL-DOWN</p>}
                                         </div>

@@ -31,7 +31,7 @@ export function ResultCard({ result }: ResultCardProps) {
           <div className="flex justify-between items-center text-[10px] md:text-sm text-brand-text-muted mt-0.5">
             <div className="flex items-center gap-2">
               <span
-                className={`px-2 py-0.5 rounded-lg text-[8px] md:text-xs font-black text-black uppercase ${result.party_color}`}
+                className={`px-2 py-0.5 rounded-lg text-[8px] md:text-xs font-black text-white uppercase ${result.party_color}`}
               >
                 {result.party}
               </span>

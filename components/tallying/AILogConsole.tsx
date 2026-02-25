@@ -94,7 +94,7 @@ export function AILogConsole() {
       >
         <div className="space-y-2">
           {logs.length === 0 && (
-            <div className="text-gray-600 italic">
+            <div className="text-gray-600">
               System ready. Waiting for initiation...
             </div>
           )}

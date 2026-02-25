@@ -1,3 +1,12 @@
+export interface ForensicQuery {
+  id: string;
+  category: "unsupported" | "misappropriation" | "irregularity" | "pending";
+  description: string;
+  amount: string;
+  status: "flagged" | "resolved" | "investigating";
+  page: number;
+}
+
 export interface AuditReport {
   id: string;
   title: string;
@@ -9,6 +18,8 @@ export interface AuditReport {
   downloadUrl: string; // Internal/Direct download
   officialUrl?: string; // Link to OAG website
   keyFindings: string[];
+  forensicData?: ForensicQuery[];
+  completionPct?: number;
 }
 
 export const AUDIT_REPORTS: AuditReport[] = [
@@ -23,7 +34,12 @@ export const AUDIT_REPORTS: AuditReport[] = [
     financialLoss: "KES 1.4 Trillion (Deficit)",
     downloadUrl: "#",
     officialUrl: "https://www.oagkenya.go.ke/audit-reports/national-government",
-    keyFindings: ["Debt servicing consumed 65% of revenue.", "Pending bills rose to KES 700B.", "Unbudgeted expenditures observed."]
+    keyFindings: ["Debt servicing consumed 65% of revenue.", "Pending bills rose to KES 700B.", "Unbudgeted expenditures observed."],
+    completionPct: 65,
+    forensicData: [
+      { id: "AQ-N-001", category: "unsupported", description: "Debt servicing allocation exceeds legislative cap by 12% without parliamentary approval.", amount: "150B", status: "flagged", page: 4 },
+      { id: "AQ-N-002", category: "irregularity", description: "Opaque rollover of short-term loans with high-interest private lenders.", amount: "42B", status: "investigating", page: 28 }
+    ]
   },
   // Ministries
   {
@@ -48,7 +64,12 @@ export const AUDIT_REPORTS: AuditReport[] = [
     financialLoss: "KES 850 Million",
     downloadUrl: "#",
     officialUrl: "https://www.oagkenya.go.ke",
-    keyFindings: ["Delayed capitation release.", "Substandard classroom construction.", "Ghost students in enrollment data."]
+    keyFindings: ["Delayed capitation release.", "Substandard classroom construction.", "Ghost students in enrollment data."],
+    completionPct: 45,
+    forensicData: [
+      { id: "AQ-EDU-001", category: "unsupported", description: "Ksh 4.2B in school infrastructure funds lack valid procurement documentation from various counties.", amount: "4.2B", status: "flagged", page: 12 },
+      { id: "AQ-EDU-002", category: "misappropriation", description: "Ghost students detected in capitation records for 247 primary schools.", amount: "250M", status: "flagged", page: 89 }
+    ]
   },
   {
     id: "audit-transport-2026",
@@ -108,7 +129,12 @@ export const AUDIT_REPORTS: AuditReport[] = [
     financialLoss: "KES 4.2 Billion",
     downloadUrl: "#",
     officialUrl: "https://www.oagkenya.go.ke",
-    keyFindings: ["Stalled dam construction.", "Procurement irregularities.", "Lack of value for money in drilled boreholes."]
+    keyFindings: ["Stalled dam construction.", "Procurement irregularities.", "Lack of value for money in drilled boreholes."],
+    completionPct: 15,
+    forensicData: [
+      { id: "AQ-WAT-001", category: "misappropriation", description: "Advance payment of 30% for 'Earth Dam' project in Turkana with 0% site progress.", amount: "1.2B", status: "flagged", page: 15 },
+      { id: "AQ-WAT-002", category: "irregularity", description: "Tendering for drilling rigs awarded to non-registered shell company.", amount: "300M", status: "flagged", page: 44 }
+    ]
   },
   {
     id: "audit-ict-2026",

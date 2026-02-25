@@ -15,16 +15,16 @@ export function LiveTicker() {
 
     return (
         <div className="bg-kenya-red text-white py-2 overflow-hidden flex items-center relative z-20 border-y border-white/10">
-            <div className="bg-kenya-red absolute left-0 z-10 px-4 font-black text-xs uppercase tracking-widest flex items-center gap-2 shadow-2xl">
-                <span className="animate-pulse w-2 h-2 bg-white rounded-full block" />
+            <div className="bg-kenya-red absolute left-0 z-10 px-4 font-black text-[10px] uppercase tracking-widest flex items-center gap-2 shadow-2xl">
+                <span className="animate-pulse w-2 h-2 bg-brand-primary rounded-full block" />
                 Live Updates
             </div>
             
             <div className="flex animate-marquee whitespace-nowrap">
                 {/* Repeat for seamless loop */}
                 {[...updates, ...updates, ...updates].map((update, i) => (
-                    <div key={i} className="mx-8 text-xs font-bold uppercase tracking-wider flex items-center gap-2">
-                        <AlertCircle className="w-3 h-3 text-white/70" />
+                    <div key={i} className="mx-8 text-[10px] font-bold uppercase tracking-wider flex items-center gap-2">
+                        <AlertCircle className="w-2.5 h-2.5 text-white/70" />
                         {update}
                     </div>
                 ))}

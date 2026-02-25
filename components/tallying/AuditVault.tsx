@@ -136,7 +136,7 @@ export function AuditVault() {
                     </div>
                   </div>
                   <div className="p-3 bg-red-900/10 border border-red-500/20 rounded-lg">
-                    <p className="text-[10px] text-red-100/60 leading-relaxed italic">
+                    <p className="text-[10px] text-red-100/60 leading-relaxed">
                       * This is a high-fidelity simulation for audit
                       demonstration. Original documents are sourced from the
                       IEBC Portal.

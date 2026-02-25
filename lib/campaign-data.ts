@@ -36,7 +36,7 @@ export const CAMPAIGN_ALERTS = [
 
 // --- Restored Templates Data ---
 
-import { LucideIcon, Building2, Gavel, Users, Scale, Crown } from 'lucide-react';
+import { LucideIcon, Building2, Gavel, Users, Scale, Crown, Heart } from 'lucide-react';
 
 export interface CampaignTemplate {
   office: string;
@@ -163,6 +163,30 @@ export const CAMPAIGN_TEMPLATES: CampaignTemplate[] = [
       { title: 'Detailed Manifesto', description: 'Comprehensive development plan for 5 years.' },
       { title: 'Resource Mobilization', description: 'High-budget campaign fundraising.' },
       { title: 'County Rallies', description: 'Large scale mobilization events.' }
+    ]
+  },
+  {
+    office: 'women-rep',
+    title: 'Women Representative',
+    description: 'Targeting County-Wide Affirmative Action Leadership',
+    icon: Heart,
+    mandate: [
+      'Representation of women and marginalized groups',
+      'Promotion of interests of women in the county',
+      'Management of NGAAF (Affirmative Action Fund)',
+      'Legislative and oversight roles in Parliament'
+    ],
+    requiredDocs: [
+      'University Degree',
+      'IEBC Clearance Certificate',
+      'Party Nomination / Independent Clearance',
+      'EACC & Tax Compliance Certificates'
+    ],
+    stepByStep: [
+      { title: 'County-Wide Engagement', description: 'Consult women groups and community leaders across the county.' },
+      { title: 'Affirmative Action Agenda', description: 'Draft a clear plan for NGAAF utilization and social protection.' },
+      { title: 'Regional Logistical Strategy', description: 'Mobilize across all constituencies within the county.' },
+      { title: 'Empowerment Forums', description: 'Host sessions focusing on economic and social empowerment.' }
     ]
   }
 ];

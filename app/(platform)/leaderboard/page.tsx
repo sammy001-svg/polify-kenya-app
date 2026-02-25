@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Sparkles, Trophy, Award } from "lucide-react";
+import { Sparkles, Trophy, Award, BookOpen, TrendingUp } from "lucide-react";
 import { createClient } from "@/lib/supabase";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import { CivicLeaderboard } from "@/components/gamification/CivicLeaderboard";
 import { BadgeShowcase } from "@/components/gamification/BadgeShowcase";
 import { UserLevelProgress } from "@/components/gamification/UserLevelProgress";
@@ -104,16 +106,46 @@ export default function LeaderboardPage() {
           />
 
           {/* Mini Call to Action */}
-          <div className="p-4 rounded-xl bg-linear-to-br from-kenya-green/20 to-brand-bg border border-kenya-green/30 mt-4">
-            <p className="text-xs font-bold text-white mb-2">
+          <div className="p-5 rounded-2xl bg-linear-to-br from-brand-primary/20 to-brand-bg border border-brand-primary/30 mt-4 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-120 transition-transform">
+              <BookOpen className="w-12 h-12" />
+            </div>
+            <p className="text-sm font-bold text-white mb-2 relative z-10">
               Want to climb faster?
             </p>
-            <p className="text-[10px] text-brand-text-muted mb-3">
-              Complete &quot;Budget Basics&quot; to earn +500 XP instantly.
+            <p className="text-xs text-brand-text-muted mb-4 leading-relaxed relative z-10">
+              Complete the <span className="text-white font-bold">&quot;Budget Basics&quot;</span> path to earn <span className="text-brand-primary font-bold">+500 XP</span> and the <span className="text-kenya-gold font-bold">Budget Master</span> badge instantly.
             </p>
-            <button className="w-full py-2 bg-kenya-green text-black font-black text-xs uppercase rounded hover:bg-white transition-colors">
-              Start Learning
-            </button>
+            <Link href="/learn">
+              <Button className="w-full bg-brand-primary hover:bg-white text-white hover:text-black font-black text-xs uppercase rounded-xl transition-all shadow-lg shadow-brand-primary/20">
+                Start Learning
+              </Button>
+            </Link>
+          </div>
+
+          {/* Achievement Tips Section */}
+          <div className="p-5 rounded-2xl bg-brand-surface border border-white/5 space-y-4">
+            <h3 className="text-xs font-black uppercase tracking-widest text-brand-text-muted flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-purple-400" /> Pro Tips
+            </h3>
+            <div className="space-y-3">
+              <div className="flex gap-3">
+                <div className="w-6 h-6 rounded-lg bg-white/5 flex items-center justify-center shrink-0">
+                  <TrendingUp className="w-3 h-3 text-kenya-green" />
+                </div>
+                <p className="text-[10px] text-brand-text-muted leading-tight">
+                  <span className="text-white font-bold">Streak Bonus:</span> Login 5 days in a row to get a 1.2x XP multiplier on all modules.
+                </p>
+              </div>
+              <div className="flex gap-3">
+                <div className="w-6 h-6 rounded-lg bg-white/5 flex items-center justify-center shrink-0">
+                  <Award className="w-3 h-3 text-kenya-gold" />
+                </div>
+                <p className="text-[10px] text-brand-text-muted leading-tight">
+                  <span className="text-white font-bold">Fast-Track:</span> Advanced paths give double the badges but require passing a pre-quiz.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

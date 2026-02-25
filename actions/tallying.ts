@@ -140,12 +140,21 @@ export async function getResults(level: 'national' | 'county' | 'constituency' |
         // Compliance logic
         const countiesAbove25 = candidateCountyStats[candidate.party] || 0;
 
+        // Candidate Image Mapping
+        let photo_url = candidate.photo_url;
+        if (!photo_url) {
+            if (candidate.name.includes("William Ruto")) photo_url = "/images/candidates/william_ruto.png";
+            if (candidate.name.includes("Raila Odinga")) photo_url = "/images/candidates/raila_odinga.png";
+            if (candidate.name.includes("Wajackoyah")) photo_url = "/images/candidates/george_wajackoyah.png";
+            if (candidate.name.includes("Mwaure")) photo_url = "/images/candidates/david_mwaure.png";
+        }
+
         return {
             candidate_id: candidate.id,
             candidate_name: candidate.name,
             party: candidate.party,
             party_color: color,
-            photo_url: candidate.photo_url,
+            photo_url: photo_url || "/placeholder-avatar.jpg",
             votes: r.votes,
             total_valid_votes: r.total_valid_votes,
             percentage,

@@ -47,8 +47,8 @@ function SidebarItem({
       className={cn(
         "group flex items-center gap-4 px-4 py-3 rounded-2xl text-[13px] font-bold transition-all duration-300 relative overflow-hidden",
         isActive
-          ? "bg-white/5 text-white shadow-[0_0_20px_rgba(255,255,255,0.03)] border border-white/5"
-          : "text-brand-text-muted hover:bg-white/5 hover:text-white",
+          ? "bg-white text-[#01605a] shadow-[0_4px_20px_rgba(0,0,0,0.1)]"
+          : "text-white/80 hover:bg-white/10 hover:text-white",
       )}
     >
       <div className="relative z-10 flex items-center gap-4">
@@ -56,8 +56,8 @@ function SidebarItem({
           className={cn(
             "p-2 rounded-xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-3",
             isActive
-              ? "bg-kenya-green/10 text-kenya-green glow-green"
-              : "bg-white/5 text-current",
+              ? "bg-[#01605a]/10 text-[#01605a]"
+              : "bg-white/5 text-white/70",
           )}
         >
           <Icon className="w-4 h-4" />
@@ -84,7 +84,7 @@ export function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
     <div className="flex flex-col gap-8 h-full overflow-y-auto p-4 custom-scrollbar">
       {/* Section 1: Core Navigation */}
       <div className="space-y-1.5">
-        <h3 className="px-4 text-[10px] font-black text-brand-text-muted uppercase tracking-[0.2em] mb-4">
+        <h3 className="px-4 text-[10px] font-black text-white/60 uppercase tracking-[0.2em] mb-4">
           Main Dashboard
         </h3>
         <SidebarItem
@@ -138,11 +138,11 @@ export function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
         />
       </div>
 
-      <div className="h-px bg-white/5 mx-4" />
+      <div className="h-px bg-white/10 mx-4" />
 
       {/* Section 2: Political Intelligence Hub */}
       <div className="space-y-1.5">
-        <h3 className="px-4 text-[10px] font-black text-brand-text-muted uppercase tracking-[0.2em] mb-4">
+        <h3 className="px-4 text-[10px] font-black text-white/50 uppercase tracking-[0.2em] mb-4">
           Intelligence Hub
         </h3>
         <SidebarItem
@@ -182,11 +182,11 @@ export function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
         />
       </div>
 
-      <div className="h-px bg-white/5 mx-4" />
+      <div className="h-px bg-white/10 mx-4" />
 
       {/* Section 3: Youth Engagement */}
       <div className="space-y-1.5">
-        <h3 className="px-4 text-[10px] font-black text-brand-text-muted uppercase tracking-[0.2em] mb-4">
+        <h3 className="px-4 text-[10px] font-black text-white/50 uppercase tracking-[0.2em] mb-4">
           Youth & Future
         </h3>
         <SidebarItem
@@ -235,7 +235,7 @@ export function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
 
       {/* Section 4: Personal */}
       <div className="space-y-1.5">
-        <h3 className="px-4 text-[10px] font-black text-brand-text-muted uppercase tracking-[0.2em] mb-4">
+        <h3 className="px-4 text-[10px] font-black text-white/50 uppercase tracking-[0.2em] mb-4">
           Personal
         </h3>
         <SidebarItem
@@ -251,12 +251,12 @@ export function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
         <a
            href="/PROJECT_DOCUMENTATION.pdf"
            download="Political_Intelligence_Documentation.pdf"
-           className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all group"
+           className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all group"
         >
-          <div className="p-1.5 rounded-lg bg-kenya-green/10 text-kenya-green group-hover:scale-110 transition-transform">
+          <div className="p-1.5 rounded-lg bg-white/10 text-white group-hover:scale-110 transition-transform">
             <BookOpen className="w-4 h-4" />
           </div>
-          <span className="text-[11px] font-bold text-brand-text-muted group-hover:text-white transition-colors">
+          <span className="text-[11px] font-bold text-white transition-colors">
             Download Docs
           </span>
         </a>
@@ -264,22 +264,21 @@ export function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
         <a
            href="/MARKETING_PRESENTATION.pdf"
            download="Political_Intelligence_Marketing.pdf"
-           className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all group"
+           className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all group"
         >
-          <div className="p-1.5 rounded-lg bg-kenya-red/10 text-kenya-red group-hover:scale-110 transition-transform">
+          <div className="p-1.5 rounded-lg bg-white/10 text-white group-hover:scale-110 transition-transform">
             <Sparkles className="w-4 h-4" />
           </div>
-          <span className="text-[11px] font-bold text-brand-text-muted group-hover:text-white transition-colors">
+          <span className="text-[11px] font-bold text-white transition-colors">
             Marketing Deck
           </span>
         </a>
 
-        <div className="p-4 rounded-2xl bg-white/5 border border-white/5 glass-dark relative overflow-hidden group">
-          <div className="absolute inset-0 bg-linear-to-br from-kenya-red/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+        <div className="p-4 rounded-2xl bg-white/10 border border-white/10 relative overflow-hidden group">
           <p className="relative z-10 text-[10px] font-black text-white tracking-widest uppercase mb-1">
             PoliFy Kenya
           </p>
-          <p className="relative z-10 text-[9px] text-brand-text-muted font-bold leading-relaxed">
+          <p className="relative z-10 text-[9px] text-white/70 font-bold leading-relaxed">
             Building transparency & accountability through technology.
           </p>
         </div>
@@ -296,7 +295,7 @@ export function Sidebar({ forceShow }: SidebarProps) {
   return (
     <aside
       className={cn(
-        "w-72 fixed left-0 top-16 bottom-0 bg-[#0B3D0B] border-r border-white/5 flex flex-col z-40 transition-all duration-500",
+        "w-72 fixed left-0 top-16 bottom-0 bg-[#B34700] border-r border-black/10 flex flex-col z-40 transition-all duration-500",
         !forceShow && "hidden md:flex transform translate-x-0",
       )}
     >

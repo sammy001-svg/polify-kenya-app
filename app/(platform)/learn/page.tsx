@@ -3,7 +3,7 @@
 import { LEARNING_PATHS, MOCK_USER_PROGRESS } from "@/lib/gamification";
 import Link from "next/link";
 import { LearningPathCard } from "@/components/learning/LearningPathCard";
-import { BookOpen, Filter } from "lucide-react";
+import { BookOpen, Filter, Trophy } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -119,6 +119,24 @@ export default function LearnPage() {
           <p className="text-brand-text-muted">No paths found with this filter.</p>
         </div>
       )}
+
+      {/* Leaderboard CTA */}
+      <div className="py-12 border-t border-white/5 flex flex-col items-center text-center space-y-4">
+        <div className="w-16 h-16 rounded-2xl bg-kenya-gold/10 flex items-center justify-center">
+            <Trophy className="w-8 h-8 text-kenya-gold" />
+        </div>
+        <div className="space-y-2">
+            <h3 className="text-2xl font-black uppercase tracking-tight text-white">Ready to show off?</h3>
+            <p className="text-brand-text-muted max-w-md mx-auto">
+                Every module you complete boosts your rank on the national Civic Leaderboard. Check your status and see who you&apos;re competing with!
+            </p>
+        </div>
+        <Link href="/leaderboard">
+            <Button size="lg" className="bg-white text-black hover:bg-kenya-gold hover:text-white transition-all font-black uppercase tracking-widest px-8">
+                View Leaderboard
+            </Button>
+        </Link>
+      </div>
     </div>
   );
 }

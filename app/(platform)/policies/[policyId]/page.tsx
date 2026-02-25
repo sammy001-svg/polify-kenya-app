@@ -26,9 +26,8 @@ export default async function PolicyDetailPage({ params }: { params: Promise<{ p
               <h1 className="text-2xl font-bold text-white">Policy Not Found</h1>
               <Link 
                 href="/policies" 
-                className="px-4 py-2 bg-white text-black rounded-full font-bold hover:bg-gray-200 transition-colors"
-                >
-                Return to Dashboard
+                className="px-4 py-2 bg-brand-surface text-brand-text rounded-full font-bold hover:bg-brand-surface-highlight transition-colors"
+              >  Return to Dashboard
               </Link>
           </div>
       )

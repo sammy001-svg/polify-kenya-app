@@ -234,8 +234,8 @@ export default function RepresentativesPage() {
           Create your campaign profile, share your manifesto, and connect directly with voters across Kenya.
         </p>
         <Link href="/representatives/create-campaign">
-          <button className="bg-white text-kenya-red font-bold px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors">
-            Create Campaign Profile
+          <button className="bg-brand-primary text-black font-bold px-8 py-3 rounded-lg hover:bg-brand-primary/90 transition-colors">
+            Start Your Campaign
           </button>
         </Link>
       </div>

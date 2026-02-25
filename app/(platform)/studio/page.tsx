@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { UploadCloud, Radio, FileText, BarChart3, ShieldCheck, BadgeCheck, TrendingUp, ThumbsUp } from "lucide-react";
+import { Radio, FileText, BarChart3, ShieldCheck, BadgeCheck, TrendingUp, ThumbsUp, Sparkles } from "lucide-react";
 import Image from "next/image";
 import { DEMO_UPLOADS } from "@/lib/demo-data";
 
@@ -22,9 +22,8 @@ export default function StudioDashboard() {
         </div>
         <div className="flex gap-3">
           <Link href="/studio/upload">
-            <Button className="bg-white text-black hover:bg-gray-200">
-                <UploadCloud className="mr-2 w-4 h-4" />
-                Upload Policy
+            <Button className="bg-brand-primary text-black hover:bg-brand-primary/90">
+              <Sparkles className="w-4 h-4 mr-2" /> Start Creation
             </Button>
           </Link>
           <Link href="/studio/live">
