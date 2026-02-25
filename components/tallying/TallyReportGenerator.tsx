@@ -30,7 +30,7 @@ interface TallyCertificate {
 }
 
 interface TallyReportGeneratorProps {
-  level: string;
+  level: 'national' | 'county' | 'constituency' | 'ward';
   location: string;
 }
 

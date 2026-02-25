@@ -3,7 +3,7 @@
 import { PoliticianProfile } from "@/lib/representatives";
 import { BadgeCheck, Phone, Mail, MapPin, TrendingUp, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { createClient } from "@/lib/supabase";
 import { FollowButton } from "@/components/ui/FollowButton";
 
@@ -14,7 +14,7 @@ interface PoliticianCardProps {
 
 export function PoliticianCard({ politician, showPosition = true }: PoliticianCardProps) {
   const [followers, setFollowers] = useState<number | null>(null);
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   useEffect(() => {
     async function fetchStats() {

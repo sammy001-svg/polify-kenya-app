@@ -445,7 +445,7 @@ export async function getRegionalBreakdown(level: 'national' | 'county' | 'const
 
 // 8. Tally Reporting & Certification
 export async function generateTallyCertificate(level: 'national' | 'county' | 'constituency' | 'ward', location: string) {
-    const { results, stats } = await getResults(level as 'national' | 'county' | 'constituency' | 'ward', location);
+    const { results, stats } = await getResults(level, location);
     
     if (!results.length) return { success: false, message: "No data available to certify." };
 
@@ -475,7 +475,7 @@ export async function generateTallyCertificate(level: 'national' | 'county' | 'c
 }
 
 export async function exportTallyData(level: 'national' | 'county' | 'constituency' | 'ward', location: string): Promise<string> {
-    const { results } = await getResults(level as 'national' | 'county' | 'constituency' | 'ward', location);
+    const { results } = await getResults(level, location);
     
     if (!results.length) return "";
 

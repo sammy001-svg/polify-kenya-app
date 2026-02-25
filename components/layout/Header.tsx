@@ -15,7 +15,7 @@ import { MobileSidebar } from "@/components/layout/MobileSidebar";
 
 export function Header() {
   const [user, setUser] = React.useState<User | null>(null);
-  const supabase = createClient();
+  const supabase = React.useMemo(() => createClient(), []);
 
   React.useEffect(() => {
     const fetchUser = async () => {
