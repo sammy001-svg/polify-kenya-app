@@ -57,12 +57,12 @@ export function PoliticianCard({ politician, showPosition = true }: PoliticianCa
   const partyInfo = PARTY_METADATA[partyKey] || { color: 'bg-gray-600', photo: '' };
   
   return (
-    <Link 
-      href={`/representatives/${politician.id}`}
+    <div 
       className="block glass border border-white/5 rounded-2xl overflow-hidden hover:border-kenya-gold/40 transition-all group relative hover-lift press-effect"
     >
+      <Link href={`/representatives/${politician.id}`} className="absolute inset-0 z-0" aria-label={`View ${politician.name}'s profile`} />
       <div className="absolute inset-x-0 top-0 h-32 bg-linear-to-b from-kenya-gold/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-      <div className="p-6 space-y-4">
+      <div className="p-6 space-y-4 pointer-events-none relative z-10">
         {/* Header */}
         <div className="flex items-start gap-4">
           {/* Avatar Area */}
@@ -191,7 +191,7 @@ export function PoliticianCard({ politician, showPosition = true }: PoliticianCa
         )}
         
         {/* Contact & Dynamic Actions */}
-        <div className="flex items-center justify-between pt-4 border-t border-white/5">
+        <div className="flex items-center justify-between pt-4 border-t border-white/5 pointer-events-auto">
           <div className="flex items-center gap-2">
             {politician.phone && (
               <button className="p-2 glass-brand hover:bg-white/10 rounded-xl transition-all hover:scale-110 active:scale-95">
@@ -220,6 +220,6 @@ export function PoliticianCard({ politician, showPosition = true }: PoliticianCa
           </div>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }

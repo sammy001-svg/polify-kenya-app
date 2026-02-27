@@ -185,8 +185,9 @@ export async function getProjections(): Promise<CandidateResult[]> {
     const { results, stats } = await getResults('national');
     if (!results.length || !stats) return [];
 
+    if (!stats.total_stations || stats.total_stations === 0) return results;
     const reportingRate = stats.reporting_stations / stats.total_stations;
-    if (reportingRate === 0) return results;
+    if (reportingRate === 0 || Number.isNaN(reportingRate)) return results;
 
     // Simplified Linear Projection with custom weighting
     // (In reality, this would use turnout-by-stronghold weighting)
@@ -325,7 +326,7 @@ export async function getTurnoutStats(level: 'national' | 'county' | 'constituen
          registered,
          cast: totalCast,
          rejected,
-         turnoutPercent: (totalCast / registered) * 100
+         turnoutPercent: registered > 0 ? (totalCast / registered) * 100 : 0
      };
 }
 
@@ -446,7 +447,13 @@ export async function generateTallyCertificate(level: 'national' | 'county' | 'c
     // Simulate high-security cryptographic signage
     const timestamp = new Date().toISOString();
     const payload = JSON.stringify({ results, stats, timestamp });
-    const digitalSignature = `SIG-ULTRA-${Buffer.from(payload).slice(0, 16).toString('hex')}`;
+    
+    // Replace Node.js Buffer with Edge-compatible hex encoding
+    const hexParts = [];
+    for (let i = 0; i < Math.min(payload.length, 16); i++) {
+        hexParts.push(payload.charCodeAt(i).toString(16).padStart(2, '0'));
+    }
+    const digitalSignature = `SIG-ULTRA-${hexParts.join('')}`;
 
     return {
         success: true,
