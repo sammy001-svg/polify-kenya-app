@@ -139,7 +139,11 @@ export async function getResults(level: 'national' | 'county' | 'constituency' |
         const total = r.total_valid_votes || 1; 
         const percentage = (r.votes / total) * 100;
         
-        const partyInfo = PARTY_METADATA[candidate.party] || { color: 'bg-gray-500', photo: '/placeholder-avatar.jpg' };
+        const rawParty = candidate.party || '';
+        const partyKey = Object.keys(PARTY_METADATA).find(
+          k => k.toLowerCase() === rawParty.toLowerCase()
+        ) || 'Other';
+        const partyInfo = PARTY_METADATA[partyKey] || { color: 'bg-gray-500', photo: '/placeholder-avatar.jpg' };
 
         // Compliance logic
         const countiesAbove25 = candidateCountyStats[candidate.party] || 0;
@@ -412,8 +416,12 @@ export async function getRegionalBreakdown(level: 'national' | 'county' | 'const
         const winner = candidates[0];
         const winnerCandidate = winner.election_candidates;
 
-        // Determine color from central metadata
-        const partyInfo = PARTY_METADATA[winnerCandidate.party] || { color: 'bg-gray-500' };
+        // Determine color from central metadata mapping
+        const rawParty = winnerCandidate.party || '';
+        const partyKey = Object.keys(PARTY_METADATA).find(
+          k => k.toLowerCase() === rawParty.toLowerCase()
+        ) || 'Other';
+        const partyInfo = PARTY_METADATA[partyKey] || { color: 'bg-gray-500' };
         const color = partyInfo.color;
 
         return {

@@ -50,7 +50,11 @@ export function PoliticianCard({ politician, showPosition = true }: PoliticianCa
     }
   };
   
-  const partyInfo = PARTY_METADATA[politician.party] || { color: 'bg-gray-600', photo: '' };
+  const rawParty = politician.party || '';
+  const partyKey = Object.keys(PARTY_METADATA).find(
+    k => k.toLowerCase() === rawParty.toLowerCase()
+  ) || 'Other';
+  const partyInfo = PARTY_METADATA[partyKey] || { color: 'bg-gray-600', photo: '' };
   
   return (
     <Link 

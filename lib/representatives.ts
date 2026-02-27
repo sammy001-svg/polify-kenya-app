@@ -21,7 +21,7 @@ export type PartyAffiliation =
 export const PARTY_METADATA: Record<string, { color: string, photo: string }> = {
     'UDA': { color: 'bg-yellow-400', photo: '/images/candidates/william_ruto.png' },
     'ODM': { color: 'bg-orange-500', photo: '/images/candidates/raila_odinga.png' },
-    'WIPER': { color: 'bg-blue-400', photo: '/images/candidates/kalonzo.jpg' },
+    'Wiper': { color: 'bg-blue-400', photo: '/images/candidates/kalonzo.jpg' },
     'ROOTS': { color: 'bg-green-600', photo: '/images/candidates/george_wajackoyah.png' },
     'AGANO': { color: 'bg-gray-500', photo: '/images/candidates/david_mwaure.png' },
     'Jubilee': { color: 'bg-red-600', photo: '/placeholder-avatar.jpg' },
