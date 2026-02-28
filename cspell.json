@@ -19,7 +19,16 @@
     "EACC",
     "Pesa",
     "PESA",
-    "BOMAS"
+    "BOMAS",
+    "Kibra",
+    "Sarangombe",
+    "Wajackoyah",
+    "Mwaure",
+    "Mvita",
+    "Uasin",
+    "Gishu",
+    "Eldoret",
+    "Odinga"
   ],
   "ignorePaths": [
     "node_modules",

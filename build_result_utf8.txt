@@ -1,0 +1,66 @@
+﻿
+> web-app@0.1.0 build
+> next build
+
+Γû▓ Next.js 16.1.5 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+Γ£ô Compiled successfully in 20.9s
+  Running TypeScript ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/37) ...
+  Generating static pages using 3 workers (9/37) 
+  Generating static pages using 3 workers (18/37) 
+  Generating static pages using 3 workers (27/37) 
+Γ£ô Generating static pages using 3 workers (37/37) in 2.2s
+  Finalizing page optimization ...
+
+Route (app)
+Γöî Γùï /
+Γö£ Γùï /_not-found
+Γö£ Γùï /auth
+Γö£ Γùï /auth/signin
+Γö£ ╞Æ /auth/signup/[role]
+Γö£ Γùï /campaign
+Γö£ Γùï /campaign/analytics
+Γö£ Γùï /campaign/commitments
+Γö£ Γùï /campaign/events
+Γö£ Γùï /campaign/finance
+Γö£ Γùï /campaign/manifesto
+Γö£ Γùï /campaign/manifesto/builder
+Γö£ Γùï /campaign/profile
+Γö£ Γùï /campaign/publish
+Γö£ Γùï /campaign/team
+Γö£ Γùï /campaign/voters
+Γö£ Γùï /constitution
+Γö£ Γùï /creators
+Γö£ ╞Æ /creators/[creatorId]
+Γö£ Γùï /learn
+Γö£ Γùï /learn/simulators/ballot
+Γö£ Γùï /live
+Γö£ Γùï /parliament
+Γö£ Γùï /participate
+Γö£ Γùï /policies
+Γö£ Γùï /policy-ideas
+Γö£ Γùï /profile
+Γö£ Γùï /representatives
+Γö£ ╞Æ /representatives/[politicianId]
+Γö£ ╞Æ /representatives/county/[countyId]
+Γö£ Γùï /representatives/create-campaign
+Γö£ Γùï /shorts
+Γö£ Γùï /studio
+Γö£ Γùï /studio/upload
+Γö£ Γùï /test-extensions
+Γö£ Γùï /tracker
+Γö£ Γùï /transparency
+Γö£ Γùï /trending
+Γö£ Γùï /youth
+Γöö ╞Æ /youth/issues/[issueId]
+
+
+╞Æ Proxy (Middleware)
+
+Γùï  (Static)   prerendered as static content
+╞Æ  (Dynamic)  server-rendered on demand
+

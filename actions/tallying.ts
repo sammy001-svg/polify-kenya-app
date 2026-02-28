@@ -135,7 +135,10 @@ export async function getResults(level: 'national' | 'county' | 'constituency' |
     });
 
     const formattedResults: CandidateResult[] = (queryData || []).map((r) => {
-        const candidate = r.election_candidates;
+        // Ensure candidate is treated cleanly whether Supabase returns it as an object or array, and provide a fallback.
+        const rawCandidate = Array.isArray(r.election_candidates) ? r.election_candidates[0] : r.election_candidates;
+        const candidate = rawCandidate || { id: 'unknown', name: 'Unknown', party: 'Independent', photo_url: '' };
+        
         const total = r.total_valid_votes || 1; 
         const percentage = (r.votes / total) * 100;
         
@@ -415,7 +418,10 @@ export async function getRegionalBreakdown(level: 'national' | 'county' | 'const
         // Sort by votes desc
         candidates.sort((a, b) => b.votes - a.votes);
         const winner = candidates[0];
-        const winnerCandidate = winner.election_candidates;
+        
+        // Ensure winnerCandidate is safely extracted
+        const rawWinnerCandidate = Array.isArray(winner.election_candidates) ? winner.election_candidates[0] : winner.election_candidates;
+        const winnerCandidate = rawWinnerCandidate || { name: 'Unknown', party: 'Independent' };
 
         // Determine color from central metadata mapping
         const rawParty = winnerCandidate.party || '';
@@ -427,9 +433,9 @@ export async function getRegionalBreakdown(level: 'national' | 'county' | 'const
 
         return {
             location,
-            winner: winnerCandidate.name,
-            party: winnerCandidate.party,
-            votes: winner.votes,
+            winner: winnerCandidate.name || 'Unknown',
+            party: winnerCandidate.party || 'Independent',
+            votes: winner.votes || 0,
             color
         };
     });
