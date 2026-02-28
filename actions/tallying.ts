@@ -155,7 +155,7 @@ export async function getResults(level: 'national' | 'county' | 'constituency' |
         const photo_url = candidate.photo_url || partyInfo.photo;
 
         return {
-            candidate_id: candidate.id,
+            candidate_id: candidate.id || 'unknown',
             candidate_name: candidate.name,
             party: candidate.party,
             party_color: partyInfo.color,
@@ -166,7 +166,7 @@ export async function getResults(level: 'national' | 'county' | 'constituency' |
             counties_above_25pct: countiesAbove25,
             is_50_plus_one: percentage > 50,
             is_rule_of_24_met: countiesAbove25 >= 24,
-            integrity_hash: `sha256:${candidate.id.slice(0, 8)}${total}${r.votes}`
+            integrity_hash: `sha256:${(candidate.id || 'unknown').slice(0, 8)}${total}${r.votes}`
         };
     });
 
@@ -291,7 +291,7 @@ export async function resolveDiscrepancy(conflictId: string, correction: Record<
 // Helper to simulate "Live" updates by adding random votes (Demo Only)
 export async function simulateIncomingVotes() {
     const supabase = await createClient();
-    const { data: results } = await supabase.from('election_results').select('id, votes, reporting_stations, total_stations');
+    const { data: results } = await supabase.from('election_results').select('id, votes, total_valid_votes, reporting_stations, total_stations');
     
     if (!results) return;
 
@@ -304,6 +304,7 @@ export async function simulateIncomingVotes() {
 
         await supabase.from('election_results').update({
             votes: res.votes + increment,
+            total_valid_votes: (res.total_valid_votes || 0) + increment,
             reporting_stations: Math.min(res.reporting_stations + stationsIncrement, res.total_stations),
             updated_at: new Date().toISOString()
         }).eq('id', res.id);

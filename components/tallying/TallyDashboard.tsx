@@ -68,9 +68,9 @@ export function TallyDashboard() {
 
   // Derived stat values
   const totalVotes = results.reduce((acc, c) => acc + (c.votes || 0), 0);
-  const stationsReportingPct = stats
+  const stationsReportingPct = stats && stats.total_stations > 0
     ? ((stats.reporting_stations / stats.total_stations) * 100).toFixed(1)
-    : "--";
+    : "0.0";
 
   return (
     <div className="flex flex-col gap-0 min-h-screen lg:h-screen lg:max-h-[1080px] bg-brand-bg rounded-[48px] border border-white/10 relative overflow-hidden shadow-[0_0_150px_rgba(0,0,0,1)]">
