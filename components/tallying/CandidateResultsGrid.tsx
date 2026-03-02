@@ -2,7 +2,7 @@
 
 import { CandidateResult } from "@/actions/tallying";
 import { motion, animate } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { CheckCircle2, TrendingUp, Zap } from "lucide-react";
@@ -12,38 +12,48 @@ interface CandidateResultsGridProps {
 }
 
 function CountUp({ value, suffix = "" }: { value: number; suffix?: string }) {
-  const [displayValue, setDisplayValue] = useState(0);
+  const nodeRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    const controls = animate(displayValue, value, {
+    const node = nodeRef.current;
+    if (!node) return;
+
+    const controls = animate(0, value, {
       duration: 1.5,
       ease: "easeOut",
-      onUpdate: (latest) => setDisplayValue(Math.floor(latest)),
+      onUpdate: (latest) => {
+        node.textContent = Math.floor(latest).toLocaleString() + suffix;
+      },
     });
     return () => controls.stop();
-  }, [value, displayValue]);
+  }, [value, suffix]);
 
   return (
-    <span>
-      {displayValue.toLocaleString()}
+    <span ref={nodeRef}>
+      {value.toLocaleString()}
       {suffix}
     </span>
   );
 }
 
 function PercentageCountUp({ value }: { value: number }) {
-  const [displayValue, setDisplayValue] = useState(0);
+  const nodeRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    const controls = animate(displayValue, value, {
+    const node = nodeRef.current;
+    if (!node) return;
+
+    const controls = animate(0, value, {
       duration: 1.5,
       ease: "easeOut",
-      onUpdate: (latest) => setDisplayValue(latest),
+      onUpdate: (latest) => {
+        node.textContent = latest.toFixed(1) + "%";
+      },
     });
     return () => controls.stop();
-  }, [value, displayValue]);
+  }, [value]);
 
-  return <span>{displayValue.toFixed(1)}%</span>;
+  return <span ref={nodeRef}>{value.toFixed(1)}%</span>;
 }
 
 export function CandidateResultsGrid({ candidates }: CandidateResultsGridProps) {
