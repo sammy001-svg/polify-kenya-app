@@ -5,7 +5,7 @@ import { motion, animate } from "framer-motion";
 import { useEffect, useRef } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { CheckCircle2, TrendingUp, Zap } from "lucide-react";
+import { CircleCheck, TrendingUp, Zap } from "lucide-react";
 
 interface CandidateResultsGridProps {
   candidates: CandidateResult[];
@@ -13,12 +13,13 @@ interface CandidateResultsGridProps {
 
 function CountUp({ value, suffix = "" }: { value: number; suffix?: string }) {
   const nodeRef = useRef<HTMLSpanElement>(null);
+  const safeValue = typeof value === 'number' && !isNaN(value) ? value : 0;
 
   useEffect(() => {
     const node = nodeRef.current;
     if (!node) return;
 
-    const controls = animate(0, value, {
+    const controls = animate(0, safeValue, {
       duration: 1.5,
       ease: "easeOut",
       onUpdate: (latest) => {
@@ -26,11 +27,11 @@ function CountUp({ value, suffix = "" }: { value: number; suffix?: string }) {
       },
     });
     return () => controls.stop();
-  }, [value, suffix]);
+  }, [safeValue, suffix]);
 
   return (
     <span ref={nodeRef}>
-      {value.toLocaleString()}
+      {safeValue.toLocaleString()}
       {suffix}
     </span>
   );
@@ -38,12 +39,13 @@ function CountUp({ value, suffix = "" }: { value: number; suffix?: string }) {
 
 function PercentageCountUp({ value }: { value: number }) {
   const nodeRef = useRef<HTMLSpanElement>(null);
+  const safeValue = typeof value === 'number' && !isNaN(value) ? value : 0;
 
   useEffect(() => {
     const node = nodeRef.current;
     if (!node) return;
 
-    const controls = animate(0, value, {
+    const controls = animate(0, safeValue, {
       duration: 1.5,
       ease: "easeOut",
       onUpdate: (latest) => {
@@ -51,14 +53,14 @@ function PercentageCountUp({ value }: { value: number }) {
       },
     });
     return () => controls.stop();
-  }, [value]);
+  }, [safeValue]);
 
-  return <span ref={nodeRef}>{value.toFixed(1)}%</span>;
+  return <span ref={nodeRef}>{safeValue.toFixed(1)}%</span>;
 }
 
 export function CandidateResultsGrid({ candidates }: CandidateResultsGridProps) {
   // Take top 4 for the main grid
-  const mainCandidates = candidates.slice(0, 4);
+  const mainCandidates = (candidates || []).slice(0, 4);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full min-h-0 overflow-y-auto no-scrollbar pb-6 pr-2">
@@ -163,7 +165,7 @@ export function CandidateResultsGrid({ candidates }: CandidateResultsGridProps) 
             <div className="flex gap-3 pt-2">
                 {candidate.is_rule_of_24_met && (
                     <div className="flex items-center gap-2 text-[9px] font-black text-white uppercase tracking-widest bg-white/5 px-3 py-1.5 rounded-xl border border-white/10 group-hover:border-kenya-green/30 transition-colors">
-                        <CheckCircle2 className="w-3 h-3 text-kenya-green" /> Constitution_Art_138
+                        <CircleCheck className="w-3 h-3 text-kenya-green" /> Constitution_Art_138
                     </div>
                 )}
                 {candidate.counties_above_25pct > 0 && (
