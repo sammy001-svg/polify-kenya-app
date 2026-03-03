@@ -116,7 +116,7 @@ export function CandidateResultsGrid({ candidates }: CandidateResultsGridProps) 
                          alt={candidateName} 
                          fill
                          sizes="80px"
-                         className="object-cover filter contrast-125 saturate-50 group-hover:saturate-100 transition-all duration-500"
+                         className="object-cover transition-all duration-500"
                        />
                    ) : (
                       <div className="w-full h-full flex items-center justify-center text-white/10 text-[10px]">No Photo</div>
