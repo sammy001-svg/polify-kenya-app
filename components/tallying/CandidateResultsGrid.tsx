@@ -1,11 +1,11 @@
 "use client";
-
-import type { CandidateResult } from "@/actions/tallying";
-import { motion, animate, useMotionValue, useTransform } from "framer-motion";
 import { useEffect } from "react";
+
+import { motion, animate, useMotionValue, useTransform } from "framer-motion";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { CircleCheck, TrendingUp, Zap } from "lucide-react";
+import type { CandidateResult } from "@/actions/tallying";
 
 interface CandidateResultsGridProps {
   candidates: CandidateResult[];
