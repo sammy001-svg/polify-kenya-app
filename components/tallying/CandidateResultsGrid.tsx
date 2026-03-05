@@ -1,11 +1,11 @@
 "use client";
-import { useEffect } from "react";
 
+import { useEffect } from "react";
+import { CandidateResult } from "@/actions/tallying";
 import { motion, animate, useMotionValue, useTransform } from "framer-motion";
+import { CheckCircle2, TrendingUp, Zap } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { CircleCheck, TrendingUp, Zap } from "lucide-react";
-import type { CandidateResult } from "@/actions/tallying";
 
 interface CandidateResultsGridProps {
   candidates: CandidateResult[];
@@ -172,7 +172,7 @@ export function CandidateResultsGrid({ candidates }: CandidateResultsGridProps) 
               <div className="flex gap-3 pt-2">
                 {isRuleOf24Met && (
                   <div className="flex items-center gap-2 text-[9px] font-black text-white uppercase tracking-widest bg-white/5 px-3 py-1.5 rounded-xl border border-white/10 group-hover:border-kenya-green/30 transition-colors">
-                    <CircleCheck className="w-3 h-3 text-kenya-green" /> Constitution_Art_138
+                    <CheckCircle2 className="w-3 h-3 text-kenya-green" /> Constitution_Art_138
                   </div>
                 )}
                 {countiesAbove25pct > 0 && (
