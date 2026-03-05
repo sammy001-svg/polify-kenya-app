@@ -116,10 +116,10 @@ export function CandidateResultsGrid({ candidates }: CandidateResultsGridProps) 
                          alt={candidateName} 
                          fill
                          sizes="80px"
-                         className="object-cover transition-all duration-500"
+                         className="object-cover contrast-125 saturate-50 group-hover:saturate-100 transition-all duration-500"
                        />
                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-white/10 text-[10px]">No Photo</div>
+                      <div className="w-full h-full flex items-center justify-center text-white/10 text-[18px]">No Photo</div>
                    )}
                    {/* Hologram Scan Effect */}
                    <div className="absolute inset-0 bg-linear-to-b from-transparent via-brand-primary/10 to-transparent h-1/4 w-full animate-scanline pointer-events-none" />
