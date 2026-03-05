@@ -13,19 +13,23 @@ interface CandidateResultsGridProps {
 
 function CountUp({ value, suffix = "" }: { value: number; suffix?: string }) {
   const nodeRef = useRef<HTMLSpanElement>(null);
+  const prevValueRef = useRef(0);
   const safeValue = typeof value === 'number' && !isNaN(value) ? value : 0;
 
   useEffect(() => {
     const node = nodeRef.current;
     if (!node) return;
 
-    const controls = animate(0, safeValue, {
+    const from = prevValueRef.current;
+    const controls = animate(from, safeValue, {
       duration: 1.5,
       ease: "easeOut",
       onUpdate: (latest) => {
         node.textContent = Math.floor(latest).toLocaleString() + suffix;
       },
     });
+    
+    prevValueRef.current = safeValue;
     return () => controls.stop();
   }, [safeValue, suffix]);
 
@@ -39,19 +43,23 @@ function CountUp({ value, suffix = "" }: { value: number; suffix?: string }) {
 
 function PercentageCountUp({ value }: { value: number }) {
   const nodeRef = useRef<HTMLSpanElement>(null);
+  const prevValueRef = useRef(0);
   const safeValue = typeof value === 'number' && !isNaN(value) ? value : 0;
 
   useEffect(() => {
     const node = nodeRef.current;
     if (!node) return;
 
-    const controls = animate(0, safeValue, {
+    const from = prevValueRef.current;
+    const controls = animate(from, safeValue, {
       duration: 1.5,
       ease: "easeOut",
       onUpdate: (latest) => {
         node.textContent = latest.toFixed(1) + "%";
       },
     });
+    
+    prevValueRef.current = safeValue;
     return () => controls.stop();
   }, [safeValue]);
 
@@ -63,7 +71,7 @@ export function CandidateResultsGrid({ candidates }: CandidateResultsGridProps) 
   const mainCandidates = (candidates || []).slice(0, 4);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full min-h-0 overflow-y-auto no-scrollbar pb-6 pr-2">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-6 pr-2">
       {mainCandidates.map((candidate, idx) => {
         if (!candidate) return null;
         const candidateId = candidate.candidate_id || `candidate-${idx}`;
@@ -93,7 +101,7 @@ export function CandidateResultsGrid({ candidates }: CandidateResultsGridProps) 
 
             {/* Rank Badge - Refined */}
             <div className="absolute top-6 left-6 z-20 px-3 py-1 rounded-full bg-black/80 border border-white/10 text-[10px] font-black tracking-widest text-white/40">
-              RANK // 0{idx + 1}
+              RANK // {(idx + 1).toString().padStart(2, '0')}
             </div>
 
             {/* Party Color Glow - Concentrated */}
@@ -122,7 +130,12 @@ export function CandidateResultsGrid({ candidates }: CandidateResultsGridProps) 
                       <div className="w-full h-full flex items-center justify-center text-white/10 text-[18px]">No Photo</div>
                    )}
                    {/* Hologram Scan Effect */}
-                   <div className="absolute inset-0 bg-linear-to-b from-transparent via-brand-primary/10 to-transparent h-1/4 w-full animate-scanline pointer-events-none" />
+                   <motion.div 
+                     initial={{ y: "-100%" }}
+                     animate={{ y: "400%" }}
+                     transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                     className="absolute inset-x-0 h-1/4 bg-linear-to-b from-transparent via-brand-primary/10 to-transparent pointer-events-none" 
+                   />
                  </div>
               </div>
 
