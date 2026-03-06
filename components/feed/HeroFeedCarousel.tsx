@@ -110,11 +110,11 @@ export function HeroFeedCarousel({ initialVideos }: HeroFeedCarouselProps) {
                         <div className="absolute inset-0 bg-linear-to-t from-black/90 via-transparent to-transparent" />
                         
                         {/* Info */}
-                        <div className="absolute bottom-0 left-0 p-8 w-full z-10">
+                        <div className="absolute bottom-0 left-0 p-6 md:p-8 w-full z-10">
                             <span className="bg-kenya-gold text-black text-xs font-bold px-2 py-1 rounded mb-2 inline-block uppercase tracking-wider">
                                 Sponsored
                             </span>
-                            <h2 className="text-3xl md:text-5xl font-black text-white drop-shadow-xl mb-2">
+                            <h2 className="text-2xl md:text-5xl font-black text-white drop-shadow-xl mb-2 line-clamp-2">
                                 {currentItem.data.title}
                             </h2>
                             {currentItem.data.target_url && (
@@ -161,8 +161,8 @@ export function HeroFeedCarousel({ initialVideos }: HeroFeedCarouselProps) {
                          </div>
 
                          {/* Info */}
-                         <div className="absolute bottom-0 left-0 p-8 w-full z-10 bg-linear-to-t from-black/90 to-transparent">
-                            <h2 className="text-2xl md:text-4xl font-bold text-white drop-shadow-xl mb-1 line-clamp-2">
+                         <div className="absolute bottom-0 left-0 p-6 md:p-8 w-full z-10 bg-linear-to-t from-black/95 to-transparent">
+                            <h2 className="text-xl md:text-4xl font-black text-white drop-shadow-xl mb-1 line-clamp-2">
                                 {currentItem.data.title}
                             </h2>
                             <p className="text-white/80 font-medium">

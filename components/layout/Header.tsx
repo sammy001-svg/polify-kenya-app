@@ -59,7 +59,7 @@ export function Header() {
             <span className="font-black text-xl md:text-2xl tracking-tighter bg-linear-to-r from-kenya-red via-white to-kenya-green bg-clip-text text-transparent ml-1 drop-shadow-sm">
               PoliFy
             </span>
-            <span className="text-[10px] uppercase font-black tracking-widest text-brand-text-muted ml-1 hide-on-mobile">
+            <span className="text-[10px] uppercase font-black tracking-widest text-brand-text-muted ml-1">
               Kenya
             </span>
           </div>

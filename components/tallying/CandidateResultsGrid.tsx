@@ -46,7 +46,7 @@ export function CandidateResultsGrid({ candidates }: CandidateResultsGridProps) 
   const allCandidates = (candidates || []);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-6 pr-2">
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8 w-full">
       {allCandidates.map((candidate, idx) => {
         if (!candidate) return null;
         const candidateId = candidate.candidate_id || `candidate-${idx}`;
@@ -65,7 +65,7 @@ export function CandidateResultsGrid({ candidates }: CandidateResultsGridProps) 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.1 }}
-            className="relative group bg-black/40 backdrop-blur-xl border border-white/5 rounded-[32px] p-6 overflow-hidden flex flex-col justify-between min-h-[220px]"
+            className="relative group bg-black/40 backdrop-blur-xl border border-white/5 rounded-2xl md:rounded-[32px] p-4 md:p-6 overflow-hidden flex flex-col justify-between min-h-[220px]"
           >
             {/* Top Selection Corner */}
             <div className="absolute top-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -75,34 +75,34 @@ export function CandidateResultsGrid({ candidates }: CandidateResultsGridProps) 
             </div>
 
             {/* Rank Badge - Refined */}
-            <div className="absolute top-6 left-6 z-20 px-3 py-1 rounded-full bg-black/80 border border-white/10 text-[10px] font-black tracking-widest text-white/40">
+            <div className="absolute top-4 md:top-6 left-4 md:left-6 z-20 px-3 py-1 rounded-full bg-black/80 border border-white/10 text-[10px] font-black tracking-widest text-white/40">
               RANK // {(idx + 1).toString().padStart(2, '0')}
             </div>
 
             {/* Party Color Glow - Concentrated */}
             <div className={cn(
-              "absolute -top-16 -right-16 w-48 h-48 rounded-full blur-[80px] opacity-10 transition-all duration-700 group-hover:opacity-30 group-hover:scale-110",
+              "absolute -top-16 -right-16 w-32 md:w-48 h-32 md:h-48 rounded-full blur-[60px] md:blur-[80px] opacity-10 transition-all duration-700 group-hover:opacity-30 group-hover:scale-110",
               partyColor
             )} />
 
-            <div className="flex gap-5 items-center relative z-10 pt-6">
+            <div className="flex gap-4 md:gap-5 items-center relative z-10 pt-6">
               {/* Candidate Image - Hologram Style */}
-              <div className="relative w-20 h-20 shrink-0">
+              <div className="relative w-16 h-16 md:w-20 md:h-20 shrink-0">
                 <div className={cn(
-                  "absolute inset-0 rounded-2xl border-2 rotate-3 group-hover:rotate-0 transition-transform duration-500",
+                  "absolute inset-0 rounded-xl md:rounded-2xl border-2 rotate-3 group-hover:rotate-0 transition-transform duration-500",
                   partyColor.replace('bg-', 'border-')
                 )} />
-                <div className="absolute inset-0 rounded-2xl overflow-hidden bg-white/5 border border-white/10 shadow-2xl">
+                <div className="absolute inset-0 rounded-xl md:rounded-2xl overflow-hidden bg-white/5 border border-white/10 shadow-2xl">
                   {photoUrl ? (
                     <Image 
                       src={photoUrl} 
                       alt={candidateName} 
                       fill
-                      sizes="80px"
+                      sizes="(max-width: 768px) 64px, 80px"
                       className="object-cover contrast-125 saturate-50 group-hover:saturate-100 transition-all duration-500"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-white/10 text-[18px]">No Photo</div>
+                    <div className="w-full h-full flex items-center justify-center text-white/10 text-[10px] md:text-[18px]">No Photo</div>
                   )}
                   {/* Hologram Scan Effect */}
                   <motion.div 
@@ -119,12 +119,12 @@ export function CandidateResultsGrid({ candidates }: CandidateResultsGridProps) 
 
               <div className="min-w-0 flex-1">
                 <h4 
-                  className="text-white font-black text-lg uppercase tracking-tighter group-hover:text-brand-primary transition-colors truncate"
+                  className="text-white font-black text-sm md:text-lg uppercase tracking-tighter group-hover:text-brand-primary transition-colors truncate"
                   title={candidateName}
                 >
                   {candidateName}
                 </h4>
-                <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.3em] flex items-center gap-2 mt-1">
+                <p className="text-[8px] md:text-[9px] font-black text-white/30 uppercase tracking-[0.3em] flex items-center gap-2 mt-1">
                   <span className={cn("w-2 h-2 rounded-full border border-white/10", partyColor)} />
                   {party}
                 </p>
@@ -135,9 +135,9 @@ export function CandidateResultsGrid({ candidates }: CandidateResultsGridProps) 
               <div className="flex justify-between items-end">
                 <div className="space-y-1">
                   <div className="text-[8px] font-black text-white/20 uppercase tracking-widest">Election Tally</div>
-                  <p className="text-2xl font-black text-white tracking-tighter flex items-center gap-1">
+                  <p className="text-xl md:text-2xl font-black text-white tracking-tighter flex items-center gap-1">
                     <CountUp value={votes} />
-                    <span className="text-[9px] text-white/20 font-mono uppercase">VOTES</span>
+                    <span className="text-[8px] text-white/20 font-mono uppercase">VOTES</span>
                   </p>
                 </div>
                 <div className="text-right">

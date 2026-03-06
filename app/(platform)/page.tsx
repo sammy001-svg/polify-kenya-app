@@ -99,7 +99,7 @@ export default function Home() {
   };
 
   return (
-    <div className="h-[calc(100vh-64px)] overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent page-transition">
+    <div className="page-transition">
       <CivicVideoTheater
         isOpen={!!theaterVideo}
         onClose={() => setTheaterVideo(null)}
@@ -112,11 +112,11 @@ export default function Home() {
       />
 
       <div className="flex flex-col min-h-full">
-        {/* Hero / Featured / Active Player - Now Scrollable */}
-        <div className="shrink-0 p-4 pb-0 z-10">
+        {/* Hero / Featured / Active Player */}
+        <div className="shrink-0 z-10 w-full">
           <motion.section
             layoutId="hero-player"
-            className="relative rounded-3xl overflow-hidden bg-brand-surface-secondary aspect-video md:aspect-21/9 flex items-end shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] transition-all duration-700 border border-white/5 group/hero"
+            className="relative rounded-2xl md:rounded-3xl overflow-hidden bg-brand-surface-secondary aspect-video md:aspect-21/9 flex items-end shadow-2xl transition-all duration-700 border border-white/5 group/hero w-full"
             id="hero-player"
           >
             {activeHeroVideo && activeHeroVideo.videoUrl ? (
@@ -150,13 +150,13 @@ export default function Home() {
                   key={`info-${activeHeroVideo.id}`}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="absolute bottom-0 left-0 z-20 p-8 space-y-4 pointer-events-none w-full bg-linear-to-t from-black/90 to-transparent"
+                  className="absolute bottom-0 left-0 z-20 p-6 md:p-8 space-y-3 md:space-y-4 pointer-events-none w-full bg-linear-to-t from-black/95 to-transparent"
                 >
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-kenya-red text-white text-xs font-bold uppercase tracking-wide">
                     <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
                     Now Playing
                   </div>
-                  <h1 className="text-2xl md:text-4xl font-bold max-w-4xl text-white drop-shadow-lg line-clamp-2">
+                  <h1 className="text-xl md:text-4xl font-black max-w-4xl text-white drop-shadow-lg line-clamp-2 leading-tight">
                     {activeHeroVideo.title}
                   </h1>
                   <div className="flex items-center gap-3 text-sm text-gray-200">
@@ -183,15 +183,15 @@ export default function Home() {
           </motion.section>
         </div>
 
-        <div className="flex-1 p-4 space-y-8">
+        <div className="flex-1 space-y-6 md:space-y-10 pt-4 md:pt-10">
           <div className="flex items-center justify-between gap-4">
-            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none">
+            <div className="flex gap-2 md:gap-3 overflow-x-auto pb-2 scrollbar-none scroll-smooth">
               {categories.map((filter) => (
                 <Button
                   key={filter}
                   variant={activeCategory === filter ? "primary" : "secondary"}
                   size="sm"
-                  className="whitespace-nowrap transition-transform hover:scale-105"
+                  className="whitespace-nowrap transition-all hover:scale-105 px-3 md:px-4 py-1.5 md:py-2 text-[11px] md:text-xs font-bold"
                   onClick={() => setActiveCategory(filter)}
                 >
                   {filter}
@@ -229,24 +229,30 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Mobile Tab Switcher */}
-          <div className="flex lg:hidden bg-brand-surface-secondary p-1 rounded-lg mb-4">
+          {/* Mobile Tab Switcher - Premium Segmented Control */}
+          <div className="flex lg:hidden bg-black/40 backdrop-blur-xl border border-white/5 p-1 rounded-2xl mb-6 relative">
+            <motion.div
+              layout
+              className="absolute inset-y-1 rounded-xl bg-brand-primary/20 border border-brand-primary/30 z-0"
+              initial={false}
+              animate={{
+                left: mobileTab === "feed" ? "4px" : "calc(50% + 2px)",
+                right: mobileTab === "feed" ? "calc(50% + 2px)" : "4px",
+              }}
+              transition={{ type: "spring", bounce: 0.15, duration: 0.5 }}
+            />
             <button
               onClick={() => setMobileTab("feed")}
-              className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-md transition-all ${
-                mobileTab === "feed"
-                  ? "bg-brand-surface shadow-md text-white"
-                  : "text-brand-text-muted hover:text-white"
+              className={`flex-1 py-3 text-[11px] font-black uppercase tracking-widest rounded-xl transition-all relative z-10 ${
+                mobileTab === "feed" ? "text-brand-primary" : "text-brand-text-muted hover:text-white"
               }`}
             >
               Civic Feed
             </button>
             <button
               onClick={() => setMobileTab("dashboard")}
-              className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-md transition-all ${
-                mobileTab === "dashboard"
-                  ? "bg-brand-surface shadow-md text-white"
-                  : "text-brand-text-muted hover:text-white"
+              className={`flex-1 py-3 text-[11px] font-black uppercase tracking-widest rounded-xl transition-all relative z-10 ${
+                mobileTab === "dashboard" ? "text-brand-primary" : "text-brand-text-muted hover:text-white"
               }`}
             >
               My Dashboard
@@ -259,7 +265,7 @@ export default function Home() {
             >
               <motion.div
                 layout
-                className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
+                className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 w-full"
               >
                 <AnimatePresence mode="popLayout">
                   {filteredItems.length > 0 ? (
@@ -276,7 +282,7 @@ export default function Home() {
                           className="border-0 bg-transparent shadow-none group cursor-pointer h-full"
                           onClick={() => handleVideoClick(item)}
                         >
-                          <div className="relative aspect-video rounded-xl bg-brand-surface-highlight mb-3 overflow-hidden border border-white/5 shadow-lg group-hover:border-kenya-red/30 transition-all">
+                          <div className="relative aspect-video rounded-2xl bg-brand-surface-highlight mb-3 overflow-hidden border border-white/5 shadow-lg group-hover:border-kenya-red/30 transition-all">
                             <Image
                               src={item.thumbnailUrl}
                               alt={item.title}
@@ -334,8 +340,8 @@ export default function Home() {
                               </HoverCardContent>
                             </HoverCard>
                           </div>
-                          <div className="flex gap-3">
-                            <div className="relative w-10 h-10 rounded-full bg-brand-surface-highlight shrink-0 overflow-hidden border border-white/10 ring-2 ring-white/5">
+                          <div className="flex gap-2 md:gap-3">
+                            <div className="relative w-7 h-7 md:w-10 md:h-10 rounded-full bg-brand-surface-highlight shrink-0 overflow-hidden border border-white/10 ring-2 ring-white/5">
                               <Image
                                 src={item.thumbnailUrl}
                                 alt={item.host}
