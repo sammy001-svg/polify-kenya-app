@@ -18,9 +18,9 @@ export default function PlatformLayout({
   return (
     <>
       <Header />
-      <div className="block md:flex pt-16 min-h-screen bg-brand-bg relative w-full overflow-x-hidden">
+      <div className="block md:flex pt-16 min-h-screen bg-brand-bg relative overflow-x-hidden">
         <Sidebar />
-        <main className="flex-1 md:ml-72 relative md:border-l md:border-white/5 w-full">
+        <main className="flex-1 md:ml-72 relative md:border-l md:border-white/5 min-w-0">
           <div className="main-content-container py-6 pb-24 md:pb-8 min-h-[calc(100vh-4rem)] mx-auto">
             {children}
           </div>

@@ -46,7 +46,7 @@ export function CandidateResultsGrid({ candidates }: CandidateResultsGridProps) 
   const allCandidates = (candidates || []);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8 w-full">
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
       {allCandidates.map((candidate, idx) => {
         if (!candidate) return null;
         const candidateId = candidate.candidate_id || `candidate-${idx}`;

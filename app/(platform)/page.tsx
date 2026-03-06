@@ -113,7 +113,7 @@ export default function Home() {
 
       <div className="flex flex-col min-h-full">
         {/* Hero / Featured / Active Player */}
-        <div className="shrink-0 z-10 w-full">
+        <div className="z-10">
           <motion.section
             layoutId="hero-player"
             className="relative rounded-2xl md:rounded-3xl overflow-hidden bg-brand-surface-secondary aspect-video md:aspect-21/9 flex items-end shadow-2xl transition-all duration-700 border border-white/5 group/hero w-full"
@@ -265,7 +265,7 @@ export default function Home() {
             >
               <motion.div
                 layout
-                className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 w-full"
+                className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
               >
                 <AnimatePresence mode="popLayout">
                   {filteredItems.length > 0 ? (

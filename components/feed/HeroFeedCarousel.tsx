@@ -134,7 +134,7 @@ export function HeroFeedCarousel({ initialVideos }: HeroFeedCarouselProps) {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="relative w-full h-full"
+                        className="relative w-full h-full overflow-hidden"
                     >
                          {currentItem.data.videoUrl && (currentItem.data.videoUrl.includes("youtube") || currentItem.data.videoUrl.includes("youtu.be")) ? (
                              <iframe
