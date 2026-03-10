@@ -32,7 +32,7 @@ function PercentageCountUp({ value }: { value: number }) {
 
   useEffect(() => {
     const controls = animate(count, value, {
-      duration: 1.5,
+      duration: 1.5, 
       ease: "easeOut",
     });
     return () => controls.stop();

@@ -203,6 +203,7 @@ export default function Home() {
               <AnimatePresence>
                 {isScanning && (
                   <motion.span
+                    key="ai-scanning-indicator"
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: 20 }}
@@ -214,6 +215,7 @@ export default function Home() {
                 )}
                 {newUpdateCount > 0 && (
                   <motion.button
+                    key="update-pill"
                     initial={{ scale: 0, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     whileHover={{ scale: 1.05 }}
@@ -371,6 +373,7 @@ export default function Home() {
                     ))
                   ) : (
                     <motion.div 
+                      key="no-items-fallback"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       className="col-span-full py-20 text-center space-y-4"
