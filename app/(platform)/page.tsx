@@ -33,10 +33,10 @@ export default function Home() {
   const categories = [
     "All",
     "Parliament",
-    "County Assemblies",
-    "Explainer Videos",
-    "Interviews",
-    "Town Halls",
+    "County Assembly",
+    "Explainer",
+    "Interview",
+    "Town Hall",
   ];
 
   const filteredItems = activeCategory === "All" 
@@ -103,12 +103,12 @@ export default function Home() {
       <CivicVideoTheater
         isOpen={!!theaterVideo}
         onClose={() => setTheaterVideo(null)}
-        videoId={theaterVideo?.id.toString() || ""}
+        videoId={theaterVideo?.id?.toString() || ""}
         videoUrl={theaterVideo?.videoUrl || ""}
-        title={theaterVideo?.title || ""}
-        host={theaterVideo?.host || ""}
-        views={theaterVideo?.views || ""}
-        timeAgo={theaterVideo?.timeAgo || ""}
+        title={theaterVideo?.title || "Video"}
+        host={theaterVideo?.host || "Unknown"}
+        views={theaterVideo?.views || "0"}
+        timeAgo={theaterVideo?.timeAgo || "Recently"}
       />
 
       <div className="flex flex-col min-h-full">

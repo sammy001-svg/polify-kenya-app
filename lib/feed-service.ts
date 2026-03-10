@@ -104,15 +104,15 @@ export const FeedService = {
           KENYAN_MEDIA_CHANNELS.find((c) => c.id === video.channelKey) ||
           KENYAN_MEDIA_CHANNELS[0];
 
-        let category = "Town Halls";
+        let category: StreamItem["category"] = "Town Hall";
         if (channelConfig.id === "parliament" || lowerText.includes("parliament") || lowerText.includes("senate") || lowerText.includes("national assembly")) {
           category = "Parliament";
         } else if (lowerText.includes("county") || lowerText.includes("assembly") || lowerText.includes("mca") || lowerText.includes("governor")) {
-          category = "County Assemblies";
+          category = "County Assembly";
         } else if (lowerText.includes("explain") || lowerText.includes("how to") || lowerText.includes("guide")) {
-          category = "Explainer Videos";
+          category = "Explainer";
         } else if (lowerText.includes("interview") || lowerText.includes("exclusive") || lowerText.includes("converses")) {
-          category = "Interviews";
+          category = "Interview";
         }
 
         const item: FeedItem = {

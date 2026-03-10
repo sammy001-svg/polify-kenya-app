@@ -54,10 +54,10 @@ export function CandidateResultsGrid({ candidates }: CandidateResultsGridProps) 
         const candidateName = candidate.candidate_name || 'Candidate';
         const party = candidate.party || 'Independent';
         const photoUrl = candidate.photo_url || '';
-        const votes = typeof candidate.votes === 'number' && !isNaN(candidate.votes) ? candidate.votes : 0;
-        const percentage = typeof candidate.percentage === 'number' && !isNaN(candidate.percentage) ? candidate.percentage : 0;
+        const votes = candidate.votes && !isNaN(Number(candidate.votes)) ? Number(candidate.votes) : 0;
+        const percentage = candidate.percentage && !isNaN(Number(candidate.percentage)) ? Number(candidate.percentage) : 0;
         const isRuleOf24Met = !!candidate.is_rule_of_24_met;
-        const countiesAbove25pct = typeof candidate.counties_above_25pct === 'number' && !isNaN(candidate.counties_above_25pct) ? candidate.counties_above_25pct : 0;
+        const countiesAbove25pct = candidate.counties_above_25pct && !isNaN(Number(candidate.counties_above_25pct)) ? Number(candidate.counties_above_25pct) : 0;
 
         return (
           <motion.div
