@@ -1,5 +1,5 @@
 import { VoterStats } from "@/components/iebc/VoterStats";
-import { NewsAndJobs } from "@/components/iebc/NewsAndJobs";
+import { IEBCNewsCard } from "@/components/iebc/NewsAndJobs";
 import { AIAnalyst } from "@/components/iebc/AIAnalyst";
 import { ElectionTimeline } from "@/components/iebc/ElectionTimeline";
 import { VoterEducation } from "@/components/iebc/VoterEducation";
@@ -90,7 +90,7 @@ export default function IEBCPage() {
 
             {/* Right Column: News & Jobs (Takes up 1 col) */}
             <div className="lg:col-span-1">
-              <NewsAndJobs />
+              <IEBCNewsCard />
             </div>
           </div>
         </TabsContent>

@@ -4,15 +4,6 @@ export interface VoterStats {
   count: number;
 }
 
-export interface RegistrationCentre {
-  id: string;
-  name: string;
-  ward: string;
-  constituency: string;
-  county: string;
-  status: "Open" | "Closed";
-  openingHours: string;
-}
 
 export interface NewsItem {
   id: string;
