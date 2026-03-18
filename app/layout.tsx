@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Libre_Baskerville } from "next/font/google";
+import { Inter, Libre_Baskerville, Dancing_Script } from "next/font/google";
 import "./globals.css";
 
 // If Inter fails to load (no internet), it falls back to sans-serif defined in globals.
@@ -8,6 +8,11 @@ const libre_baskerville = Libre_Baskerville({
   subsets: ["latin"],
   weight: ["400", "700"],
   variable: "--font-baskerville",
+});
+const dancing_script = Dancing_Script({
+  subsets: ["latin"],
+  weight: ["700"],
+  variable: "--font-dancing",
 });
 
 export const metadata: Metadata = {
@@ -70,7 +75,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.variable} ${libre_baskerville.variable} antialiased bg-brand-bg text-brand-text min-h-screen relative selection:bg-kenya-gold selection:text-black`}
+        className={`${inter.variable} ${libre_baskerville.variable} ${dancing_script.variable} antialiased bg-brand-bg text-brand-text min-h-screen relative selection:bg-kenya-gold selection:text-black`}
       >
         {children}
       </body>

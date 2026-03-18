@@ -71,13 +71,24 @@
   }
 
   @keyframes rotate-slow {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
   }
 
   @keyframes beam-flicker {
-    0%, 100% { opacity: 0.3; transform: scaleY(1); }
-    50% { opacity: 0.6; transform: scaleY(1.1); }
+    0%,
+    100% {
+      opacity: 0.3;
+      transform: scaleY(1);
+    }
+    50% {
+      opacity: 0.6;
+      transform: scaleY(1.1);
+    }
   }
 
   --animate-rotate-slow: rotate-slow 20s linear infinite;
@@ -86,21 +97,21 @@
 
 :root {
   /* Kenyan Identity Palette - Dark Theme Optimized (Exact #01605A) */
-  --background: #01605A;
-  --surface-primary: #014D48;   /* Slightly darker than #01605A */
-  --surface-secondary: #003B37; /* Even darker for depth */
-  --surface-highlight: #027D75; /* Slightly lighter for hover/active */
+  --background: #01605a;
+  --surface-primary: #014d48; /* Slightly darker than #01605A */
+  --surface-secondary: #003b37; /* Even darker for depth */
+  --surface-highlight: #027d75; /* Slightly lighter for hover/active */
 
   /* Typography - White for dark background */
   --foreground: hsl(0 0% 100%);
   --foreground-muted: rgba(255, 255, 255, 0.7);
 
   /* Accents - The Flag 🇰🇪 Optimized for Dark Theme */
-  --accent-red: #BB1919;
-  --accent-green: #008C51;
-  --accent-deep-green: #01605A;
-  --accent-gold: #FDB931;
-  --accent-dark-orange: #C2410C;
+  --accent-red: #bb1919;
+  --accent-green: #008c51;
+  --accent-deep-green: #01605a;
+  --accent-gold: #fdb931;
+  --accent-dark-orange: #c2410c;
 
   --border: rgba(255, 255, 255, 0.1);
   --ring: var(--accent-gold);
@@ -225,8 +236,15 @@
   }
 
   @keyframes hologram-flicker {
-    0%, 100% { opacity: 1; filter: brightness(1); }
-    50% { opacity: 0.8; filter: brightness(1.2); }
+    0%,
+    100% {
+      opacity: 1;
+      filter: brightness(1);
+    }
+    50% {
+      opacity: 0.8;
+      filter: brightness(1.2);
+    }
   }
 }
 
@@ -244,6 +262,10 @@
 
   .font-baskerville {
     font-family: var(--font-baskerville), serif;
+  }
+
+  .font-dancing {
+    font-family: var(--font-dancing), cursive;
   }
 
   .title-green {
@@ -305,7 +327,9 @@
   }
 
   @keyframes holographic-slide {
-    to { background-position: 200% center; }
+    to {
+      background-position: 200% center;
+    }
   }
 
   @keyframes shine {
@@ -389,7 +413,13 @@
     --z-modal: 50;
   }
 
-  .z-hologram { z-index: var(--z-hologram); }
-  .z-scanline { z-index: var(--z-scanline); }
-  .z-overlay { z-index: var(--z-overlay); }
+  .z-hologram {
+    z-index: var(--z-hologram);
+  }
+  .z-scanline {
+    z-index: var(--z-scanline);
+  }
+  .z-overlay {
+    z-index: var(--z-overlay);
+  }
 }

@@ -185,7 +185,7 @@ export default function Home() {
 
         <div className="flex-1 space-y-6 md:space-y-10 pt-4 md:pt-10">
           <div className="flex items-center justify-between gap-4">
-            <div className="flex-1 min-w-0 flex gap-2 md:gap-3 overflow-x-auto pb-2 no-scrollbar scroll-smooth">
+            <div className="flex gap-2 md:gap-3 overflow-x-auto pb-2 no-scrollbar scroll-smooth">
               {categories.map((filter) => (
                 <Button
                   key={filter}

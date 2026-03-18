@@ -139,6 +139,8 @@ export async function getResults(level: 'national' | 'county' | 'constituency' |
         const rawCandidate = Array.isArray(r.election_candidates) ? r.election_candidates[0] : r.election_candidates;
         const candidate = rawCandidate || { id: 'unknown', name: 'Unknown', party: 'Independent', photo_url: '' };
         
+        console.log("DEBUG CANDIDATE: ", JSON.stringify(candidate));
+
         const total = r.total_valid_votes || 1; 
         const percentage = (r.votes / total) * 100;
         
@@ -151,15 +153,31 @@ export async function getResults(level: 'national' | 'county' | 'constituency' |
         // Compliance logic
         const countiesAbove25 = candidateCountyStats[candidate.party] || 0;
 
-        // Candidate Image Mapping
-        const photo_url = candidate.photo_url || partyInfo.photo;
+        // Smart name-based photo mapping
+        const nameUpper = (candidate.name || '').toUpperCase();
+        let nameMatchedPhoto = null;
+        if (nameUpper.includes('RUTO')) nameMatchedPhoto = '/images/candidates/william_ruto.png';
+        else if (nameUpper.includes('RAILA') || nameUpper.includes('ODINGA')) nameMatchedPhoto = '/images/candidates/raila_odinga.png';
+        else if (nameUpper.includes('WAJACKOYAH')) nameMatchedPhoto = '/images/candidates/george_wajackoyah.png';
+        else if (nameUpper.includes('MWAURE')) nameMatchedPhoto = '/images/candidates/david_mwaure.png';
+        else if (nameUpper.includes('KALONZO')) nameMatchedPhoto = ''; // No photo available locally
+
+        // Override DB if we have a guaranteed local match
+        let rawPhoto = nameMatchedPhoto !== null ? nameMatchedPhoto : (candidate.photo_url || partyInfo.photo);
+        
+        // Clean out broken DB avatar links if they slip through
+        if (rawPhoto?.includes('/avatars/')) {
+            rawPhoto = '';
+        }
+
+        const photo_url = rawPhoto === '/placeholder-avatar.jpg' ? '' : rawPhoto;
 
         return {
             candidate_id: candidate.id || 'unknown',
             candidate_name: candidate.name,
             party: candidate.party,
             party_color: partyInfo.color,
-            photo_url: photo_url || "/placeholder-avatar.jpg",
+            photo_url: photo_url === '/placeholder-avatar.jpg' ? '' : (photo_url || ""),
             votes: r.votes,
             total_valid_votes: r.total_valid_votes,
             percentage,

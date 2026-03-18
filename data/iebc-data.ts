@@ -21,6 +21,7 @@ export interface NewsItem {
   date: string;
   category: "Press Release" | "Update" | "Event";
   link: string;
+  content?: string;
 }
 
 export interface Job {
@@ -51,40 +52,31 @@ export interface EducationResource {
 export const mockTimeline: TimelineEvent[] = [
   {
     id: "1",
-    title: "Boundary Delimitation Commission Formation",
+    title: "Official Boundary Delimitation Kick-off",
     date: "Oct 2025",
     status: "Completed",
-    description: "Panel formed to review constituency boundaries.",
+    description: "Commission panel formed to review constituency and ward boundaries.",
   },
   {
     id: "2",
-    title: "National Voter Registration Drive",
-    date: "Feb - Mar 2026",
+    title: "Enhanced Continuous Voter Registration (ECVR)",
+    date: "March 30, 2026",
     status: "Ongoing",
-    description: "Mass registration of new voters across all 47 counties.",
+    description: "Launch of mass registration targeting 2.5 million new voters in phase one.",
   },
   {
     id: "3",
-    title: "Party Primaries Window",
-    date: "June 2026",
+    title: "Final Voters' Roll Audit & Verification",
+    date: "January 2027",
     status: "Upcoming",
-    description:
-      "Official window for political parties to nominate candidates.",
+    description: "Official verification of the voter registry by independent auditors.",
   },
   {
     id: "4",
-    title: "Candidate Clearance",
-    date: "August 2026",
+    title: "National General Election Day",
+    date: "August 10, 2027",
     status: "Upcoming",
-    description: "Verification of candidate qualifications and credentials.",
-  },
-  {
-    id: "5",
-    title: "General Election Day",
-    date: "August 11, 2027",
-    status: "Upcoming",
-    description:
-      "Nationwide voting for Presidential, Parliamentary, and County seats.",
+    description: "Nationwide voting for Presidential, Parliamentary, and County seats.",
   },
 ];
 
@@ -123,85 +115,38 @@ export const mockVoterStats: VoterStats[] = [
   { category: "National", name: "Kenya", count: 22120458 },
   { category: "County", name: "Nairobi City", count: 2415310 },
   { category: "Constituency", name: "Westlands", count: 160739 },
-  { category: "Ward", name: "Kitisuru", count: 32450 },
-  { category: "Ward", name: "Parklands", count: 28900 },
+  { category: "Ward", name: "Kitisuru", count: 29237 },
 ];
 
-export const mockRegistrationCentres: RegistrationCentre[] = [
-  {
-    id: "1",
-    name: "Westlands Primary School",
-    ward: "Parklands/Highridge",
-    constituency: "Westlands",
-    county: "Nairobi",
-    status: "Open",
-    openingHours: "8:00 AM - 5:00 PM",
-  },
-  {
-    id: "2",
-    name: "Kangemi Social Hall",
-    ward: "Kangemi",
-    constituency: "Westlands",
-    county: "Nairobi",
-    status: "Open",
-    openingHours: "8:00 AM - 5:00 PM",
-  },
-  {
-    id: "3",
-    name: "Muguga Green Primary",
-    ward: "Kitisuru",
-    constituency: "Westlands",
-    county: "Nairobi",
-    status: "Closed",
-    openingHours: "8:00 AM - 5:00 PM",
-  },
-  {
-    id: "4",
-    name: "Lavington Primary School",
-    ward: "Kileleshwa",
-    constituency: "Dagoretti North",
-    county: "Nairobi",
-    status: "Open",
-    openingHours: "8:00 AM - 5:00 PM",
-  },
-  {
-    id: "5",
-    name: "Olympic Primary School",
-    ward: "Kibra",
-    constituency: "Kibra",
-    county: "Nairobi",
-    status: "Open",
-    openingHours: "8:00 AM - 5:00 PM",
-  },
-];
+// Redundant mock data removed to use factual kenya-locations.ts hierarchy
 
 export const mockNews: NewsItem[] = [
   {
     id: "1",
-    title: "Voter Registration Week Launch",
-    summary:
-      "IEBC announces the start of the nationwide voter registration drive.",
-    date: "2026-02-01",
+    title: "IEBC Announces Enhanced Continuous Voter Registration (ECVR)",
+    summary: "The commission targets 2.5 million new voters in the first phase starting March 2026.",
+    date: "Just Now",
     category: "Event",
     link: "#",
+    content: "The Independent Electoral and Boundaries Commission (IEBC) has officially announced that the Enhanced Continuous Voter Registration (ECVR) exercise will commence on March 30, 2026. Running for 30 days, this initial phase aims to register 2.5 million new voters across all 47 counties. The commission ultimately anticipates registering a total of 6.3 million new voters to achieve a projected total of 28.5 million voters for the 2027 General Election. To support this massive undertaking, the IEBC will be hiring over 12,000 temporary staff members."
   },
   {
     id: "2",
-    title: "By-Election Results for Ugunja",
-    summary:
-      "Check out the official results for the Ugunja constituency by-election.",
-    date: "2026-01-28",
+    title: "Ksh 6.9 Billion Funding Request for 2027 Election Preparedness",
+    summary: "IEBC Chairperson details the financial requirements for the upcoming election cycle.",
+    date: "2 Hours Ago",
     category: "Press Release",
     link: "#",
+    content: "IEBC Chairperson Erastus Ethekon has formally presented the commission's budget requirements for the upcoming election cycle. The commission will require Ksh 6.9 billion specifically for nationwide voter registration ahead of the 2027 General Election. Furthermore, Ksh 12.4 billion has been requested for staff wages and an additional Ksh 6.2 billion to replace the outdated Kenya Integrated Election Management System (KIEMS) kits. An emergency request of Ksh 888 million was also submitted for immediate office renovations and vehicle updates."
   },
   {
     id: "3",
-    title: "New Diaspora Polling Stations",
-    summary:
-      "5 new polling stations opened in the UK and USA for diaspora voters.",
-    date: "2026-01-20",
+    title: "New Electronic Results Transmission System Rollout",
+    summary: "IEBC outlines the technology roadmap leading up to the 2027 elections.",
+    date: "5 Hours Ago",
     category: "Update",
     link: "#",
+    content: "As part of the official 2027 General Election Roadmap, the IEBC has unveiled plans to establish completely revamped election technology. A new, robust electronic results transmission system is actively being developed and is expected to be finalized and audited by October 2026. This technology will replace the legacy KIEMS kits and aims to ensure 100% transparency and near real-time verifiable tallying from all polling stations on Tuesday, August 10, 2027."
   },
 ];
 

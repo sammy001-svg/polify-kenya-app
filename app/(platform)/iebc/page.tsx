@@ -1,10 +1,9 @@
 import { VoterStats } from "@/components/iebc/VoterStats";
-import { VoterTrendsChart } from "@/components/iebc/VoterTrendsChart";
-import { RegistrationCentres } from "@/components/iebc/RegistrationCentres";
 import { NewsAndJobs } from "@/components/iebc/NewsAndJobs";
 import { AIAnalyst } from "@/components/iebc/AIAnalyst";
 import { ElectionTimeline } from "@/components/iebc/ElectionTimeline";
 import { VoterEducation } from "@/components/iebc/VoterEducation";
+import { VoterVerificationPopup } from "@/components/iebc/VoterVerificationPopup";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -37,12 +36,14 @@ export default function IEBCPage() {
           </p>
         </div>
         <div className="flex gap-3">
-          <Button
-            variant="outline"
-            className="border-white/10 hover:bg-white/5 text-white gap-2 font-bold text-xs uppercase tracking-widest px-6 h-11 rounded-2xl"
-          >
-            <Info className="w-4 h-4" /> Voter Verification
-          </Button>
+          <VoterVerificationPopup>
+            <Button
+              variant="outline"
+              className="border-white/10 hover:bg-white/5 text-white gap-2 font-bold text-xs uppercase tracking-widest px-6 h-11 rounded-2xl"
+            >
+              <Info className="w-4 h-4" /> Voter Verification
+            </Button>
+          </VoterVerificationPopup>
           <Button className="bg-brand-primary text-black hover:bg-brand-primary/90 gap-2 font-black text-xs uppercase tracking-widest px-6 h-11 rounded-2xl shadow-xl shadow-brand-primary/20">
             <MapPin className="w-4 h-4" /> Register Now
           </Button>
@@ -85,8 +86,6 @@ export default function IEBCPage() {
             {/* Left Column: Education and Centres (Takes up 2 cols) */}
             <div className="lg:col-span-2 space-y-10">
               <VoterEducation />
-              <VoterTrendsChart />
-              <RegistrationCentres />
             </div>
 
             {/* Right Column: News & Jobs (Takes up 1 col) */}
