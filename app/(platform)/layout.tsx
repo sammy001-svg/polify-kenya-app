@@ -16,7 +16,7 @@ export default function PlatformLayout({
   children: React.ReactNode;
 }) {
   return (
-    <>
+    <div className="bg-brand-bg text-brand-text min-h-screen relative">
       <Header />
       <div className="md:flex pt-16 min-h-screen bg-brand-bg relative overflow-x-hidden">
         <Sidebar />
@@ -29,6 +29,6 @@ export default function PlatformLayout({
       <BottomNav />
       <XPNotification />
       <PolifyAI />
-    </>
+    </div>
   );
 }

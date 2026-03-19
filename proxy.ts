@@ -49,6 +49,7 @@ export async function proxy(request: NextRequest) {
   const isPublicPath = 
     path.startsWith('/auth') || 
     path === '/auth' ||
+    path.startsWith('/admin') || // Delegate administration routes to sub-layouts
     path.startsWith('/api') || // Allow APIs (handle auth inside if needed)
     path.startsWith('/_next') || // Next.js internals
     path.startsWith('/static') || // Static files

@@ -2,15 +2,28 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, FileText, Settings, Shield, LogOut } from "lucide-react";
+import {
+  LayoutDashboard,
+  Users,
+  Store,
+  Settings,
+  Shield,
+  LogOut,
+  BarChart3,
+  ShieldCheck,
+  Activity
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 const navItems = [
-  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/users", label: "Users & Roles", icon: Users },
-  { href: "/admin/petitions", label: "Petitions", icon: FileText },
-  { href: "/admin/settings", label: "Settings", icon: Settings },
+  { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { name: "Citizens", href: "/admin/users", icon: Users },
+  { name: "Professional Verification", href: "/admin/verification", icon: ShieldCheck },
+  { name: "Marketplace", href: "/admin/marketplace", icon: Store },
+  { name: "Analytics", href: "/admin/analytics", icon: BarChart3 },
+  { name: "System Health", href: "/admin/health", icon: Activity },
+  { name: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
 export function AdminSidebar() {
@@ -42,7 +55,7 @@ export function AdminSidebar() {
                     : "text-brand-text-muted hover:bg-brand-surface-secondary hover:text-brand-text"
                 )}>
                   <Icon className="w-5 h-5" />
-                  {item.label}
+                  {item.name}
                 </div>
              </Link>
            );

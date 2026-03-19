@@ -75,7 +75,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.variable} ${libre_baskerville.variable} ${dancing_script.variable} antialiased bg-brand-bg text-brand-text min-h-screen relative selection:bg-kenya-gold selection:text-black`}
+        className={`${inter.variable} ${libre_baskerville.variable} ${dancing_script.variable} antialiased selection:bg-kenya-gold selection:text-black`}
       >
         {children}
       </body>
