@@ -22,6 +22,7 @@ import {
   Briefcase,
   ShoppingBag,
   Globe,
+  Gavel,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -186,6 +187,13 @@ export function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
           label="KE DIGITAL"
           href="/digital"
           isActive={pathname.startsWith("/digital")}
+          onClick={onLinkClick}
+        />
+        <SidebarItem
+          icon={Gavel}
+          label="Justice System"
+          href="/justice"
+          isActive={pathname.startsWith("/justice")}
           onClick={onLinkClick}
         />
       </div>
