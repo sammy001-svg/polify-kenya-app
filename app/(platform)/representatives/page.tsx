@@ -2,17 +2,73 @@
 
 import { useState } from "react";
 import { KENYA_COUNTIES, SAMPLE_POLITICIANS, PositionType } from "@/lib/representatives";
+import { KENYA_LOCATIONS } from "@/lib/location-data";
 import { PoliticianCard } from "@/components/representatives/PoliticianCard";
-import { Users, MapPin, Filter, Search } from "lucide-react";
+import { Users, MapPin, Filter, Search, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { createClient } from "@/lib/supabase";
+import { useEffect } from "react";
 import Link from "next/link";
 
 export default function RepresentativesPage() {
   const [selectedCounty, setSelectedCounty] = useState<string>("");
+  const [selectedConstituency, setSelectedConstituency] = useState<string>("");
+  const [selectedWard, setSelectedWard] = useState<string>("");
   const [selectedPosition, setSelectedPosition] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("name");
+  const [loading, setLoading] = useState(true);
+  
   const positions: (PositionType | "all")[] = ["all", "Governor", "Senator", "Woman Rep", "MP", "MCA"];
+
+  useEffect(() => {
+    async function fetchUserLocation() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('county, constituency, ward')
+          .eq('id', user.id)
+          .single();
+        
+        if (profile) {
+          // Robust matching for county
+          const profileCounty = profile.county?.toLowerCase() || "";
+          const county = KENYA_COUNTIES.find(c => 
+            c.name.toLowerCase() === profileCounty || 
+            c.id.toLowerCase() === profileCounty ||
+            profileCounty.includes(c.name.toLowerCase()) ||
+            c.name.toLowerCase().includes(profileCounty)
+          );
+          
+          if (county) {
+            setSelectedCounty(county.id);
+            // Also match constituency and ward and default to user's if available
+            setSelectedConstituency(profile.constituency || "");
+            setSelectedWard(profile.ward || "");
+          }
+        }
+      }
+      setLoading(false);
+    }
+    
+    fetchUserLocation();
+  }, []);
+
+  // Get constituencies for the selected county
+  const currentCountyData = KENYA_LOCATIONS.find(c => 
+    c.name.toLowerCase() === selectedCounty.toLowerCase() ||
+    KENYA_COUNTIES.find(cc => cc.id === selectedCounty)?.name.toLowerCase() === c.name.toLowerCase()
+  );
+  
+  const constituencies = currentCountyData?.constituencies || [];
+  
+  // Get wards for the selected constituency
+  const wards = constituencies.find(c => 
+    c.name.toLowerCase() === selectedConstituency.toLowerCase()
+  )?.wards || [];
   
   // Filter politicians
   let filteredPoliticians = SAMPLE_POLITICIANS;
@@ -26,7 +82,19 @@ export default function RepresentativesPage() {
   }
   
   if (selectedCounty) {
-    filteredPoliticians = filteredPoliticians.filter(p => p.county === selectedCounty);
+    filteredPoliticians = filteredPoliticians.filter(p => p.county?.toLowerCase() === selectedCounty.toLowerCase());
+  }
+  
+  if (selectedConstituency) {
+    filteredPoliticians = filteredPoliticians.filter(p => 
+      p.position !== 'MP' || p.constituency?.toLowerCase() === selectedConstituency.toLowerCase()
+    );
+  }
+
+  if (selectedWard) {
+    filteredPoliticians = filteredPoliticians.filter(p => 
+      p.position !== 'MCA' || p.ward?.toLowerCase() === selectedWard.toLowerCase()
+    );
   }
   
   if (selectedPosition !== "all") {
@@ -130,7 +198,11 @@ export default function RepresentativesPage() {
         <div className="flex-1 min-w-[200px] max-w-xs">
           <select
             value={selectedCounty}
-            onChange={(e) => setSelectedCounty(e.target.value)}
+            onChange={(e) => {
+              setSelectedCounty(e.target.value);
+              setSelectedConstituency("");
+              setSelectedWard("");
+            }}
             className="w-full px-4 py-2 bg-black border border-border rounded-lg text-white focus:outline-none focus:border-kenya-gold"
           >
             <option value="">All Counties (47)</option>
@@ -139,6 +211,41 @@ export default function RepresentativesPage() {
             ))}
           </select>
         </div>
+
+        {/* Constituency Selector */}
+        {selectedCounty && (
+          <div className="flex-1 min-w-[200px] max-w-xs">
+            <select
+              value={selectedConstituency}
+              onChange={(e) => {
+                setSelectedConstituency(e.target.value);
+                setSelectedWard("");
+              }}
+              className="w-full px-4 py-2 bg-black border border-border rounded-lg text-white focus:outline-none focus:border-kenya-gold"
+            >
+              <option value="">All Constituencies</option>
+              {constituencies.map(c => (
+                <option key={c.name} value={c.name}>{c.name}</option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {/* Ward Selector */}
+        {selectedConstituency && (
+          <div className="flex-1 min-w-[200px] max-w-xs">
+            <select
+              value={selectedWard}
+              onChange={(e) => setSelectedWard(e.target.value)}
+              className="w-full px-4 py-2 bg-black border border-border rounded-lg text-white focus:outline-none focus:border-kenya-gold"
+            >
+              <option value="">All Wards</option>
+              {wards.map(w => (
+                <option key={w} value={w}>{w}</option>
+              ))}
+            </select>
+          </div>
+        )}
         
         {/* Position Filter */}
         <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
@@ -172,11 +279,13 @@ export default function RepresentativesPage() {
       </div>
       
       {/* Results Count */}
-      {selectedCounty && (
-        <div className="flex items-center justify-between">
+      {!loading && selectedCounty && (
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <p className="text-sm text-brand-text-muted">
-            Showing representatives for <span className="font-bold text-brand-text">
+            Showing results for <span className="font-bold text-brand-text">
               {KENYA_COUNTIES.find(c => c.id === selectedCounty)?.name} County
+              {selectedConstituency && ` / ${selectedConstituency}`}
+              {selectedWard && ` / ${selectedWard}`}
             </span>
           </p>
           <p className="text-sm font-bold text-brand-text">
@@ -185,8 +294,21 @@ export default function RepresentativesPage() {
         </div>
       )}
       
+      {loading && (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin text-kenya-gold" />
+          <span className="ml-3 text-brand-text-muted">Loading your leaders...</span>
+        </div>
+      )}
+      
       {/* Representatives by Position */}
-      {selectedPosition === "all" ? (
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-20 bg-brand-surface/30 rounded-3xl border border-border/50">
+          <Loader2 className="w-12 h-12 animate-spin text-kenya-gold mb-4" />
+          <p className="text-lg font-bold text-white uppercase tracking-widest">Identifying Your Leaders...</p>
+          <p className="text-sm text-brand-text-muted mt-2">Connecting to civic database...</p>
+        </div>
+      ) : selectedPosition === "all" ? (
         <div className="space-y-8">
           {(Object.entries(groupedByPosition) as [PositionType, typeof filteredPoliticians][]).map(([position, pols]) => {
             if (pols.length === 0) return null;
@@ -216,14 +338,31 @@ export default function RepresentativesPage() {
         </div>
       )}
       
-      {/* Empty State */}
+      {/* Empty State / Coming Soon */}
       {filteredPoliticians.length === 0 && (
-        <div className="text-center py-16">
-          <Users className="w-16 h-16 text-brand-text-muted mx-auto mb-4 opacity-50" />
-          <p className="text-brand-text-muted mb-2">No representatives found</p>
-          <p className="text-sm text-brand-text-muted">
-            Try selecting a different county or position filter
+        <div className="text-center py-20 bg-brand-surface/30 rounded-3xl border border-dashed border-border">
+          <MapPin className="w-16 h-16 text-kenya-gold/30 mx-auto mb-6" />
+          <h3 className="text-2xl font-black text-white mb-2 uppercase tracking-tight">
+            Data Coming Soon
+          </h3>
+          <p className="text-brand-text-muted max-w-md mx-auto mb-8 font-medium">
+            We are currently verifying representative data for 
+            <span className="text-kenya-gold ml-1">
+              {selectedWard || selectedConstituency || (selectedCounty ? `${KENYA_COUNTIES.find(c => c.id === selectedCounty)?.name} County` : "this location")}
+            </span>.
+            Check back soon for verified performance records and campaign manifestos.
           </p>
+          <Button 
+            variant="secondary" 
+            onClick={() => {
+              setSelectedCounty("");
+              setSelectedConstituency("");
+              setSelectedWard("");
+            }}
+            className="font-bold"
+          >
+            Clear All Filters
+          </Button>
         </div>
       )}
       

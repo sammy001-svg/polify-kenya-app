@@ -15,6 +15,12 @@ export const metadata: Metadata = {
 };
 
 
+interface UserLocation {
+  county?: string;
+  constituency?: string;
+  ward?: string;
+}
+
 interface UserProfile {
   fullName: string;
   role: string;
@@ -22,7 +28,7 @@ interface UserProfile {
   civicId?: string;
   username?: string;
   avatarUrl?: string;
-  ward?: string;
+  location?: UserLocation;
 }
 
 async function getUser(): Promise<UserProfile> {
@@ -49,7 +55,11 @@ async function getUser(): Promise<UserProfile> {
         civicId: data?.civic_id || "KE-PENDING",
         username: data?.username || "citizen",
         avatarUrl: data?.avatar_url || undefined,
-        ward: data?.ward || undefined
+        location: {
+          county: data?.county,
+          constituency: data?.constituency,
+          ward: data?.ward
+        }
     };
 }
 
@@ -83,7 +93,7 @@ export default async function ProfilePage() {
             <ProfileStats />
         </div>
         <div className="lg:col-span-3">
-             <MyRepresentatives />
+             <MyRepresentatives location={user.location} />
         </div>
       </div>
 

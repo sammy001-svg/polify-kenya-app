@@ -8,11 +8,13 @@ import { ArrowLeft, Users, Trophy, BookOpen, Scale, FileText } from "lucide-reac
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { use } from "react";
+import { use, useState } from "react";
+import { JoinPartyDialog } from "@/components/parties/JoinPartyDialog";
 
 export default function PartyDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const party = PARTIES_DATA.find((p) => p.id === id);
+  const [isJoinDialogOpen, setIsJoinDialogOpen] = useState(false);
 
   if (!party) {
     notFound();
@@ -189,12 +191,21 @@ export default function PartyDetailsPage({ params }: { params: Promise<{ id: str
                 <p className="text-xs text-brand-text-muted">
                     Support the party agenda and participate in grassroots elections.
                 </p>
-                <Button className="w-full bg-kenya-red hover:bg-kenya-red/90 text-white font-bold">
+                <Button 
+                    className="w-full bg-kenya-red hover:bg-kenya-red/90 text-white font-bold"
+                    onClick={() => setIsJoinDialogOpen(true)}
+                >
                     Become a Member
                 </Button>
             </div>
         </div>
       </div>
+
+      <JoinPartyDialog 
+        party={party} 
+        open={isJoinDialogOpen} 
+        onOpenChange={setIsJoinDialogOpen} 
+      />
     </div>
   );
 }
