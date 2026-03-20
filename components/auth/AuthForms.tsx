@@ -27,6 +27,7 @@ import { generateCivicId, checkUsernameAvailability } from "@/lib/generate-civic
 import { validateUsername } from "@/lib/validators";
 import { lookupEmailByIdentifier } from "@/lib/auth-actions";
 import { KENYA_LOCATIONS } from "@/lib/location-data";
+import { ContactSupportModal } from "./ContactSupportModal";
 
 export function SigninForm() {
   const router = useRouter();
@@ -144,7 +145,7 @@ export function SigninForm() {
           </Button>
         </form>
       </CardContent>
-      <CardFooter className="flex justify-center">
+      <CardFooter className="flex flex-col space-y-4 items-center">
         <p className="text-sm text-brand-muted">
           Don&apos;t have an account?{" "}
           <Link
@@ -154,6 +155,13 @@ export function SigninForm() {
             Sign up
           </Link>
         </p>
+        <ContactSupportModal 
+          trigger={
+            <button type="button" className="text-sm text-brand-muted hover:text-brand-primary transition-colors">
+              Contact Support
+            </button>
+          } 
+        />
       </CardFooter>
     </Card>
   );

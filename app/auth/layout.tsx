@@ -1,6 +1,9 @@
+"use client";
+
 import Image from "next/image";
 import { AuthCarousel } from "@/components/auth/AuthCarousel";
 import { EnvStatus } from "@/components/auth/EnvStatus";
+import { ContactSupportModal } from "@/components/auth/ContactSupportModal";
 
 export default function AuthLayout({
   children,
@@ -37,7 +40,14 @@ export default function AuthLayout({
 
         {/* Support links/Footer for Right side */}
         <div className="mt-12 text-center text-sm text-brand-muted">
-          Need help? <a href="#" className="text-brand-primary hover:underline">Contact Support</a>
+          Need help?{" "}
+          <ContactSupportModal 
+            trigger={
+              <button type="button" className="text-brand-primary hover:underline">
+                Contact Support
+              </button>
+            } 
+          />
         </div>
       </div>
     </div>
