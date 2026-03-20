@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   Home,
@@ -291,9 +292,14 @@ export function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
         </a>
 
         <div className="p-4 rounded-2xl bg-white/10 border border-white/10 relative overflow-hidden group">
-          <p className="relative z-10 text-[10px] font-black text-white tracking-widest uppercase mb-1">
-            PoliFy Kenya
-          </p>
+          <div className="relative h-12 w-40 mb-2">
+            <Image
+              src="/images/polify-logo-v3.png"
+              alt="PoliFy Kenya"
+              fill
+              className="object-contain brightness-0 invert opacity-80"
+            />
+          </div>
           <p className="relative z-10 text-[9px] text-white/70 font-bold leading-relaxed">
             Building transparency & accountability through technology.
           </p>
@@ -311,7 +317,7 @@ export function Sidebar({ forceShow }: SidebarProps) {
   return (
     <aside
       className={cn(
-        "w-72 fixed left-0 top-16 bottom-0 bg-[#B34700] border-r border-black/10 flex flex-col z-40 transition-all duration-500",
+        "w-72 fixed left-0 top-16 bottom-0 bg-[#005f4f] border-r border-black/10 flex flex-col z-40 transition-all duration-500",
         !forceShow && "hidden md:flex transform translate-x-0",
       )}
     >

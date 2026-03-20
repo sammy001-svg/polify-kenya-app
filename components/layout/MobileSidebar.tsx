@@ -47,22 +47,20 @@ export function MobileSidebar() {
           PoliFy Kenya Main Navigation
         </DialogDescription>
 
-        <div className="h-full bg-[#0B3D0B] border-r border-white/10 flex flex-col relative overflow-hidden">
+        <div className="h-full bg-[#005f4f] border-r border-white/10 flex flex-col relative overflow-hidden">
 
 
           {/* Mobile Sidebar Brand Header */}
           <div className="p-6 border-b border-white/5 flex items-center gap-3">
-            <div className="w-8 h-8 md:w-10 md:h-10 overflow-hidden rounded-full shadow-lg border border-white/10 bg-white relative">
-              <Image
-                src="/polify-logo.jpg"
-                alt="PoliFy Logo"
-                fill
-                className="object-cover scale-110"
-              />
+             <div className="relative h-12 w-40">
+                <Image
+                    src="/images/polify-logo-v3.png"
+                    alt="PoliFy Kenya"
+                    fill
+                    className="object-contain object-left"
+                    priority
+                />
             </div>
-            <span className="font-black text-xl tracking-tighter bg-linear-to-r from-[#922529] via-white to-[#008C51] bg-clip-text text-transparent">
-              PoliFy
-            </span>
           </div>
 
           <ScrollArea className="flex-1">

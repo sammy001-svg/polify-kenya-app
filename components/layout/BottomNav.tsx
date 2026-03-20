@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Tv, Landmark, Search, User } from "lucide-react";
+import { Home, Landmark, Search, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CommandCenter } from "@/components/search/CommandCenter";
 import { motion } from "framer-motion";
@@ -13,7 +13,6 @@ export function BottomNav() {
 
   const navItems = [
     { icon: Home, label: "Home", href: "/" },
-    { icon: Tv, label: "Shorts", href: "/shorts" },
     { icon: Search, label: "Search", isSearch: true },
     { icon: Landmark, label: "Parliament", href: "/parliament" },
     { icon: User, label: "Profile", href: "/profile" },

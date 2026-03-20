@@ -45,12 +45,21 @@ export const metadata: Metadata = {
     title: "PoliFy Kenya | AI-Powered Civic Intelligence",
     description:
       "The future of civic engagement in Kenya. Track leaders, visualize budgets, and make your voice count with AI.",
+    images: [
+      {
+        url: "/images/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "PoliFy Kenya - AI-Powered Civic Intelligence",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "PoliFy Kenya | AI-Powered Civic Intelligence",
     description:
       "The future of civic engagement in Kenya. Track leaders, visualize budgets, and make your voice count with AI.",
+    images: ["/images/og-image.png"],
     creator: "@polify_kenya",
   },
   icons: {

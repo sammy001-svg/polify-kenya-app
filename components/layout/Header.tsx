@@ -4,7 +4,6 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { UserMenu } from "@/components/layout/UserMenu";
 import { createClient } from "@/lib/supabase";
@@ -47,21 +46,22 @@ export function Header() {
       <div className="flex items-center gap-3 md:gap-4 shrink-0">
         <MobileSidebar />
         <Link href="/" className="flex items-center gap-2 group relative press-effect">
-          <div className="w-9 h-9 md:w-10 md:h-10 overflow-hidden rounded-full shadow-lg border border-white/10 group-hover:scale-110 group-hover:glow-gold transition-all duration-500 bg-white relative">
+          <div className="w-9 h-9 md:w-10 md:h-10 overflow-hidden rounded-full shadow-lg border border-white/10 group-hover:scale-110 transition-all duration-500 bg-white relative shrink-0">
             <Image
               src="/polify-logo.jpg"
-              alt="PoliFy Logo"
+              alt="PoliFy"
               fill
               className="object-cover scale-110"
             />
           </div>
-          <div className="flex flex-col -space-y-1">
-            <span className="font-black text-xl md:text-2xl tracking-tighter bg-linear-to-r from-kenya-red via-white to-kenya-green bg-clip-text text-transparent ml-1 drop-shadow-sm">
-              PoliFy
-            </span>
-            <span className="text-[10px] uppercase font-black tracking-widest text-brand-text-muted ml-1">
-              Kenya
-            </span>
+          <div className="relative h-11 w-40 md:w-44 transition-all duration-500 group-hover:translate-x-1">
+            <Image
+              src="/images/polify-logo-v3.png"
+              alt="PoliFy Kenya"
+              fill
+              className="object-contain object-left"
+              priority
+            />
           </div>
         </Link>
       </div>
@@ -73,18 +73,6 @@ export function Header() {
 
       {/* Right: Actions - Collapsed on tiny mobile */}
       <div className="flex items-center gap-2 md:gap-3 shrink-0">
-        <Link href="/shorts" className="hide-on-mobile relative group press-effect">
-          <div className="absolute top-1 right-1 w-2 h-2 bg-kenya-red rounded-full animate-pulse z-10" />
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-brand-text-muted group-hover:text-white transition-colors"
-            title="Bunge Bites (Shorts)"
-          >
-            <Video className="w-5 h-5 md:w-6 md:h-6" />
-          </Button>
-        </Link>
-
         {user ? (
           <div className="flex items-center gap-2 md:gap-3">
             <NotificationsPopover />

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { AuthCarousel } from "@/components/auth/AuthCarousel";
 import { EnvStatus } from "@/components/auth/EnvStatus";
 
@@ -18,10 +19,16 @@ export default function AuthLayout({
       {/* Right Side: Auth Forms */}
       <div className="flex-1 flex flex-col items-center justify-center p-6 md:p-12 lg:p-16 bg-brand-bg relative overflow-y-auto">
         {/* Top Logo/Back Mobile branding (Visible only on mobile/tablet) */}
-        <div className="lg:hidden mb-8 text-center">
-            <h1 className="text-3xl font-bold bg-linear-to-r from-brand-primary to-brand-accent bg-clip-text text-transparent italic">
-                PoliFy
-            </h1>
+        <div className="lg:hidden mb-16 text-center">
+            <div className="relative h-20 w-64 mx-auto">
+                <Image
+                    src="/images/polify-logo-v3.png"
+                    alt="PoliFy Kenya"
+                    fill
+                    className="object-contain"
+                    priority
+                />
+            </div>
         </div>
 
         <div className="w-full max-w-xl mx-auto space-y-8 animate-in fade-in zoom-in-95 duration-500">

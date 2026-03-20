@@ -6,8 +6,7 @@ import { createClient } from "@/lib/supabase";
 import { CIVIC_CREATORS } from "@/lib/creators";
 import { FollowButton } from "@/components/ui/FollowButton";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, MapPin, Globe, BadgeCheck, Video, Users, Eye, Play, Clock } from "lucide-react";
+import { ArrowLeft, MapPin, Globe, BadgeCheck, Users, Eye } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
@@ -22,20 +21,6 @@ interface CreatorProfile {
   location: string;
 }
 
-interface ShortVideo {
-  id: string;
-  title: string;
-  description: string;
-  video_url: string;
-  verification_status: string;
-  likes_count: number;
-  comments_count: number;
-  created_at: string;
-  // Simulated fields for now until schema supports them fully
-  duration?: string;
-  views?: string;
-}
-
 export default function CreatorProfilePage({
   params,
 }: {
@@ -44,9 +29,7 @@ export default function CreatorProfilePage({
   const { creatorId } = use(params);
   const supabase = createClient();
   const [creator, setCreator] = useState<CreatorProfile | null>(null);
-  const [content, setContent] = useState<ShortVideo[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'all' | 'Verified' | 'Pending' | 'Fact-Checked'>('all');
   const [followersCount, setFollowersCount] = useState(0);
 
   useEffect(() => {
@@ -80,38 +63,8 @@ export default function CreatorProfilePage({
           });
         }
 
-        // 2. Fetch Creator Content (Shorts)
-        const { data: shorts } = await supabase
-          .from('shorts')
-          .select('*')
-          .eq('creator_id', creatorId)
-          .order('created_at', { ascending: false });
-
-        // Enrich shorts with mock data if none found
-        if (shorts && shorts.length > 0) {
-           const enrichedShorts = shorts.map(short => ({
-              ...short,
-              duration: "1:00",
-              views: (Math.floor(Math.random() * 5000) + 500).toString()
-           }));
-           setContent(enrichedShorts);
-        } else if (mockCreator) {
-           // Provide mock content
-           setContent([
-             {
-               id: `${mockCreator.id}-1`,
-               title: mockCreator.signature,
-               description: mockCreator.bio,
-               video_url: "#",
-               verification_status: 'Verified',
-               likes_count: 120,
-               comments_count: 45,
-               created_at: new Date().toISOString(),
-               duration: "0:45",
-               views: mockCreator.totalViews
-             }
-           ]);
-        }
+        // 2. Fetch Creator Content (Placeholder for future non-shorts content)
+        // setContent([]); (Removed since we're removing the list)
 
         // 3. Fetch Follower Count
         const { count } = await supabase
@@ -149,17 +102,6 @@ export default function CreatorProfilePage({
       </div>
     );
   }
-  
-  const filteredContent = activeTab === 'all' 
-    ? content 
-    : content.filter(c => c.verification_status === activeTab);
-  
-  const contentCounts = {
-    all: content.length,
-    verified: content.filter(c => c.verification_status === 'Verified').length,
-    pending: content.filter(c => c.verification_status === 'Pending').length,
-    factChecked: content.filter(c => c.verification_status === 'Fact-Checked').length,
-  };
   
   return (
     <div className="space-y-6">
@@ -242,15 +184,7 @@ export default function CreatorProfilePage({
             </div>
             
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-6 pt-4 border-t border-border max-w-2xl">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <Video className="w-5 h-5 text-brand-text-muted" />
-                  <span className="text-xs text-brand-text-muted uppercase tracking-wider">Shorts</span>
-                </div>
-                <p className="text-2xl font-bold text-brand-text">{content.length}</p>
-              </div>
-              
+            <div className="grid grid-cols-2 gap-6 pt-4 border-t border-border max-w-md">
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <Users className="w-5 h-5 text-brand-text-muted" />
@@ -264,7 +198,7 @@ export default function CreatorProfilePage({
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <Eye className="w-5 h-5 text-brand-text-muted" />
-                  <span className="text-xs text-brand-text-muted uppercase tracking-wider">Total Views</span>
+                  <span className="text-xs text-brand-text-muted uppercase tracking-wider">Engagement</span>
                 </div>
                 <p className="text-2xl font-bold text-brand-text">--</p>
               </div>
@@ -273,107 +207,14 @@ export default function CreatorProfilePage({
         </div>
       </div>
       
-      {/* Content Tabs */}
-      <div className="border-b border-border">
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
-          <Button
-            onClick={() => setActiveTab('all')}
-            variant={activeTab === 'all' ? "primary" : "secondary"}
-            size="sm"
-          >
-            All Content ({contentCounts.all})
-          </Button>
-          <Button
-            onClick={() => setActiveTab('Verified')}
-            variant={activeTab === 'Verified' ? "primary" : "secondary"}
-            size="sm"
-            className="gap-2"
-          >
-            <div className="w-2 h-2 rounded-full bg-green-500" />
-            Verified ({contentCounts.verified})
-          </Button>
-          <Button
-            onClick={() => setActiveTab('Pending')}
-            variant={activeTab === 'Pending' ? "primary" : "secondary"}
-            size="sm"
-            className="gap-2"
-          >
-            <div className="w-2 h-2 rounded-full bg-yellow-500" />
-            Pending ({contentCounts.pending})
-          </Button>
-          <Button
-            onClick={() => setActiveTab('Fact-Checked')}
-            variant={activeTab === 'Fact-Checked' ? "primary" : "secondary"}
-            size="sm"
-            className="gap-2"
-          >
-             <div className="w-2 h-2 rounded-full bg-blue-500" />
-            Fact-Checked ({contentCounts.factChecked})
-          </Button>
-        </div>
-      </div>
-      
-      {/* Content Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredContent.map((item) => (
-          <div 
-            key={item.id}
-            className="bg-brand-surface-secondary border border-border rounded-xl overflow-hidden hover:border-kenya-gold/50 transition-all group cursor-pointer"
-          >
-            {/* Thumbnail */}
-            <div className="relative aspect-video bg-brand-surface-highlight">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <Play className="w-6 h-6 text-white fill-white ml-1" />
-                </div>
-              </div>
-              
-              <div className="absolute top-3 left-3">
-                 <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${
-                    item.verification_status === 'Verified' ? 'bg-green-500/20 text-green-500' : 
-                    item.verification_status === 'Fact-Checked' ? 'bg-blue-500/20 text-blue-500' : 
-                    'bg-yellow-500/20 text-yellow-500'
-                 }`}>
-                    {item.verification_status}
-                 </span>
-              </div>
-              
-              <div className="absolute bottom-3 right-3 px-2 py-1 bg-black/80 rounded text-xs font-medium text-white flex items-center gap-1">
-                <Clock className="w-3 h-3" />
-                {item.duration}
-              </div>
-            </div>
-            
-            {/* Content Info */}
-            <div className="p-4 space-y-2">
-              <h3 className="font-bold text-brand-text leading-tight line-clamp-2 group-hover:text-white transition-colors">
-                {item.title}
-              </h3>
-              <p className="text-sm text-brand-text-muted line-clamp-2 leading-relaxed">
-                {item.description}
-              </p>
-              <div className="flex items-center gap-3 text-sm text-brand-text-muted pt-2 border-t border-border">
-                <div className="flex items-center gap-1">
-                  <Eye className="w-3.5 h-3.5" />
-                  {item.views}
-                </div>
-                <span>•</span>
-                <span>{new Date(item.created_at).toLocaleDateString()}</span>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-      
       {/* Empty State */}
-      {filteredContent.length === 0 && (
-        <div className="text-center py-16">
-          <Video className="w-16 h-16 text-brand-text-muted mx-auto mb-4 opacity-50" />
-          <p className="text-brand-text-muted">
-            No {activeTab === 'all' ? 'content' : activeTab} content from this creator yet.
-          </p>
-        </div>
-      )}
+      <div className="text-center py-16 bg-brand-surface-secondary/50 rounded-2xl border border-dashed border-border">
+        <Users className="w-16 h-16 text-brand-text-muted mx-auto mb-4 opacity-30" />
+        <h3 className="text-xl font-bold text-brand-text mb-2">Civic Contributions</h3>
+        <p className="text-brand-text-muted max-w-sm mx-auto">
+          This creator&apos;s civic contributions and verified reports will appear here soon.
+        </p>
+      </div>
     </div>
   );
 }
