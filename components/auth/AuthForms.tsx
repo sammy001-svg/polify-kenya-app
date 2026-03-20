@@ -62,7 +62,7 @@ export function SigninForm() {
       });
 
       if (error) throw error;
-      router.push("/");
+      router.push("/feed");
       router.refresh();
     } catch (err: unknown) {
       if (err instanceof Error) {

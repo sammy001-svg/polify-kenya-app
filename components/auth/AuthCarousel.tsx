@@ -6,16 +6,22 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const images = [
   {
-    src: "/auth-bg.jpg",
-    alt: "PoliFy Branding",
+    src: "/images/auth/carousel-1.jpg",
+    alt: "Empowering Your Vote",
+    title: "Empowering Your Vote",
+    description: "Track your political impact and contribute to a more transparent Kenya. Your participation is the foundation of our democracy."
   },
   {
-    src: "/auth-bg-v2.png",
-    alt: "Political Analytics",
+    src: "/images/auth/carousel-2.jpg",
+    alt: "Data-Driven Accountability",
+    title: "Data-Driven Accountability",
+    description: "Stay informed with real-time insights into government spending and legislative progress. Knowledge is power."
   },
   {
-    src: "/nairobi-night-bg.jpg",
-    alt: "Nairobi Skyline",
+    src: "/images/auth/carousel-3.jpg",
+    alt: "Community-Led Change",
+    title: "Community-Led Change",
+    description: "Connect with other citizens to report issues and advocate for better service delivery in your constituency."
   },
 ];
 
@@ -25,7 +31,7 @@ export function AuthCarousel() {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
-    }, 5000); // Change image every 5 seconds
+    }, 6000); // Image every 6 seconds for better reading time
 
     return () => clearInterval(timer);
   }, []);
@@ -38,28 +44,76 @@ export function AuthCarousel() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 1.5, ease: "easeInOut" }}
+          transition={{ duration: 1.2, ease: "easeInOut" }}
           className="absolute inset-0"
         >
-          <Image
-            src={images[currentIndex].src}
-            alt={images[currentIndex].alt}
-            fill
-            className="object-contain"
-            priority
-            quality={100}
-            sizes="60vw"
-          />
+          {/* Background Image with Ken Burns Effect */}
+          <motion.div 
+            initial={{ scale: 1.1 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 6, ease: "linear" }}
+            className="absolute inset-0"
+          >
+            <Image
+              src={images[currentIndex].src}
+              alt={images[currentIndex].alt}
+              fill
+              className="object-cover opacity-60"
+              priority
+              quality={100}
+              sizes="60vw"
+            />
+          </motion.div>
+
+          {/* Overlay Gradient for Text Readability */}
+          <div className="absolute inset-0 bg-linear-to-t from-black via-black/40 to-transparent z-10" />
+
+          {/* Marketing Content */}
+          <div className="absolute inset-0 z-20 flex flex-col justify-end p-12 lg:p-20 pb-24">
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.5, duration: 0.8 }}
+              className="max-w-xl space-y-6"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-1 bg-kenya-red rounded-full" />
+                <span className="text-kenya-gold font-black uppercase tracking-[0.3em] text-sm">
+                  PoliFy Kenya Insights
+                </span>
+              </div>
+              
+              <h2 className="text-4xl lg:text-5xl font-black text-white leading-[1.1] tracking-tight">
+                {images[currentIndex].title}
+              </h2>
+              
+              <p className="text-lg text-white/80 leading-relaxed font-medium">
+                {images[currentIndex].description}
+              </p>
+
+              <div className="pt-4 flex gap-4">
+                 <div className="px-4 py-2 bg-white/10 backdrop-blur-md rounded-lg border border-white/10 text-xs font-bold text-white uppercase tracking-widest">
+                    Citizen Powered
+                 </div>
+                 <div className="px-4 py-2 bg-kenya-green/20 backdrop-blur-md rounded-lg border border-kenya-green/30 text-xs font-bold text-kenya-green uppercase tracking-widest">
+                    AI Verified
+                 </div>
+              </div>
+            </motion.div>
+          </div>
         </motion.div>
       </AnimatePresence>
 
-      {/* Optional: Carousel Indicators */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+      {/* Carousel Indicators */}
+      <div className="absolute bottom-12 left-12 lg:left-20 flex gap-3 z-30">
         {images.map((_, index) => (
-          <div
+          <button
             key={index}
-            className={`w-2 h-2 rounded-full transition-all duration-300 ${
-              index === currentIndex ? "bg-brand-primary w-6" : "bg-white/30"
+            onClick={() => setCurrentIndex(index)}
+            className={`h-1.5 transition-all duration-500 rounded-full ${
+              index === currentIndex 
+                ? "bg-kenya-gold w-12" 
+                : "bg-white/20 w-4 hover:bg-white/40"
             }`}
           />
         ))}

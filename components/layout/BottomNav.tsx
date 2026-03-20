@@ -12,7 +12,7 @@ export function BottomNav() {
   const pathname = usePathname();
 
   const navItems = [
-    { icon: Home, label: "Home", href: "/" },
+    { icon: Home, label: "Home", href: "/feed" },
     { icon: Search, label: "Search", isSearch: true },
     { icon: Landmark, label: "Parliament", href: "/parliament" },
     { icon: User, label: "Profile", href: "/profile" },

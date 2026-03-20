@@ -75,7 +75,7 @@ export function CommandCenter({ isMobileTrigger }: CommandCenterProps) {
           <CommandEmpty>No results found.</CommandEmpty>
 
           <CommandGroup heading="Navigation">
-            <CommandItem onSelect={() => runCommand(() => router.push("/"))}>
+            <CommandItem onSelect={() => runCommand(() => router.push("/feed"))}>
               <Home className="mr-2 h-4 w-4" />
               <span>Home</span>
             </CommandItem>

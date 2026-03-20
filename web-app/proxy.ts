@@ -47,6 +47,7 @@ export async function proxy(request: NextRequest) {
 
   // Define public paths that don't require authentication
   const isPublicPath = 
+    path === '/' ||
     path.startsWith('/auth') || 
     path === '/auth' ||
     path.startsWith('/api') || // Allow APIs (handle auth inside if needed)
@@ -64,7 +65,7 @@ export async function proxy(request: NextRequest) {
   // If user is logged in and tries to access /auth, redirect to dashboard
   if (user && (path === '/auth' || path.startsWith('/auth/signin'))) {
     const url = request.nextUrl.clone()
-    url.pathname = '/'
+    url.pathname = '/feed'
     return NextResponse.redirect(url)
   }
 

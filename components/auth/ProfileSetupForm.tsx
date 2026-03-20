@@ -139,7 +139,7 @@ export function ProfileSetupForm() {
       }
 
       // Redirect to home page
-      router.push("/");
+      router.push("/feed");
       router.refresh();
     } catch (err: unknown) {
       const error = err as { message?: string };
@@ -162,12 +162,12 @@ export function ProfileSetupForm() {
           .eq("id", user.id);
       }
 
-      router.push("/");
+      router.push("/feed");
       router.refresh();
     } catch (err) {
       console.error("Error skipping profile setup:", err);
       // Redirect anyway
-      router.push("/");
+      router.push("/feed");
       router.refresh();
     }
   };

@@ -45,7 +45,7 @@ export function Header() {
       {/* Left: Menu & Brand */}
       <div className="flex items-center gap-3 md:gap-4 shrink-0">
         <MobileSidebar />
-        <Link href="/" className="flex items-center gap-2 group relative press-effect">
+        <Link href="/feed" className="flex items-center gap-2 group relative press-effect">
           <div className="w-9 h-9 md:w-10 md:h-10 overflow-hidden rounded-full shadow-lg border border-white/10 group-hover:scale-110 transition-all duration-500 bg-white relative shrink-0">
             <Image
               src="/polify-logo.jpg"

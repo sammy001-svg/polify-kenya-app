@@ -93,8 +93,8 @@ export function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
         <SidebarItem
           icon={Home}
           label="Civic Feed (Baraza)"
-          href="/"
-          isActive={pathname === "/"}
+          href="/feed"
+          isActive={pathname === "/feed"}
           onClick={onLinkClick}
         />
         <SidebarItem
