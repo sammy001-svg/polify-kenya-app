@@ -3,6 +3,7 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { XPNotification } from "@/components/gamification/XPNotification";
 import { PolifyAI } from "@/components/trust/PolifyAI";
+import { SystemTour } from "@/components/layout/SystemTour";
 import type { Metadata } from "next";
 import { baseMetadata } from "@/lib/metadata";
 
@@ -31,6 +32,7 @@ export default function PlatformLayout({
       <BottomNav />
       <XPNotification />
       <PolifyAI />
+      <SystemTour />
     </div>
   );
 }

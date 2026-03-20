@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { ShieldCheck, ExternalLink } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
+import { ShieldCheck, ExternalLink, X } from "lucide-react";
 
 interface VoterVerificationPopupProps {
   children: React.ReactNode;
@@ -21,8 +21,13 @@ export function VoterVerificationPopup({ children }: VoterVerificationPopupProps
         {children}
       </DialogTrigger>
       
-      <DialogContent className="max-w-5xl w-full h-[85vh] bg-brand-surface border-white/10 text-brand-text flex flex-col p-4 sm:p-6 rounded-2xl">
-        <DialogHeader className="shrink-0 mb-4">
+      <DialogContent className="max-w-5xl w-full h-[85vh] bg-brand-surface border-white/10 text-brand-text flex flex-col p-4 sm:p-6 rounded-2xl shadow-2xl transition-all duration-300">
+        <DialogHeader className="shrink-0 mb-4 relative pr-10">
+          {/* Custom Clear Close Button for User Clarity */}
+          <DialogClose className="absolute -top-2 -right-2 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors border border-white/10">
+            <X className="w-5 h-5" />
+          </DialogClose>
+
           <DialogTitle className="flex items-center gap-2 text-xl md:text-3xl font-black italic tracking-tighter text-white">
             <ShieldCheck className="w-6 h-6 text-kenya-green" />
             IEBC OFFICIAL <span className="text-brand-primary">VERIFICATION PORTAL</span>
