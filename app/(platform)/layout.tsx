@@ -3,9 +3,11 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { XPNotification } from "@/components/gamification/XPNotification";
 import { PolifyAI } from "@/components/trust/PolifyAI";
-import { Metadata } from "next";
+import type { Metadata } from "next";
+import { baseMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = {
+  ...baseMetadata,
   title: "Platform | Polify Kenya",
   description: "Engage, participate, and track your political impact.",
 };

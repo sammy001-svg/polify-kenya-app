@@ -3,7 +3,10 @@ import { redirect } from "next/navigation";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { cookies } from "next/headers";
 
+import { baseMetadata } from "@/lib/metadata";
+
 export const metadata = {
+  ...baseMetadata,
   title: "Admin Panel | Political Intelligence",
 };
 
