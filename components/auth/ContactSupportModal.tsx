@@ -62,6 +62,7 @@ export function ContactSupportModal({ trigger }: { trigger: React.ReactNode }) {
       <DialogContent className="sm:max-w-[425px] bg-brand-bg border-brand-accent/20 backdrop-blur-xl text-white">
         {submitted ? (
           <div className="flex flex-col items-center justify-center space-y-6 py-10 text-center animate-in fade-in zoom-in-95 duration-500">
+            <DialogTitle className="sr-only">Support Request Submitted</DialogTitle>
             <div className="rounded-full bg-green-500/20 p-4">
               <CheckCircle2 className="h-12 w-12 text-green-500" />
             </div>

@@ -61,6 +61,7 @@ export function JoinGroupDialog({ group, open, onOpenChange }: JoinGroupDialogPr
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-brand-surface border-white/10 max-w-md md:max-w-xl max-h-[90vh] overflow-hidden flex flex-col p-0">
+        <DialogTitle className="sr-only">Join {group.name}</DialogTitle>
         
         {step !== 'success' && (
             <DialogHeader className="p-6 pb-2">

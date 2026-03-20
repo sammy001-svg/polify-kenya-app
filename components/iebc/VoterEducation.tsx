@@ -271,6 +271,9 @@ export function VoterEducation() {
       {/* Pop-up Modals for Voter Education Cards */}
       <Dialog open={!!selectedResource} onOpenChange={(open) => !open && setSelectedResource(null)}>
         <DialogContent className="sm:max-w-xl bg-brand-surface border-white/10 text-brand-text">
+          <DialogTitle className="sr-only">
+            {selectedResource?.title || "Educational Resource Details"}
+          </DialogTitle>
           {selectedResource && (() => {
             const Icon = iconMap[selectedResource.icon] || ClipboardCheck;
             return (

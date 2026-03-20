@@ -2,16 +2,11 @@
 
 import { useState } from "react";
 import { AlertCircle } from "lucide-react";
+import { MOCK_NEWS } from "@/data/tallying-news";
 
-const INITIAL_UPDATES = [
-    "POLLS CLOSED AT 5:00 PM • COUNTING UNDERWAY IN ALL 47 COUNTIES",
-    "IEBC CHAIRMAN URGES CALM AS RESULTS TRICKLE IN",
-    "TURNOUT ESTIMATED AT 65% NATIONWIDE",
-    "Follow verified results only on this portal"
-];
 
 export function LiveTicker() {
-    const [updates] = useState(INITIAL_UPDATES);
+    const [updates] = useState(MOCK_NEWS.map(n => n.title));
 
     return (
         <div className="bg-kenya-red text-white py-2 overflow-hidden flex items-center relative z-20 border-y border-white/10">
