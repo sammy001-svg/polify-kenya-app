@@ -121,7 +121,7 @@ export default function NationalProjectsPage() {
         </div>
 
         {/* Main Content Tabs */}
-        <Tabs defaultValue="promises" onValueChange={setActiveTab} className="space-y-12">
+        <Tabs defaultValue="promises" className="space-y-12">
           <TabsList className="bg-white/5 p-2 rounded-4xl border border-white/10 h-auto gap-2">
             <TabsTrigger value="promises" className="rounded-2xl px-8 py-4 data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:shadow-xl text-[10px] font-black uppercase tracking-widest gap-2">
               <Zap className="w-4 h-4 text-kenya-gold" /> Presidential Promises
