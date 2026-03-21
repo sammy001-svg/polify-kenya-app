@@ -19,6 +19,9 @@ import { Loader2, Plus, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { createCampaign } from "@/app/(platform)/crowdfunding/actions";
 import { useToast } from "@/components/ui/use-toast";
+import { motion, AnimatePresence } from "framer-motion";
+
+
 
 export function CreateCrowdfundingDialog() {
   const { toast } = useToast();
@@ -31,6 +34,7 @@ export function CreateCrowdfundingDialog() {
   const [impact, setImpact] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [showSparkles, setShowSparkles] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const supabase = createClient();
   const router = useRouter();
@@ -136,11 +140,14 @@ export function CreateCrowdfundingDialog() {
 
       if (res.error) throw new Error(res.error);
 
+      setShowSparkles(true);
+      setTimeout(() => setShowSparkles(false), 5000);
+
       setOpen(false);
       resetForm();
       toast({
-        title: "Success",
-        description: "Campaign created successfully!",
+        title: "Thanks for creating this campaign, polify kenya",
+        description: "Your initiative is now live and ready for support!",
       });
       router.refresh();
     } catch (error) {
@@ -162,10 +169,15 @@ export function CreateCrowdfundingDialog() {
     setCategory("Community");
     setImpact("");
     removeImage();
+    setShowSparkles(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={(val) => {
+    <>
+      <AnimatePresence>
+        {showSparkles && <Confetti />}
+      </AnimatePresence>
+      <Dialog open={open} onOpenChange={(val) => {
       setOpen(val);
       if (!val) resetForm(); // Optional: reset on close too if desired
     }}>
@@ -349,5 +361,51 @@ export function CreateCrowdfundingDialog() {
         </form>
       </DialogContent>
     </Dialog>
+    </>
   );
 }
+
+const Confetti = () => {
+  const [particles] = useState(() => {
+    const colors = ["bg-kenya-gold", "bg-kenya-red", "bg-kenya-green", "bg-brand-primary", "bg-blue-400"];
+    return [...Array(60)].map((_, i) => ({
+      id: i,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      size: Math.random() * 8 + 4,
+      left: `${Math.random() * 100}%`,
+      duration: Math.random() * 3 + 2,
+      delay: Math.random() * 0.8,
+      rotate: Math.random() * 720 - 360,
+    }));
+  });
+
+  return (
+    <div className="fixed inset-0 pointer-events-none z-1000 overflow-hidden">
+      {particles.map((p) => (
+        <motion.div
+          key={p.id}
+          initial={{ 
+            top: -20, 
+            left: p.left,
+            scale: 0,
+            rotate: 0,
+            opacity: 1
+          }}
+          animate={{ 
+            top: "110%",
+            scale: [0, 1, 1, 0.5],
+            rotate: p.rotate,
+            opacity: [1, 1, 0.8, 0]
+          }}
+          transition={{ 
+            duration: p.duration,
+            ease: [0.23, 1, 0.32, 1],
+            delay: p.delay
+          }}
+          style={{ width: p.size, height: p.size }}
+          className={cn("absolute rounded-sm", p.color)}
+        />
+      ))}
+    </div>
+  );
+};

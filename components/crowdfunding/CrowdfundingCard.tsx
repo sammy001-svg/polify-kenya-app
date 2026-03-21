@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { formatDistanceToNow } from "date-fns";
-import { Crowdfunding, donateToCampaign } from "@/app/(platform)/crowdfunding/actions";
-import { useToast } from "@/components/ui/use-toast";
+import { Crowdfunding } from "@/app/(platform)/crowdfunding/actions";
+import { DonationDialog } from "./DonationDialog";
 import {
   Card,
   CardContent,
@@ -14,45 +14,17 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { Heart, Loader2, Users, TrendingUp } from "lucide-react";
+import { Heart, Users, TrendingUp } from "lucide-react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 
 export function CrowdfundingCard({ campaign }: { campaign: Crowdfunding }) {
-  const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
-  const [collected, setCollected] = useState(campaign.collected_amount);
+  const [isDonationOpen, setIsDonationOpen] = useState(false);
 
-  useEffect(() => {
-    setCollected(campaign.collected_amount);
-  }, [campaign.collected_amount]);
+  const progress = Math.min((campaign.collected_amount / campaign.target_amount) * 100, 100);
 
-  const progress = Math.min((collected / campaign.target_amount) * 100, 100);
-
-  const handleDonate = async () => {
-    setLoading(true);
-    const donationAmount = 1000;
-
-    try {
-      const res = await donateToCampaign(campaign.id, donationAmount);
-
-      if (res.error) throw new Error(res.error);
-
-      setCollected(res.newAmount ?? (collected + donationAmount));
-      toast({
-        title: "Success",
-        description: `Donated KES ${donationAmount.toLocaleString()} successfully!`,
-      });
-    } catch (error) {
-      console.error("Error donating:", error);
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to donate. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
+  const handleDonateClick = () => {
+    setIsDonationOpen(true);
   };
 
   return (
@@ -110,7 +82,7 @@ export function CrowdfundingCard({ campaign }: { campaign: Crowdfunding }) {
                 Raised So Far
               </p>
               <p className="text-xl font-black text-white italic tracking-tighter">
-                KES {collected.toLocaleString()}
+                KES {campaign.collected_amount.toLocaleString()}
               </p>
             </div>
             <p className="text-[10px] font-black uppercase tracking-widest text-brand-primary">
@@ -137,19 +109,20 @@ export function CrowdfundingCard({ campaign }: { campaign: Crowdfunding }) {
       <CardFooter className="pt-2 pb-6 px-6">
         <Button
           className="w-full bg-linear-to-r from-brand-primary to-brand-primary/80 hover:scale-[1.02] active:scale-95 text-black font-black uppercase tracking-widest text-xs h-12 rounded-2xl shadow-[0_10px_20px_rgba(255,193,7,0.2)] transition-all flex items-center justify-center gap-2 border-none"
-          onClick={handleDonate}
-          disabled={loading}
+          onClick={handleDonateClick}
+          disabled={false}
         >
-          {loading ? (
-            <Loader2 className="w-5 h-5 animate-spin" />
-          ) : (
-            <>
-              <Heart className="w-5 h-5 fill-current" />
-              Support This Cause
-            </>
-          )}
+          <Heart className="w-5 h-5 fill-current" />
+          Support This Cause
         </Button>
       </CardFooter>
+
+      <DonationDialog 
+        isOpen={isDonationOpen}
+        onClose={() => setIsDonationOpen(false)}
+        campaignId={campaign.id}
+        campaignTitle={campaign.title}
+      />
     </Card>
   );
 }

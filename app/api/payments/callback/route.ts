@@ -32,7 +32,20 @@ export async function POST(req: NextRequest) {
           
           let actionSuccess = true;
 
-          if (payment.plan_id === 'wallet_deposit' || reference.startsWith('WALLET-')) {
+          if (payment.plan_id === 'donation' || reference.startsWith('DON-')) {
+              // --- Crowdfunding Donation (Atomic & Idempotent) ---
+              const { data: success, error: rpcError } = await supabase.rpc('process_crowdfunding_donation', {
+                  payment_reference: reference
+              });
+
+              if (rpcError || !success) {
+                  console.error("Donation processing failed:", rpcError || "Unknown error");
+                  actionSuccess = false;
+              } else {
+                  console.log("Donation processed successfully for reference:", reference);
+              }
+
+          } else if (payment.plan_id === 'wallet_deposit' || reference.startsWith('WALLET-')) {
               // --- Wallet Top-up ---
               const { error: rpcError } = await supabase.rpc('credit_wallet', {
                   target_user_id: payment.user_id,
