@@ -7,11 +7,32 @@ import { Button } from "@/components/ui/button";
 import { User, LogOut, Settings } from "lucide-react";
 import Link from "next/link";
 
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+
 export function UserMenu() {
   const [isOpen, setIsOpen] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const supabase = createClient();
+
+  // Fetch avatar
+  useEffect(() => {
+    async function fetchProfile() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data } = await supabase
+          .from("profiles")
+          .select("avatar_url")
+          .eq("id", user.id)
+          .single();
+        if (data?.avatar_url) {
+          setAvatarUrl(data.avatar_url);
+        }
+      }
+    }
+    fetchProfile();
+  }, [supabase]);
 
   // Close when clicking outside
   useEffect(() => {
@@ -35,10 +56,15 @@ export function UserMenu() {
       <Button
         variant="ghost"
         size="icon"
-        className="rounded-full overflow-hidden bg-brand-highlight hover:bg-brand-highlight/80"
+        className="rounded-full overflow-hidden bg-brand-highlight hover:bg-brand-highlight/80 w-10 h-10 p-0"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <User className="w-5 h-5 text-brand-text" />
+        <Avatar className="w-10 h-10">
+          <AvatarImage src={avatarUrl || ""} alt="User profile" />
+          <AvatarFallback className="bg-brand-highlight">
+            <User className="w-5 h-5 text-brand-text" />
+          </AvatarFallback>
+        </Avatar>
       </Button>
 
       {isOpen && (

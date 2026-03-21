@@ -50,7 +50,7 @@ export const baseMetadata: Metadata = {
     creator: "@polify_kenya",
   },
   icons: {
-    icon: "/favicon.png",
-    apple: "/favicon.png",
+    icon: "/icon.png",
+    apple: "/icon.png",
   },
 };
