@@ -46,7 +46,7 @@ export function MobileSidebar() {
       <DialogPortal>
         <DialogPrimitive.Content 
           className={cn(
-            "fixed p-0 border-none bg-transparent left-0 top-0 bottom-0 translate-x-0 translate-y-0 h-full w-[300px] max-w-[85vw] duration-500 data-[state=open]:slide-in-from-left data-[state=closed]:slide-out-to-left rounded-none z-[200] focus:outline-none",
+            "fixed p-0 border-none bg-transparent left-0 top-0 bottom-0 translate-x-0 translate-y-0 h-full w-[300px] max-w-[85vw] duration-500 data-[state=open]:slide-in-from-left data-[state=closed]:slide-out-to-left rounded-none z-200 focus:outline-none",
           )}
         >
           <DialogTitle className="sr-only">Navigation Menu</DialogTitle>

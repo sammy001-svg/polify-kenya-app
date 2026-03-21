@@ -210,7 +210,7 @@ export function AIAnalystSheet({
                       { label: 'Impact Score', val: analysis.impact_score, color: 'text-kenya-green', icon: Sparkles },
                       { label: 'Fiscal Load', val: analysis.cost_index, color: 'text-kenya-red', icon: Activity },
                     ].map(metric => (
-                      <div key={metric.label} className="p-6 rounded-[2rem] bg-white/2 border border-white/5 space-y-4 hover:border-white/10 transition-colors">
+                      <div key={metric.label} className="p-6 rounded-4xl bg-white/2 border border-white/5 space-y-4 hover:border-white/10 transition-colors">
                         <metric.icon className={cn("w-5 h-5", metric.color)} />
                         <div className="space-y-0.5">
                            <p className="text-[9px] font-black uppercase text-brand-text-muted tracking-[0.2em]">{metric.label}</p>
@@ -244,7 +244,7 @@ export function AIAnalystSheet({
                   </h4>
                   <div className="grid gap-4">
                     {ANALYST_PERSONAS.map(persona => (
-                       <div key={persona.id} className="p-6 rounded-[2rem] bg-white/2 border border-white/5 flex gap-6 items-start hover:bg-white/5 transition-all">
+                       <div key={persona.id} className="p-6 rounded-4xl bg-white/2 border border-white/5 flex gap-6 items-start hover:bg-white/5 transition-all">
                           <div className="text-4xl p-4 bg-white/5 rounded-2xl">{persona.avatar}</div>
                           <div className="space-y-2">
                              <div className="flex items-center gap-3">
@@ -289,16 +289,16 @@ export function AIAnalystSheet({
         {/* Footer Actions */}
         <div className="p-8 border-t border-white/5 bg-black/20 backdrop-blur-3xl flex gap-4">
           <Button
-            className="flex-1 h-14 bg-linear-to-r from-kenya-green to-brand-primary hover:scale-[1.02] transition-transform text-white font-black uppercase tracking-[0.2em] text-[10px] gap-3 rounded-[1.5rem] shadow-xl shadow-kenya-green/20"
+            className="flex-1 h-14 bg-linear-to-r from-kenya-green to-brand-primary hover:scale-[1.02] transition-transform text-white font-black uppercase tracking-[0.2em] text-[10px] gap-3 rounded-3xl shadow-xl shadow-kenya-green/20"
             disabled={isProcessing}
           >
-            <FileText className="w-5 h-5 flex-shrink-0" />
+            <FileText className="w-5 h-5 shrink-0" />
             <span>Generate Full Draft Bill</span>
             <ChevronRight className="w-4 h-4" />
           </Button>
           <Button
             variant="outline"
-            className="h-14 border-white/10 hover:bg-white/5 font-black uppercase tracking-[0.2em] text-[10px] rounded-[1.5rem] px-8"
+            className="h-14 border-white/10 hover:bg-white/5 font-black uppercase tracking-[0.2em] text-[10px] rounded-3xl px-8"
             onClick={onClose}
           >
             Close Analyst

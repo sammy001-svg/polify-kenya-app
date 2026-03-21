@@ -218,7 +218,7 @@ export function PolicyIdeaCard({ idea }: PolicyIdeaCardProps) {
         <button
           onClick={handleVote}
           className={cn(
-            "flex flex-col items-center gap-1 px-6 py-4 rounded-[2rem] transition-all duration-500 shrink-0",
+            "flex flex-col items-center gap-1 px-6 py-4 rounded-4xl transition-all duration-500 shrink-0",
             voted 
               ? "bg-kenya-gold text-black shadow-[0_0_30px_rgba(253,185,49,0.3)]" 
               : "bg-white/5 text-white hover:bg-white/10 border border-white/5"

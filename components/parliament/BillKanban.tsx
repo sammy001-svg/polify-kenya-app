@@ -34,7 +34,7 @@ export function BillKanban({ bills, onVote }: BillKanbanProps) {
             return (
               <div
                 key={stage}
-                className="w-[85vw] sm:w-[380px] shrink-0 flex flex-col h-full bg-white/[0.02] rounded-[2.5rem] border border-white/5 overflow-hidden snap-center group/column transition-all duration-500 hover:bg-white/[0.04]"
+                className="w-[85vw] sm:w-[380px] shrink-0 flex flex-col h-full bg-white/2 rounded-[2.5rem] border border-white/5 overflow-hidden snap-center group/column transition-all duration-500 hover:bg-white/4"
               >
                 {/* Column Header */}
                 <div

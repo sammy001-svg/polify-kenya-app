@@ -53,4 +53,7 @@ export const baseMetadata: Metadata = {
     icon: "/icon.png",
     apple: "/icon.png",
   },
+  verification: {
+    google: "googlea95eac0361a44ed0",
+  },
 };

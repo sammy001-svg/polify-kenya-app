@@ -3,9 +3,8 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Landmark, Search, User } from "lucide-react";
+import { Home, Gavel, Vote, User, Scale } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { CommandCenter } from "@/components/search/CommandCenter";
 import { motion } from "framer-motion";
 
 export function BottomNav() {
@@ -13,8 +12,9 @@ export function BottomNav() {
 
   const navItems = [
     { icon: Home, label: "Home", href: "/feed" },
-    { icon: Search, label: "Search", isSearch: true },
-    { icon: Landmark, label: "Parliament", href: "/parliament" },
+    { icon: Vote, label: "IEBC", href: "/iebc" },
+    { icon: Scale, label: "Const.", href: "/constitution" },
+    { icon: Gavel, label: "Justice", href: "/justice" },
     { icon: User, label: "Profile", href: "/profile" },
   ];
 
@@ -24,20 +24,6 @@ export function BottomNav() {
 
       {navItems.map((item) => {
         const Icon = item.icon;
-
-        if (item.isSearch) {
-          return (
-            <div
-              key="search-trigger"
-              className="flex flex-col items-center justify-center flex-1 relative"
-            >
-              <CommandCenter isMobileTrigger />
-              <span className="text-[9px] font-black uppercase tracking-widest text-brand-text-muted mt-1">
-                Search
-              </span>
-            </div>
-          );
-        }
 
         const href = item.href || "#";
         const isActive =

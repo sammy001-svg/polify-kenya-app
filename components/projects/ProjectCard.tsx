@@ -10,7 +10,7 @@ interface ProjectCardProps {
   project: NationalProject;
 }
 
-const statusConfig: Record<ProjectStatus, { color: string; icon: any }> = {
+const statusConfig: Record<ProjectStatus, { color: string; icon: React.ElementType }> = {
   Completed: { color: "text-kenya-green bg-kenya-green/10 border-kenya-green/20", icon: CheckCircle2 },
   "In Progress": { color: "text-kenya-gold bg-kenya-gold/10 border-kenya-gold/20", icon: Clock },
   Stalled: { color: "text-kenya-red bg-kenya-red/10 border-kenya-red/20", icon: Ban },

@@ -4,8 +4,6 @@ import { useState, useMemo } from "react";
 import { 
   NATIONAL_PROJECTS, 
   PROJECT_CATEGORIES, 
-  NationalProject, 
-  ProjectStatus 
 } from "@/lib/national-projects";
 import { ProjectCard } from "@/components/projects/ProjectCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -13,21 +11,18 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { 
   BarChart3, 
   Globe2, 
-  LayoutGrid, 
   Search, 
   Zap, 
   TrendingUp, 
   ShieldCheck, 
   Calculator,
-  History,
   Target
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function NationalProjectsPage() {
-  const [activeTab, setActiveTab] = useState("promises");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
@@ -127,7 +122,7 @@ export default function NationalProjectsPage() {
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="promises" onValueChange={setActiveTab} className="space-y-12">
-          <TabsList className="bg-white/5 p-2 rounded-[2rem] border border-white/10 h-auto gap-2">
+          <TabsList className="bg-white/5 p-2 rounded-4xl border border-white/10 h-auto gap-2">
             <TabsTrigger value="promises" className="rounded-2xl px-8 py-4 data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:shadow-xl text-[10px] font-black uppercase tracking-widest gap-2">
               <Zap className="w-4 h-4 text-kenya-gold" /> Presidential Promises
             </TabsTrigger>
@@ -176,7 +171,7 @@ export default function NationalProjectsPage() {
                         { label: "ICT", amount: "KSh 120B", change: "+45%" },
                         { label: "Healthcare", amount: "KSh 80B", change: "+18%" },
                      ].map((item) => (
-                        <div key={item.label} className="bg-white/2 border border-white/5 rounded-[2rem] p-8 flex flex-col justify-between hover:bg-white/5 transition-all">
+                        <div key={item.label} className="bg-white/2 border border-white/5 rounded-4xl p-8 flex flex-col justify-between hover:bg-white/5 transition-all">
                             <span className="text-[10px] font-black text-brand-text-muted uppercase tracking-widest">{item.label}</span>
                             <div className="space-y-1">
                                 <div className="text-3xl font-black text-white">{item.amount}</div>
