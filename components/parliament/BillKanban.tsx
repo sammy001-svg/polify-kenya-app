@@ -26,42 +26,42 @@ export function BillKanban({ bills, onVote }: BillKanbanProps) {
 
   return (
     <div className="relative h-full" ref={containerRef}>
-      <ScrollArea className="w-full whitespace-nowrap rounded-md h-full">
-        <div className="flex w-max space-x-4 sm:space-x-6 p-4 snap-x snap-mandatory">
+      <ScrollArea className="w-full whitespace-nowrap h-full">
+        <div className="flex w-max gap-8 p-8 snap-x snap-mandatory">
           {STAGES.map((stage, index) => {
             const stageBills = billsByStage[stage] || [];
 
             return (
               <div
                 key={stage}
-                className="w-[85vw] sm:w-[320px] shrink-0 flex flex-col h-full bg-brand-surface/30 rounded-2xl border border-white/5 overflow-hidden snap-center"
+                className="w-[85vw] sm:w-[380px] shrink-0 flex flex-col h-full bg-white/[0.02] rounded-[2.5rem] border border-white/5 overflow-hidden snap-center group/column transition-all duration-500 hover:bg-white/[0.04]"
               >
                 {/* Column Header */}
                 <div
                   className={cn(
-                    "p-4 border-b border-white/5 flex items-center justify-between sticky top-0 bg-brand-surface/90 backdrop-blur-md z-10",
+                    "p-6 border-b border-white/5 flex items-center justify-between sticky top-0 bg-black/40 backdrop-blur-xl z-10",
                     stage === "Presidential Assent" &&
-                      "bg-kenya-green/10 border-kenya-green/30",
+                      "bg-kenya-green/5 border-kenya-green/10",
                   )}
                 >
-                  <div className="flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[10px] font-bold text-brand-text-muted">
+                  <div className="flex items-center gap-4">
+                    <div className="w-8 h-8 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-[10px] font-black text-brand-text-muted group-hover/column:border-kenya-gold/50 group-hover/column:text-kenya-gold transition-colors duration-500">
                       {index + 1}
-                    </span>
-                    <h3 className="font-bold text-sm text-white uppercase tracking-tight">
+                    </div>
+                    <h3 className="font-black text-xs text-white uppercase tracking-[0.2em]">
                       {stage}
                     </h3>
                   </div>
-                  <span className="text-xs font-bold text-brand-text-muted bg-white/5 px-2 py-0.5 rounded-full">
+                  <span className="text-[10px] font-black text-brand-text-muted bg-white/5 px-3 py-1 rounded-full border border-white/5">
                     {stageBills.length}
                   </span>
                 </div>
 
                 {/* Bills List */}
-                <div className="p-3 flex-1 overflow-y-auto space-y-3 scrollbar-thin scrollbar-thumb-white/10">
+                <div className="p-5 flex-1 overflow-y-auto space-y-5 custom-scrollbar">
                   {stageBills.length === 0 ? (
-                    <div className="h-32 flex flex-col items-center justify-center text-brand-text-muted/40 border-2 border-dashed border-white/5 rounded-xl">
-                      <p className="text-xs font-medium">No active bills</p>
+                    <div className="h-40 flex flex-col items-center justify-center text-brand-text-muted/20 border-2 border-dashed border-white/5 rounded-3xl group-hover/column:border-white/10 transition-colors">
+                      <p className="text-[10px] font-black uppercase tracking-widest">No active bills</p>
                     </div>
                   ) : (
                     stageBills.map((bill) => (

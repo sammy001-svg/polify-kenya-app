@@ -1,299 +1,225 @@
 "use client";
 
-import { useState } from "react";
-import { BILLS, VOTING_RECORDS } from "@/lib/parliament-data";
-import { BillKanban } from "@/components/parliament/BillKanban";
-import { VotingTable } from "@/components/parliament/VotingTable";
-import { HansardSearch } from "@/components/parliament/HansardSearch";
+import { useState, useMemo } from "react";
+import { 
+  NATIONAL_PROJECTS, 
+  PROJECT_CATEGORIES, 
+  NationalProject, 
+  ProjectStatus 
+} from "@/lib/national-projects";
+import { ProjectCard } from "@/components/projects/ProjectCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Gavel, FileText, Vote, Search, Info, TrendingUp } from "lucide-react";
-import { GamificationService } from "@/lib/gamification-service";
-import { AccountabilityService } from "@/lib/accountability-service";
-import { motion } from "framer-motion";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { 
+  BarChart3, 
+  Globe2, 
+  LayoutGrid, 
+  Search, 
+  Zap, 
+  TrendingUp, 
+  ShieldCheck, 
+  Calculator,
+  History,
+  Target
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
 
-export default function ParliamentPage() {
-  const [bills, setBills] = useState(BILLS);
-  const [activeTab, setActiveTab] = useState("bills");
+export default function NationalProjectsPage() {
+  const [activeTab, setActiveTab] = useState("promises");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
 
-  const handleVote = async (id: string, vote: "yay" | "nay") => {
-    // Award XP
-    await GamificationService.voteOnBill("current-user", id);
+  const filteredProjects = useMemo(() => {
+    return NATIONAL_PROJECTS.filter(project => {
+      const matchesSearch = project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          project.description.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = selectedCategory === "All" || project.category === selectedCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [searchQuery, selectedCategory]);
 
-    // Persist vote for Accountability Sync
-    AccountabilityService.saveUserVote(id, vote);
-
-    // Update local state (simulate count increment)
-    setBills((prev) =>
-      prev.map((b) => {
-        if (b.id === id) {
-          return {
-            ...b,
-            supportCount: vote === "yay" ? b.supportCount + 1 : b.supportCount,
-            opposeCount: vote === "nay" ? b.opposeCount + 1 : b.opposeCount,
-            myVote: vote,
-          };
-        }
-        return b;
-      }),
-    );
-  };
-
-  const tabs = [
-    {
-      id: "bills",
-      label: "Active Bills",
-      icon: FileText,
-      color: "text-brand-primary",
-    },
-    {
-      id: "voting",
-      label: "Voting Records",
-      icon: Vote,
-      color: "text-kenya-red",
-    },
-    {
-      id: "hansard",
-      label: "Hansard Search",
-      icon: Search,
-      color: "text-blue-400",
-    },
+  const stats = [
+    { label: "Active Projects", value: NATIONAL_PROJECTS.filter(p => p.status === "In Progress").length, icon: Zap, color: "text-kenya-gold" },
+    { label: "Completed Promises", value: NATIONAL_PROJECTS.filter(p => p.status === "Completed").length, icon: ShieldCheck, color: "text-kenya-green" },
+    { label: "Total Budget Tracked", value: "KSh 520B", icon: Calculator, color: "text-blue-400" },
+    { label: "Delivery Score", value: "68%", icon: Target, color: "text-kenya-red" },
   ];
 
   return (
-    <div className="animate-in fade-in duration-700 h-[calc(100vh-8rem)] md:h-[calc(100vh-10rem)] flex flex-col min-h-0 overflow-hidden">
-      {/* Premium Header Section */}
-      <div className="relative p-8 rounded-3xl bg-brand-surface/40 border border-white/10 glass-dark overflow-hidden group">
-        <div className="absolute inset-0 bg-linear-to-br from-brand-primary/10 via-transparent to-kenya-red/5 opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
-        <div className="absolute -right-20 -top-20 w-64 h-64 bg-brand-primary/10 blur-[100px] rounded-full" />
-        <div className="absolute -left-20 -bottom-20 w-64 h-64 bg-kenya-red/10 blur-[100px] rounded-full" />
+    <div className="min-h-screen text-white font-sans selection:bg-kenya-gold/30">
+      {/* Background Effects */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-kenya-gold/5 blur-[120px] rounded-full animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-kenya-red/5 blur-[120px] rounded-full animate-pulse delay-700" />
+      </div>
 
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-primary/10 border border-brand-primary/20 text-brand-primary text-xs font-bold uppercase tracking-wider">
-              <TrendingUp className="w-3 h-3" />
-              Live Legislative Tracking
-            </div>
-            <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter flex items-center gap-4">
-              <span className="p-3 bg-brand-primary rounded-2xl shadow-[0_0_30px_rgba(255,193,7,0.3)]">
-                <Gavel className="w-8 h-8 md:w-10 md:h-10 text-black" />
+      <div className="relative z-10 p-6 lg:p-12 space-y-12 max-w-[1600px] mx-auto">
+        {/* Header Section */}
+        <header className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 pb-12 border-b border-white/5">
+          <div className="space-y-4 max-w-2xl">
+            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl group">
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-kenya-green opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-kenya-green"></span>
               </span>
-              Parliament Watch
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-text-muted group-hover:text-white transition-colors">National Development Tracker • 2022-2027</span>
+            </div>
+            <h1 className="text-5xl lg:text-7xl font-black tracking-tighter leading-[0.9] text-white">
+              PROJECTS <span className="text-transparent bg-clip-text bg-linear-to-r from-kenya-gold via-white to-kenya-red">&</span> PROMISES
             </h1>
-            <p className="text-brand-text-muted text-lg max-w-2xl leading-relaxed">
-              Real-time monitoring of legislative progress. Watch how laws are
-              made, monitor representation, and search parliamentary records in
-              seconds.
+            <p className="text-lg text-brand-text-muted font-medium max-w-xl">
+               Real-time monitoring of Presidential pledges, infrastructure development, and budget transparency across the Republic of Kenya.
             </p>
           </div>
 
-          <div className="flex gap-4">
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
-              <div className="text-2xl font-black text-white">
-                {bills.length}
-              </div>
-              <div className="text-[10px] text-brand-text-muted uppercase font-bold tracking-widest">
-                Active Bills
-              </div>
-            </div>
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
-              <div className="text-2xl font-black text-brand-primary">2.4k</div>
-              <div className="text-[10px] text-brand-text-muted uppercase font-bold tracking-widest">
-                Citizen Votes
-              </div>
-            </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full lg:w-auto">
+            {stats.map((stat, i) => (
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: i * 0.1 }}
+                key={stat.label} 
+                className="bg-white/2 backdrop-blur-3xl border border-white/10 rounded-4xl p-10 mb-12 hover:bg-white/5 transition-all group"
+              >
+                <stat.icon className={cn("w-6 h-6 mb-4", stat.color)} />
+                <div className="text-3xl font-black mb-1 group-hover:scale-110 transition-transform origin-left">{stat.value}</div>
+                <div className="text-[10px] font-bold text-brand-text-muted uppercase tracking-widest">{stat.label}</div>
+              </motion.div>
+            ))}
           </div>
-        </div>
-      </div>
+        </header>
 
-      <Tabs
-        defaultValue="bills"
-        onValueChange={setActiveTab}
-        className="w-full flex-1 flex flex-col min-h-0 mt-6"
-      >
-        <div className="flex items-center justify-between mb-6">
-          <TabsList className="bg-brand-surface/50 border border-white/10 p-1.5 rounded-2xl h-auto self-start backdrop-blur-md relative overflow-hidden">
-            <div className="flex gap-1">
-              {tabs.map((tab) => (
-                <TabsTrigger
-                  key={tab.id}
-                  value={tab.id}
-                  className="data-[state=active]:bg-white/10 data-[state=active]:text-white px-6 py-3 rounded-xl flex gap-3 items-center transition-all duration-300 relative group z-10"
-                >
-                  <tab.icon
-                    className={`w-4 h-4 transition-transform duration-300 group-hover:scale-125 ${activeTab === tab.id ? tab.color : "text-brand-text-muted"}`}
-                  />
-                  <span className="font-bold text-sm">{tab.label}</span>
-                  {activeTab === tab.id && (
-                    <motion.div
-                      layoutId="active-pill"
-                      className="absolute inset-0 bg-white/5 rounded-xl border border-white/10 -z-10 shadow-[0_0_20px_rgba(255,255,255,0.05)]"
-                      transition={{
-                        type: "spring",
-                        bounce: 0.2,
-                        duration: 0.6,
-                      }}
-                    />
-                  )}
-                </TabsTrigger>
-              ))}
+        {/* Search & Filter Bar */}
+        <div className="flex flex-col lg:flex-row gap-6 items-center justify-between">
+            <div className="relative w-full lg:w-96 group">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-text-muted group-focus-within:text-kenya-gold transition-colors" />
+                <input 
+                    type="text" 
+                    placeholder="Search for projects, promises..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-6 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-kenya-gold/30 focus:border-kenya-gold/50 transition-all placeholder:text-brand-text-muted/50"
+                />
             </div>
+
+            <ScrollArea className="w-full lg:w-auto pb-4">
+                <div className="flex gap-3">
+                    {PROJECT_CATEGORIES.map((cat) => (
+                        <button
+                            key={cat}
+                            onClick={() => setSelectedCategory(cat)}
+                            className={cn(
+                                "px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all duration-300 border",
+                                selectedCategory === cat 
+                                    ? "bg-white/10 border-white/20 text-white shadow-lg shadow-white/5" 
+                                    : "bg-white/2 border-white/5 text-brand-text-muted hover:bg-white/5 hover:border-white/10"
+                            )}
+                        >
+                            {cat}
+                        </button>
+                    ))}
+                </div>
+                <ScrollBar orientation="horizontal" className="hidden" />
+            </ScrollArea>
+        </div>
+
+        {/* Main Content Tabs */}
+        <Tabs defaultValue="promises" onValueChange={setActiveTab} className="space-y-12">
+          <TabsList className="bg-white/5 p-2 rounded-[2rem] border border-white/10 h-auto gap-2">
+            <TabsTrigger value="promises" className="rounded-2xl px-8 py-4 data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:shadow-xl text-[10px] font-black uppercase tracking-widest gap-2">
+              <Zap className="w-4 h-4 text-kenya-gold" /> Presidential Promises
+            </TabsTrigger>
+            <TabsTrigger value="budget" className="rounded-2xl px-8 py-4 data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:shadow-xl text-[10px] font-black uppercase tracking-widest gap-2">
+              <TrendingUp className="w-4 h-4 text-kenya-green" /> Economic Impact
+            </TabsTrigger>
+            <TabsTrigger value="map" className="rounded-2xl px-8 py-4 data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:shadow-xl text-[10px] font-black uppercase tracking-widest gap-2">
+              <Globe2 className="w-4 h-4 text-blue-400" /> Geographic View
+            </TabsTrigger>
           </TabsList>
 
-          <div className="hidden lg:flex items-center gap-4 text-brand-text-muted text-xs">
-            <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-brand-primary animate-pulse" />
-              Live Sync
-            </span>
-            <span className="px-3 py-1 rounded-lg bg-white/5 border border-white/10">
-              Updated 2 mins ago
-            </span>
+          <TabsContent value="promises" className="m-0 focus-visible:ring-0">
+             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+                <AnimatePresence mode="popLayout">
+                    {filteredProjects.map((project) => (
+                        <ProjectCard key={project.id} project={project} />
+                    ))}
+                </AnimatePresence>
+             </div>
+             {filteredProjects.length === 0 && (
+                <div className="h-[400px] flex flex-col items-center justify-center text-center space-y-4 border-2 border-dashed border-white/5 rounded-[3rem]">
+                    <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center">
+                        <Search className="w-10 h-10 text-brand-text-muted/20" />
+                    </div>
+                    <div>
+                        <p className="text-xl font-black text-white">No projects found</p>
+                        <p className="text-brand-text-muted text-sm font-medium">Try adjusting your filters or search query</p>
+                    </div>
+                </div>
+             )}
+          </TabsContent>
+
+          <TabsContent value="budget" className="m-0 focus-visible:ring-0">
+             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="bg-white/2 border border-white/5 rounded-[3rem] p-12 flex flex-col justify-center items-center gap-6 min-h-[500px]">
+                    <div className="w-16 h-16 rounded-full bg-kenya-green/10 flex items-center justify-center">
+                        <BarChart3 className="w-8 h-8 text-kenya-green" />
+                    </div>
+                    <h2 className="text-3xl font-black text-white text-center">Expenditure Oversight</h2>
+                    <p className="text-brand-text-muted text-center max-w-sm font-medium">Detailed breakdown of how development funds are utilized across each project category.</p>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                     {[
+                        { label: "Agriculture", amount: "KSh 15B", change: "+12%" },
+                        { label: "Infrastructure", amount: "KSh 250B", change: "-5%" },
+                        { label: "ICT", amount: "KSh 120B", change: "+45%" },
+                        { label: "Healthcare", amount: "KSh 80B", change: "+18%" },
+                     ].map((item) => (
+                        <div key={item.label} className="bg-white/2 border border-white/5 rounded-[2rem] p-8 flex flex-col justify-between hover:bg-white/5 transition-all">
+                            <span className="text-[10px] font-black text-brand-text-muted uppercase tracking-widest">{item.label}</span>
+                            <div className="space-y-1">
+                                <div className="text-3xl font-black text-white">{item.amount}</div>
+                                <div className="text-[10px] font-bold text-kenya-green uppercase tracking-widest">{item.change} Absorption</div>
+                            </div>
+                        </div>
+                     ))}
+                </div>
+             </div>
+          </TabsContent>
+
+          <TabsContent value="map" className="m-0 focus-visible:ring-0">
+             <div className="bg-white/2 border border-white/5 rounded-[3rem] p-12 h-[600px] flex flex-col items-center justify-center gap-6 relative overflow-hidden group">
+                <div className="absolute inset-0 grayscale opacity-20 group-hover:grayscale-0 group-hover:opacity-40 transition-all duration-1000 bg-[url('https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Kenya_location_map.svg/1200px-Kenya_location_map.svg.png')] bg-center bg-no-repeat bg-contain" />
+                <div className="relative z-10 text-center space-y-4">
+                    <div className="w-16 h-16 rounded-full bg-blue-400/10 flex items-center justify-center mx-auto">
+                        <Globe2 className="w-8 h-8 text-blue-400" />
+                    </div>
+                    <h2 className="text-3xl font-black text-white">Project Density Map</h2>
+                    <p className="text-brand-text-muted max-w-sm font-medium">Interactive visualization of projects across all 47 counties of Kenya. (Coming Soon)</p>
+                </div>
+             </div>
+          </TabsContent>
+        </Tabs>
+      </div>
+
+      {/* Modern Footer */}
+      <footer className="border-t border-white/5 py-12 px-6 lg:px-12 mt-24">
+        <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+          <div className="flex items-center gap-4">
+             <div className="w-10 h-10 rounded-xl bg-kenya-red flex items-center justify-center font-black text-white">P</div>
+             <div>
+                <div className="font-black text-sm uppercase tracking-tighter">Polify Intelligence</div>
+                <div className="text-[10px] text-brand-text-muted uppercase tracking-widest font-black">Citizen Oversight Platform</div>
+             </div>
+          </div>
+          <div className="flex gap-8 text-[10px] font-black text-brand-text-muted uppercase tracking-widest">
+            <a href="#" className="hover:text-white transition-colors">API Docs</a>
+            <a href="#" className="hover:text-white transition-colors">Transparency Report</a>
+            <a href="#" className="hover:text-white transition-colors">Contact Support</a>
           </div>
         </div>
-
-        <div className="flex-1 min-h-0 relative">
-          <TabsContent
-            value="bills"
-            className="animate-in slide-in-from-bottom-6 fade-in duration-500 flex-1 min-h-0 outline-none"
-          >
-            <BillKanban bills={bills} onVote={handleVote} />
-          </TabsContent>
-
-          <TabsContent
-            value="voting"
-            className="animate-in slide-in-from-bottom-6 fade-in duration-500 overflow-y-auto outline-none h-full"
-          >
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8 pb-8">
-              <div className="lg:col-span-2 bg-brand-surface border border-white/10 rounded-3xl p-8 glass-dark shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-8 opacity-10">
-                  <Vote className="w-24 h-24" />
-                </div>
-                <div className="relative z-10">
-                  <h2 className="text-2xl font-black text-white mb-8 flex items-center gap-3">
-                    <div className="p-2 bg-kenya-red/20 rounded-xl">
-                      <Vote className="w-6 h-6 text-kenya-red" />
-                    </div>
-                    Latest Division Votes
-                  </h2>
-                  <VotingTable initialVotes={VOTING_RECORDS} />
-                </div>
-              </div>
-
-              <div className="bg-brand-surface border border-white/10 rounded-3xl p-8 glass-dark">
-                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-brand-text-muted mb-8 flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-brand-primary" />
-                  Sentiment Alignment
-                </h3>
-
-                <div className="space-y-8">
-                  {[
-                    {
-                      title: "Finance Bill 2026",
-                      user: 82,
-                      house: 45,
-                      status: "High Divergence",
-                    },
-                    {
-                      title: "Health Laws Amdt",
-                      user: 30,
-                      house: 88,
-                      status: "Low Alignment",
-                    },
-                    {
-                      title: "Eco-Levy Repeal",
-                      user: 95,
-                      house: 12,
-                      status: "Critical Gap",
-                    },
-                  ].map((item, i) => (
-                    <div key={i} className="space-y-4 group">
-                      <div className="flex justify-between items-center group-hover:translate-x-1 transition-transform">
-                        <span className="text-white font-bold text-sm tracking-tight">
-                          {item.title}
-                        </span>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-brand-text-muted font-black uppercase">
-                          {item.status}
-                        </span>
-                      </div>
-                      <div className="space-y-3">
-                        <div className="space-y-1.5">
-                          <div className="flex justify-between text-[10px] text-brand-text-muted uppercase font-black tracking-wider">
-                            <span>Public Support</span>
-                            <span className="text-brand-primary">
-                              {item.user}%
-                            </span>
-                          </div>
-                          <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden">
-                            <motion.div
-                              initial={{ width: 0 }}
-                              animate={{ width: `${item.user}%` }}
-                              transition={{ duration: 1, delay: i * 0.1 }}
-                              className="bg-brand-primary h-full rounded-full shadow-[0_0_10px_rgba(255,193,7,0.3)]"
-                            />
-                          </div>
-                        </div>
-
-                        <div className="space-y-1.5">
-                          <div className="flex justify-between text-[10px] text-brand-text-muted uppercase font-black tracking-wider">
-                            <span>House Approval</span>
-                            <span className="text-kenya-red">
-                              {item.house}%
-                            </span>
-                          </div>
-                          <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden">
-                            <motion.div
-                              initial={{ width: 0 }}
-                              animate={{ width: `${item.house}%` }}
-                              transition={{ duration: 1, delay: i * 0.1 + 0.2 }}
-                              className="bg-kenya-red h-full rounded-full shadow-[0_0_10px_rgba(239,68,68,0.3)]"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                      <div className="pt-3 border-t border-white/5 flex items-center justify-between">
-                        <p className="text-[10px] text-brand-text-muted font-bold italic">
-                          Divergence Score
-                        </p>
-                        <span className="text-white font-black text-xs">
-                          {Math.abs(item.user - item.house)}%
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-
-          <TabsContent
-            value="hansard"
-            className="animate-in slide-in-from-bottom-6 fade-in duration-500 overflow-y-auto outline-none h-full"
-          >
-            <div className="bg-brand-surface border border-white/10 rounded-3xl p-8 glass-dark shadow-2xl relative overflow-hidden h-full">
-              <div className="absolute top-0 right-0 p-8 opacity-5">
-                <Search className="w-32 h-32" />
-              </div>
-
-              <div className="relative z-10 h-full flex flex-col">
-                <div className="flex items-center justify-between mb-8">
-                  <h2 className="text-2xl font-black text-white flex items-center gap-3">
-                    <div className="p-2 bg-blue-500/20 rounded-xl">
-                      <Search className="w-6 h-6 text-blue-400" />
-                    </div>
-                    Parliamentary Hansard
-                  </h2>
-                  <div className="flex items-center gap-2 text-brand-text-muted text-xs font-bold bg-white/5 px-3 py-1.5 rounded-lg border border-white/10">
-                    <Info className="w-3.5 h-3.5" />
-                    Archive back to 1963
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <HansardSearch />
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-        </div>
-      </Tabs>
+      </footer>
     </div>
   );
 }

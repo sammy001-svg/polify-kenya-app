@@ -56,7 +56,7 @@ export function SystemTour() {
     },
     {
       title: "Intelligence Hub",
-      description: "Parliament Watch, Polify AI Analyst, and our Constitution decoder live here. Power your decisions with data.",
+      description: "National Projects, Polify AI Analyst, and our Constitution decoder live here. Power your decisions with data.",
       icon: Search,
       position: "sidebar-middle",
       accent: "bg-blue-500"

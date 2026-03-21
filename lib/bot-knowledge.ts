@@ -64,9 +64,9 @@ export const PLATFORM_KNOWLEDGE: KnowledgeEntry[] = [
       "statute",
     ],
     response:
-      "Parliament Watch keeps you updated on active Bills, parliamentary debates (Hansard), and the performance of your representatives. You can track exactly what laws are being made.",
+      "National Projects keeps you updated on presidential promises, budget transparency, and the status of development projects across Kenya.",
     link: "/parliament",
-    linkText: "View Parliament Watch",
+    linkText: "View National Projects",
   },
   {
     category: "auditor",

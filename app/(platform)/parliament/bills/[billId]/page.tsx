@@ -32,7 +32,7 @@ export default async function BillDetailPage({ params }: PageProps) {
         className="inline-flex items-center text-sm text-brand-text-muted hover:text-white transition-colors"
       >
         <ChevronLeft className="w-4 h-4 mr-1" />
-        Back to Parliament Watch
+        Back to National Projects
       </Link>
 
       {/* Header */}

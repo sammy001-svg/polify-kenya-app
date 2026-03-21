@@ -64,7 +64,7 @@ export default function AdminSettingsPage() {
                </div>
                <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                     <Label className="text-sm font-bold text-white">Parliament Watch</Label>
+                     <Label className="text-sm font-bold text-white">National Projects</Label>
                      <p className="text-[10px] text-brand-text-muted">BETA: Legislative tracking and citizen voting.</p>
                   </div>
                   <Switch defaultChecked />

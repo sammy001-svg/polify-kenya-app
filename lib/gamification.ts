@@ -53,6 +53,42 @@ export interface UserProgress {
   joinDate: string;
 }
 
+export interface AIAnalystPersona {
+  id: string;
+  name: string;
+  role: string;
+  avatar: string;
+  color: string;
+  specialty: string;
+}
+
+export const ANALYST_PERSONAS: AIAnalystPersona[] = [
+  {
+    id: 'dr-sifa',
+    name: 'Dr. Sifa',
+    role: 'Chief Economist',
+    avatar: '👩‍🔬',
+    color: 'text-kenya-gold',
+    specialty: 'Fiscal Policy & Macro-Economics'
+  },
+  {
+    id: 'adv-mwangi',
+    name: 'Adv. Mwangi',
+    role: 'Legal Strategist',
+    avatar: '👨‍⚖️',
+    color: 'text-blue-400',
+    specialty: 'Constitutional Law & Regulation'
+  },
+  {
+    id: 'janet-impact',
+    name: 'Janet',
+    role: 'Social Architect',
+    avatar: '👩‍🎨',
+    color: 'text-kenya-green',
+    specialty: 'Community Wellbeing & Inclusivity'
+  }
+];
+
 export interface PolicyIdea {
   id: string;
   title: string;
@@ -69,6 +105,21 @@ export interface PolicyIdea {
   submittedDate: string;
   impactStatement: string;
   targetAudience: string[];
+  ai_analysis?: {
+    feasibility: number;
+    cost_index: number;
+    impact_score: number;
+    ai_status: string;
+    persona_critiques: Record<string, string>; // Maps persona ID to their specific critique
+    project_alignment?: string[]; // IDs of national projects this idea aligns with
+  };
+  ai_draft_bill?: {
+    bill_number: string;
+    title: string;
+    preamble: string;
+    sections: { title: string; content: string }[];
+    legal_basis: string;
+  };
 }
 
 // XP Thresholds for each level
@@ -786,6 +837,18 @@ export const MOCK_POLICY_IDEAS: PolicyIdea[] = [
     submittedDate: '2026-01-15',
     impactStatement: 'Would benefit over 500,000 university students across Kenya',
     targetAudience: ['Students', 'Educators', 'Researchers'],
+    ai_analysis: {
+      feasibility: 85,
+      impact_score: 92,
+      cost_index: 40,
+      ai_status: 'complete',
+      persona_critiques: {
+        'dr-sifa': 'The ROI on internet access for higher education is exceptionally high, likely contributing 0.8% to GDP growth over 10 years.',
+        'adv-mwangi': 'Requires clear framework on data privacy and fair usage policies to prevent misuse of public resources.',
+        'janet-impact': 'Highly inclusive. Directly addresses the digital divide for students from rural counties.'
+      },
+      project_alignment: ['digital-superhighway']
+    }
   },
   {
     id: 'policy-2',
@@ -803,6 +866,18 @@ export const MOCK_POLICY_IDEAS: PolicyIdea[] = [
     submittedDate: '2026-01-18',
     impactStatement: 'Could create 100,000+ entry-level jobs for youth annually',
     targetAudience: ['Youth', 'Job Seekers', 'Employers'],
+    ai_analysis: {
+      feasibility: 78,
+      impact_score: 88,
+      cost_index: 65,
+      ai_status: 'complete',
+      persona_critiques: {
+        'dr-sifa': 'Fiscal pressure on income tax revenue must be balanced with reduced social welfare costs.',
+        'adv-mwangi': 'Needs robust verification to prevent "ghost hiring" specifically for tax evasion.',
+        'janet-impact': 'Excellent for dignifying tech-jobs but needs to include vocational graduates, not just university ones.'
+      },
+      project_alignment: ['hustler-fund', 'digital-superhighway']
+    }
   },
   {
     id: 'policy-3',
@@ -820,6 +895,18 @@ export const MOCK_POLICY_IDEAS: PolicyIdea[] = [
     submittedDate: '2026-01-10',
     impactStatement: 'Addresses mental health crisis affecting 25% of youth population',
     targetAudience: ['Youth', 'Healthcare Workers', 'Counties'],
+    ai_analysis: {
+      feasibility: 65,
+      impact_score: 95,
+      cost_index: 80,
+      ai_status: 'complete',
+      persona_critiques: {
+        'dr-sifa': 'Long-term productivity gains will offset the high initial infrastructure cost.',
+        'adv-mwangi': 'Strong constitutional basis under Article 43 (Right to Health).',
+        'janet-impact': 'Crucial for social cohesion. Suggest integrating with community-based support groups.'
+      },
+      project_alignment: ['shif-uhc']
+    }
   },
 ];
 

@@ -106,7 +106,7 @@ export default function SystemHealthPage() {
                      <Activity className="w-5 h-5 text-green-500 shrink-0" />
                      <div>
                         <p className="text-xs font-bold text-white">Auto-Scale Event</p>
-                        <p className="text-[10px] text-brand-text-muted mb-2">Instances increased to 4 due to traffic surge in Parliament Watch.</p>
+                        <p className="text-[10px] text-brand-text-muted mb-2">Instances increased to 4 due to traffic surge in National Projects.</p>
                         <span className="text-[10px] font-mono text-green-500 uppercase">MAR 19, 09:12 UTC</span>
                      </div>
                   </div>

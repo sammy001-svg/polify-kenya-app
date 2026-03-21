@@ -150,7 +150,7 @@ export function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
         </h3>
         <SidebarItem
           icon={Landmark}
-          label="Parliament Watch"
+          label="National Projects"
           href="/parliament"
           isActive={pathname.startsWith("/parliament")}
           onClick={onLinkClick}

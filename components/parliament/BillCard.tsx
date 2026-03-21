@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { ThumbsUp, ThumbsDown, User, Calendar } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
 
 interface BillCardProps {
   bill: Bill;
@@ -12,83 +13,89 @@ interface BillCardProps {
 }
 
 export function BillCard({ bill, onVote }: BillCardProps) {
-  const isPassed = bill.stage === 'Presidential Assent';
+  const isPassed = bill.status === 'Assented' || bill.stage === 'Presidential Assent';
   
   return (
-    <div className="bg-brand-surface-secondary border border-white/5 rounded-xl p-4 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
-        {/* Glow effect based on support */}
+    <div className="bg-brand-surface-secondary border border-white/5 rounded-3xl p-5 shadow-xl hover:shadow-2xl transition-all duration-500 group relative overflow-hidden flex flex-col gap-4">
+        {/* Intricate Background Glow */}
         <div className={cn(
-          "absolute top-0 right-0 w-20 h-20 bg-linear-to-bl opacity-10 blur-xl rounded-full pointer-events-none",
+          "absolute top-0 right-0 w-32 h-32 bg-linear-to-bl opacity-0 group-hover:opacity-20 blur-[50px] rounded-full transition-opacity duration-700 pointer-events-none",
           bill.supportCount > bill.opposeCount ? "from-kenya-green to-transparent" : "from-kenya-red to-transparent"
         )} />
 
-        <div className="flex justify-between items-start mb-2">
-           <Badge variant="outline" className="text-[9px] uppercase tracking-widest text-brand-text-muted border-white/10 bg-black/20">
+        <div className="flex justify-between items-center">
+           <Badge variant="outline" className="text-[8px] font-black uppercase tracking-[0.2em] text-kenya-gold border-kenya-gold/20 bg-kenya-gold/5 px-3 py-1 rounded-lg">
               {bill.id}
            </Badge>
-           <span className="text-[10px] bg-white/5 rounded px-1.5 py-0.5 text-brand-text-muted flex items-center gap-1">
-              <Calendar className="w-3 h-3" /> {bill.voteDeadline}
-           </span>
-        </div>
-
-        <h3 className="font-bold text-sm text-white leading-tight mb-2 group-hover:text-brand-primary transition-colors">
-          {bill.title}
-        </h3>
-
-        <div className="flex items-center gap-2 mb-3">
-           <div className="w-5 h-5 rounded-full bg-brand-surface-highlight flex items-center justify-center">
-              <User className="w-3 h-3 text-brand-text-muted" />
+           <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[9px] font-bold text-brand-text-muted">
+              <Calendar className="w-3 h-3 text-kenya-gold" /> {bill.voteDeadline}
            </div>
-           <p className="text-xs text-brand-text-muted truncate">{bill.sponsor}</p>
         </div>
 
-        <p className="text-xs text-brand-text-muted/80 line-clamp-2 mb-4 bg-black/10 p-2 rounded-lg border border-white/5">
-            {bill.summary}
-        </p>
-
-        {/* Voting & Tags */}
         <div className="space-y-3">
+          <h3 className="font-black text-base text-white leading-tight group-hover:text-kenya-gold transition-colors duration-300 tracking-tight">
+            {bill.title}
+          </h3>
+
+          <div className="flex items-center gap-2">
+             <div className="w-6 h-6 rounded-full bg-linear-to-br from-white/10 to-transparent flex items-center justify-center border border-white/5 shadow-inner">
+                <User className="w-3.5 h-3.5 text-brand-text-muted" />
+             </div>
+             <p className="text-[10px] font-black text-brand-text-muted uppercase tracking-widest truncate">{bill.sponsor}</p>
+          </div>
+        </div>
+
+        <div className="relative group/summary">
+          <p className="text-xs text-brand-text-muted/70 line-clamp-2 leading-relaxed font-medium bg-black/40 p-4 rounded-2xl border border-white/5 hover:text-white transition-colors duration-300">
+              {bill.summary}
+          </p>
+          <div className="absolute inset-0 bg-kenya-gold/5 opacity-0 group-hover/summary:opacity-100 transition-opacity rounded-2xl pointer-events-none" />
+        </div>
+
+        {/* Dynamic Sentiment Meter */}
+        <div className="mt-auto space-y-4 pt-2">
             <div className="flex gap-2">
-                {bill.tags.slice(0, 2).map(tag => (
-                   <span key={tag} className="text-[9px] uppercase font-bold text-brand-text-muted px-1.5 py-0.5 bg-white/5 rounded">
-                      #{tag}
+                {bill.tags.slice(0, 3).map(tag => (
+                   <span key={tag} className="text-[8px] uppercase font-black tracking-widest text-brand-text-muted/60 px-2 py-1 bg-white/5 rounded-md border border-white/5">
+                      {tag}
                    </span>
                 ))}
             </div>
 
             {!isPassed && (
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-3">
                     <Button 
                         size="sm" 
                         variant="secondary"
                         onClick={() => onVote(bill.id, 'yay')}
-                        className="h-8 bg-kenya-green/10 text-kenya-green hover:bg-kenya-green hover:text-white border border-kenya-green/30"
+                        className="h-10 rounded-xl bg-kenya-green/5 text-kenya-green hover:bg-kenya-green hover:text-white border border-kenya-green/10 font-black text-[10px] uppercase tracking-widest transition-all shadow-lg hover:shadow-kenya-green/20"
                     >
-                        <ThumbsUp className="w-3 h-3 mr-1.5" /> Support
+                        <ThumbsUp className="w-3 h-3 mr-2" /> Support
                     </Button>
                     <Button 
                         size="sm" 
                         variant="secondary"
                         onClick={() => onVote(bill.id, 'nay')}
-                        className="h-8 bg-kenya-red/10 text-kenya-red hover:bg-kenya-red hover:text-white border border-kenya-red/30"
+                        className="h-10 rounded-xl bg-kenya-red/5 text-kenya-red hover:bg-kenya-red hover:text-white border border-kenya-red/10 font-black text-[10px] uppercase tracking-widest transition-all shadow-lg hover:shadow-kenya-red/20"
                     >
-                        <ThumbsDown className="w-3 h-3 mr-1.5" /> Oppose
+                        <ThumbsDown className="w-3 h-3 mr-2" /> Oppose
                     </Button>
                 </div>
             )}
             
-             {/* Progress Bar */}
-             <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden flex">
-                 <div 
-                   style={{ width: `${(bill.supportCount / (bill.supportCount + bill.opposeCount)) * 100}%` }} 
-                   className="h-full bg-kenya-green" 
-                 />
-                 <div className="h-full bg-kenya-red flex-1" />
-             </div>
-             
-             <div className="flex justify-between text-[9px] font-bold text-brand-text-muted">
-                 <span>{bill.supportCount.toLocaleString()} For</span>
-                 <span>{bill.opposeCount.toLocaleString()} Against</span>
+             <div className="space-y-2">
+                <div className="flex justify-between text-[9px] font-black uppercase tracking-[0.2em]">
+                    <span className="text-kenya-green">{bill.supportCount.toLocaleString()} YAY</span>
+                    <span className="text-kenya-red">{bill.opposeCount.toLocaleString()} NAY</span>
+                </div>
+                <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden flex shadow-inner">
+                    <motion.div 
+                      initial={{ width: 0 }}
+                      animate={{ width: `${(bill.supportCount / (bill.supportCount + bill.opposeCount)) * 100}%` }} 
+                      className="h-full bg-kenya-green" 
+                    />
+                    <div className="h-full bg-kenya-red flex-1" />
+                </div>
              </div>
         </div>
     </div>

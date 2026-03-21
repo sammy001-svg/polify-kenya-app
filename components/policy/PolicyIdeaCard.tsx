@@ -1,7 +1,8 @@
 "use client";
 
-import { PolicyIdea } from "@/lib/gamification";
+import { PolicyIdea, ANALYST_PERSONAS } from "@/lib/gamification";
 import { GamificationService } from "@/lib/gamification-service";
+import { NATIONAL_PROJECTS } from "@/lib/national-projects";
 import {
   ThumbsUp,
   MessageSquare,
@@ -12,34 +13,22 @@ import {
   Gavel,
   Sparkles,
   FileText,
+  TrendingUp,
+  ShieldCheck,
+  Zap,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase";
 import { PolicyComments } from "./PolicyComments";
 import { AIDraftBill } from "./AIDraftBill";
 import { AIAnalystSheet } from "./AIAnalystSheet";
+import { AnalystAvatars } from "./AnalystAvatars";
 import { Button } from "@/components/ui/button";
-
-/* cSpell:ignore supabase */
+import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface PolicyIdeaCardProps {
-  idea: PolicyIdea & {
-    ai_analysis?: {
-      feasibility: number;
-      cost_index: number;
-      impact_score: number;
-      analyst_notes: string;
-      ai_status: string;
-    };
-    ai_draft_bill?: {
-      bill_number: string;
-      title: string;
-      preamble: string;
-      sections: { title: string; content: string }[];
-      legal_basis: string;
-    };
-    commentCount?: number;
-  };
+  idea: PolicyIdea;
 }
 
 export function PolicyIdeaCard({ idea }: PolicyIdeaCardProps) {
@@ -50,6 +39,7 @@ export function PolicyIdeaCard({ idea }: PolicyIdeaCardProps) {
   const [isDrafting, setIsDrafting] = useState(false);
   const [isAnalystOpen, setIsAnalystOpen] = useState(false);
   const [draftedBill, setDraftedBill] = useState(idea.ai_draft_bill);
+  const [currentPersonaIndex, setCurrentPersonaIndex] = useState(0);
   const [currentUser, setCurrentUser] = useState<{ id: string } | null>(null);
   const supabase = createClient();
 
@@ -72,6 +62,19 @@ export function PolicyIdeaCard({ idea }: PolicyIdeaCardProps) {
     };
     init();
   }, [idea.id, supabase]);
+
+  // Rotates critiques every 5 seconds if multiple exist
+  useEffect(() => {
+    if (idea.ai_analysis?.persona_critiques) {
+      const personas = Object.keys(idea.ai_analysis.persona_critiques);
+      if (personas.length > 1) {
+        const interval = setInterval(() => {
+          setCurrentPersonaIndex((prev) => (prev + 1) % personas.length);
+        }, 5000);
+        return () => clearInterval(interval);
+      }
+    }
+  }, [idea.ai_analysis]);
 
   const handleVote = async () => {
     if (!currentUser) {
@@ -98,7 +101,6 @@ export function PolicyIdeaCard({ idea }: PolicyIdeaCardProps) {
       if (!error) {
         setVoteCount((prev) => prev + 1);
         setVoted(true);
-        // Award XP
         await GamificationService.awardXP(currentUser.id, 5, "Voted on Policy");
       }
     }
@@ -106,7 +108,6 @@ export function PolicyIdeaCard({ idea }: PolicyIdeaCardProps) {
 
   const handleAIDraft = async () => {
     setIsDrafting(true);
-    // Simulate multi-stage AI legislative synthesis
     const stages = [
       "Analyzing Constitutional alignment...",
       "Synthesizing fiscal impact models...",
@@ -169,192 +170,225 @@ export function PolicyIdeaCard({ idea }: PolicyIdeaCardProps) {
     "under-review": { color: "bg-kenya-gold", label: "Under Review" },
     popular: { color: "bg-purple-500", label: "Popular" },
     presented: { color: "bg-orange-500", label: "Presented" },
-    implemented: { color: "bg-green-500", label: "Implemented" },
+    implemented: { color: "bg-kenya-green", label: "Implemented" },
   };
 
-  const status =
-    statusConfig[idea.status as keyof typeof statusConfig] ||
-    statusConfig.submitted;
+  const status = statusConfig[idea.status as keyof typeof statusConfig] || statusConfig.submitted;
+
+  const currentPersonaId = idea.ai_analysis?.persona_critiques 
+    ? Object.keys(idea.ai_analysis.persona_critiques)[currentPersonaIndex]
+    : null;
+  const currentPersona = ANALYST_PERSONAS.find(p => p.id === currentPersonaId);
+  const currentCritique = currentPersonaId ? idea.ai_analysis?.persona_critiques[currentPersonaId] : null;
+
+  const alignedProjects = (idea.ai_analysis?.project_alignment || []).map(id => 
+    NATIONAL_PROJECTS.find(p => p.id === id)
+  ).filter(Boolean);
 
   return (
-    <div className="bg-brand-surface-secondary border border-border rounded-xl p-6 space-y-4 hover:border-kenya-gold/50 transition-all group/card">
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-2">
-            <h3 className="text-lg font-bold text-brand-text leading-tight">
-              {idea.title}
-            </h3>
-            {idea.status === "implemented" && (
-              <CheckCircle2 className="w-5 h-5 text-kenya-green shrink-0" />
-            )}
-          </div>
-          <div className="flex items-center gap-3 text-sm">
-            <span
-              className={`${status.color} text-white px-2 py-0.5 rounded-full text-xs font-bold`}
-            >
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="bg-white/2 border border-white/5 rounded-[2.5rem] p-8 space-y-6 hover:bg-white/5 transition-all duration-500 backdrop-blur-xl group/card relative overflow-hidden"
+    >
+      {/* Background Glow */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-kenya-gold/5 blur-[100px] pointer-events-none group-hover/card:bg-kenya-gold/10 transition-colors" />
+
+      <div className="flex items-start justify-between gap-6 relative z-10">
+        <div className="flex-1 space-y-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <span className={cn("text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full text-white", status.color)}>
               {status.label}
             </span>
-            <span className="px-2 py-0.5 bg-brand-surface-highlight rounded text-xs font-medium text-brand-text-muted">
+            <span className="text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full bg-white/5 text-brand-text-muted border border-white/5">
               {idea.category}
             </span>
+            {idea.status === "implemented" && (
+              <div className="flex items-center gap-1.5 px-3 py-1 bg-kenya-green/10 rounded-full border border-kenya-green/20">
+                <CheckCircle2 className="w-3 h-3 text-kenya-green" />
+                <span className="text-[9px] font-black uppercase tracking-widest text-kenya-green">ACT OF PARLIAMENT</span>
+              </div>
+            )}
           </div>
+          <h3 className="text-3xl font-black text-white leading-[1.1] tracking-tight group-hover/card:text-kenya-gold transition-colors">
+            {idea.title}
+          </h3>
         </div>
 
         <button
           onClick={handleVote}
-          className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all ${
-            voted
-              ? "bg-kenya-gold text-black"
-              : "bg-brand-surface-highlight text-brand-text hover:bg-brand-surface-secondary"
-          }`}
+          className={cn(
+            "flex flex-col items-center gap-1 px-6 py-4 rounded-[2rem] transition-all duration-500 shrink-0",
+            voted 
+              ? "bg-kenya-gold text-black shadow-[0_0_30px_rgba(253,185,49,0.3)]" 
+              : "bg-white/5 text-white hover:bg-white/10 border border-white/5"
+          )}
         >
-          <ThumbsUp className={`w-5 h-5 ${voted ? "fill-black" : ""}`} />
-          <span className="text-lg font-bold">{voteCount}</span>
+          <ThumbsUp className={cn("w-6 h-6", voted ? "fill-black" : "")} />
+          <span className="text-xl font-black">{voteCount}</span>
         </button>
       </div>
 
-      <p className="text-sm text-brand-text leading-relaxed line-clamp-3">
+      <p className="text-lg text-brand-text-muted font-medium leading-relaxed max-w-4xl">
         {idea.description}
       </p>
 
-      {idea.ai_analysis && idea.ai_analysis.ai_status === "complete" && (
-        <div className="bg-brand-surface p-4 rounded-xl border border-brand-primary/20 space-y-3 relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-2 opacity-10 group-hover/card:opacity-30 transition-opacity">
-            <Sparkles className="w-12 h-12 text-brand-primary" />
-          </div>
-          <h4 className="text-[10px] font-black uppercase tracking-widest text-brand-primary flex items-center gap-2">
-            <Sparkles className="w-3 h-3" /> Polify AI Scorecard
-          </h4>
-          <div className="grid grid-cols-3 gap-3 text-center">
-            <div className="space-y-1">
-              <p className="text-[9px] font-bold text-brand-text-muted uppercase">
-                Feasibility
-              </p>
-              <p className="text-sm font-black text-brand-primary">
-                {idea.ai_analysis.feasibility}%
-              </p>
+      {/* AI Analyst War Room Section */}
+      {idea.ai_analysis && (
+        <div className="bg-white/2 border border-white/5 rounded-4xl p-6 space-y-6 relative overflow-hidden">
+          <div className="flex items-center justify-between border-b border-white/5 pb-4">
+            <div className="flex items-center gap-3">
+              <AnalystAvatars activePersonaId={currentPersonaId || undefined} isAnalyzing={isDrafting} />
+              <div className="h-4 w-px bg-white/10 mx-2" />
+              <div className="space-y-0.5">
+                <h4 className="text-[10px] font-black uppercase tracking-widest text-brand-primary flex items-center gap-2">
+                  <Sparkles className="w-3 h-3" /> Intelligence Synthesis
+                </h4>
+                <p className="text-[9px] font-bold text-brand-text-muted uppercase">Multi-Persona Peer Review</p>
+              </div>
             </div>
-            <div className="space-y-1 border-x border-border">
-              <p className="text-[9px] font-bold text-brand-text-muted uppercase">
-                Social Impact
-              </p>
-              <p className="text-sm font-black text-kenya-green">
-                {idea.ai_analysis.impact_score}%
-              </p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-[9px] font-bold text-brand-text-muted uppercase">
-                Fiscal Load
-              </p>
-              <p className="text-sm font-black text-kenya-red">
-                {idea.ai_analysis.cost_index}/100
-              </p>
+            
+            <div className="flex gap-6">
+              {[
+                { label: 'Feasibility', val: idea.ai_analysis.feasibility, color: 'text-kenya-gold' },
+                { label: 'Impact', val: idea.ai_analysis.impact_score, color: 'text-kenya-green' },
+                { label: 'Fiscal Cost', val: idea.ai_analysis.cost_index, color: 'text-kenya-red' },
+              ].map(stat => (
+                <div key={stat.label} className="text-right">
+                  <div className={cn("text-lg font-black", stat.color)}>{stat.val}%</div>
+                  <div className="text-[8px] font-black text-brand-text-muted uppercase tracking-widest">{stat.label}</div>
+                </div>
+              ))}
             </div>
           </div>
+
+          <AnimatePresence mode="wait">
+            <motion.div 
+              key={currentPersonaId}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="flex gap-4 items-start bg-white/5 p-6 rounded-2xl border border-white/5"
+            >
+              <div className="text-3xl">{currentPersona?.avatar}</div>
+              <div className="space-y-2 flex-1">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className={cn("text-[10px] font-black uppercase tracking-widest", currentPersona?.color)}>
+                      {currentPersona?.name}
+                    </span>
+                    <span className="text-[9px] font-bold text-brand-text-muted uppercase ml-2">— {currentPersona?.role}</span>
+                  </div>
+                </div>
+                <p className="text-sm font-medium text-white/90 leading-relaxed italic">
+                  &quot;{currentCritique}&quot;
+                </p>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+
+          {alignedProjects.length > 0 && (
+             <div className="flex flex-wrap items-center gap-3 pt-2">
+                <span className="text-[10px] font-black text-brand-text-muted uppercase tracking-widest">Supports National Projects:</span>
+                {alignedProjects.map(p => p && (
+                  <div key={p.id} className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-lg border border-white/5 hover:border-brand-primary/30 transition-colors">
+                    <Zap className="w-3 h-3 text-brand-primary" />
+                    <span className="text-[9px] font-black uppercase tracking-widest text-white">{p.title}</span>
+                  </div>
+                ))}
+             </div>
+          )}
         </div>
       )}
 
       {draftedBill && showBill && <AIDraftBill bill={draftedBill} />}
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-col sm:flex-row gap-4">
         {voteCount >= 5 && !draftedBill && (
           <Button
             onClick={handleAIDraft}
             disabled={isDrafting}
-            className="flex-1 bg-brand-primary text-white rounded-full font-black text-[10px] uppercase gap-2 animate-pulse hover:animate-none"
+            className="flex-1 bg-brand-primary text-white rounded-3xl font-black text-[10px] uppercase gap-3 h-14 group/btn relative overflow-hidden shadow-xl shadow-brand-primary/20"
           >
+            <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" />
             {isDrafting ? (
-              "Drafting via Polify AI..."
+              <span className="animate-pulse">Synthesizing Legislative Text...</span>
             ) : (
               <>
-                <Gavel className="w-4 h-4" /> Move to AI Implementation
+                <Gavel className="w-5 h-5" /> Move to AI Implementation
               </>
             )}
           </Button>
         )}
+        
         {draftedBill && (
           <Button
             onClick={() => setShowBill(!showBill)}
-            variant="outline"
-            className="flex-1 border-brand-primary text-brand-primary rounded-full font-black text-[10px] uppercase gap-2 h-10"
+            className="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-3xl font-black text-[10px] uppercase gap-3 h-14"
           >
-            <FileText className="w-4 h-4" />{" "}
-            {showBill ? "Hide Draft Bill" : "View Generated Bill"}
+            <FileText className="w-5 h-5 text-brand-primary" />{" "}
+            {showBill ? "Minimize Draft Bill" : "View Generated Bill"}
           </Button>
         )}
+
         <Button
           onClick={() => setIsAnalystOpen(true)}
-          variant="ghost"
-          className="text-[10px] font-black uppercase text-brand-text-muted hover:text-brand-primary h-10"
+          variant="outline"
+          className="rounded-3xl border-white/10 text-brand-text-muted hover:text-white font-black text-[10px] uppercase h-14 px-8 gap-2"
         >
-          Ask AI Analyst
+          <TrendingUp className="w-4 h-4" /> Comprehensive Audit
         </Button>
       </div>
 
-      <div className="bg-brand-surface-highlight rounded-lg p-3">
-        <p className="text-xs font-bold uppercase tracking-wider text-brand-text-muted mb-1">
-          Expected Impact
-        </p>
-        <p className="text-sm text-brand-text leading-relaxed">
-          {idea.impactStatement}
-        </p>
-      </div>
-
-      <div>
-        <p className="text-xs font-bold uppercase tracking-wider text-brand-text-muted mb-2">
-          Target Audience
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {(idea.targetAudience || []).map((audience, index) => (
-            <span
-              key={index}
-              className="px-2 py-1 bg-kenya-green/20 text-kenya-green text-xs font-medium rounded"
-            >
-              {audience}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-4 pt-4 border-t border-border">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-linear-to-br from-kenya-red to-kenya-gold flex items-center justify-center text-xs font-bold text-white uppercase">
-              {idea.author.name
-                .split(" ")
-                .map((n: string) => n[0])
-                .join("")}
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-brand-text">
-                {idea.author.name}
-              </p>
-              <p className="text-xs text-brand-text-muted">Verified Citizen</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4 text-sm text-brand-text-muted font-bold">
-            <button
-              onClick={() => setShowComments(!showComments)}
-              className={`flex items-center gap-1 transition-all ${showComments ? "text-brand-primary" : "hover:text-brand-primary"}`}
-            >
-              <MessageSquare className="w-4 h-4" />
-              <span>{idea.commentCount || 0}</span>
-              {showComments ? (
-                <ChevronUp className="w-3 h-3" />
-              ) : (
-                <ChevronDown className="w-3 h-3" />
-              )}
-            </button>
-            <div className="flex items-center gap-1">
-              <Clock className="w-4 h-4" />
-              <span>{new Date(idea.submittedDate).toLocaleDateString()}</span>
-            </div>
-          </div>
+      <div className="flex items-center justify-between pt-6 border-t border-white/5">
+        <div className="flex items-center gap-4">
+           <div className="w-12 h-12 rounded-2xl bg-linear-to-br from-kenya-red to-kenya-gold p-px">
+              <div className="w-full h-full rounded-[0.9rem] bg-black flex items-center justify-center font-black text-white">
+                {idea.author.name.split(" ").map(n => n[0]).join("")}
+              </div>
+           </div>
+           <div>
+              <p className="text-sm font-black text-white">{idea.author.name}</p>
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-3 h-3 text-kenya-gold" />
+                <span className="text-[10px] font-black text-brand-text-muted uppercase tracking-widest">Verified Citizen Expert</span>
+              </div>
+           </div>
         </div>
 
-        {showComments && <PolicyComments policyId={idea.id} />}
+        <div className="flex items-center gap-6">
+           <button
+            onClick={() => setShowComments(!showComments)}
+            className={cn(
+              "flex items-center gap-2 px-4 py-2 rounded-xl transition-all font-black text-[10px] uppercase tracking-widest",
+              showComments ? "bg-white/10 text-white" : "text-brand-text-muted hover:text-white"
+            )}
+          >
+            <MessageSquare className="w-4 h-4" />
+            <span>{idea.commentCount || 0} Comments</span>
+            {showComments ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+          </button>
+          <div className="flex items-center gap-2 text-[10px] font-black text-brand-text-muted uppercase tracking-widest">
+            <Clock className="w-4 h-4" />
+            <span>{new Date(idea.submittedDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+          </div>
+        </div>
       </div>
+
+      <AnimatePresence>
+        {showComments && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="pt-6">
+              <PolicyComments policyId={idea.id} />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <AIAnalystSheet
         isOpen={isAnalystOpen}
@@ -363,6 +397,6 @@ export function PolicyIdeaCard({ idea }: PolicyIdeaCardProps) {
         category={idea.category}
         analysis={idea.ai_analysis}
       />
-    </div>
+    </motion.div>
   );
 }
