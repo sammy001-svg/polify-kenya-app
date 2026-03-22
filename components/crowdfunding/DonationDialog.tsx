@@ -16,6 +16,7 @@ import { checkPaymentStatus } from "@/actions/check-payment";
 import { useToast } from "@/components/ui/use-toast";
 import { Heart, Loader2, Phone, Coins } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 interface DonationDialogProps {
   isOpen: boolean;
