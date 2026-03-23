@@ -28,6 +28,7 @@ interface UserProfile {
   civicId?: string;
   username?: string;
   avatarUrl?: string;
+  isVerified: boolean;
   location?: UserLocation;
 }
 
@@ -42,7 +43,8 @@ async function getUser(): Promise<UserProfile> {
         role: "Voter", 
         id: "00000000",
         civicId: "KE-00000000",
-        username: "guest"
+        username: "guest",
+        isVerified: false
       };
     }
 
@@ -55,6 +57,7 @@ async function getUser(): Promise<UserProfile> {
         civicId: data?.civic_id || "KE-PENDING",
         username: data?.username || "citizen",
         avatarUrl: data?.avatar_url || undefined,
+        isVerified: data?.is_verified || false,
         location: {
           county: data?.county,
           constituency: data?.constituency,

@@ -53,6 +53,50 @@ export async function banUser(userId: string) {
   return { success: true };
 }
 
+export async function adminResetPassword(email: string) {
+  const supabase = await createClient();
+  
+  // Verify Admin
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Unauthorized" };
+  const { data: adminProfile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+  if (adminProfile?.role !== 'admin') return { error: "Unauthorized" };
+
+  // Generate password reset link and send via email
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/reset-password`,
+  });
+
+  if (error) return { error: error.message };
+  return { success: true };
+}
+
+export async function adminDeleteUser(userId: string) {
+  const supabase = await createClient();
+  
+  // Verify Admin
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Unauthorized" };
+  const { data: adminProfile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+  if (adminProfile?.role !== 'admin') return { error: "Unauthorized" };
+
+  // Delete from profiles (Cascade should handle related data if configured, or delete manually)
+  // Note: auth.admin.deleteUser requires service_role key which shouldn't be in supabase-server for client ops
+  // However, if we're using a standard client, we can only delete the profile.
+  // To delete from auth.users, we typically need a management API or service role.
+  // For this implementation, we'll focus on deleting the profile and marking for deletion.
+  
+  const { error: profileError } = await supabase
+    .from('profiles')
+    .delete()
+    .eq('id', userId);
+
+  if (profileError) return { error: profileError.message };
+  
+  revalidatePath('/admin/users');
+  return { success: true };
+}
+
 /**
  * PETITION MANAGEMENT ACTIONS
  */

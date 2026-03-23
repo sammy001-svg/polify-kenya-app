@@ -10,6 +10,7 @@ interface CivicIDCardProps {
     username?: string;
     avatarUrl?: string;
     ward?: string;
+    isVerified?: boolean;
   };
 }
 
@@ -58,7 +59,10 @@ export function CivicIDCard({ user }: CivicIDCardProps) {
             
             <div className="pb-1 space-y-0.5">
                 <div className="text-[10px] text-gray-400 uppercase tracking-wider">@{user.username || 'citizen'}</div>
-                <h3 className="text-xl md:text-2xl font-black text-white leading-none whitespace-nowrap">{user.fullName}</h3>
+                <h3 className="text-xl md:text-2xl font-black text-white leading-none whitespace-nowrap flex items-center gap-2">
+                  {user.fullName}
+                  {user.isVerified && <div className="p-0.5 bg-brand-primary rounded-full"><Shield className="w-4 h-4 text-black fill-black" /></div>}
+                </h3>
                 <div className="flex items-center gap-3 pt-1">
                      <div>
                         <div className="text-[9px] text-gray-500 uppercase">Role</div>

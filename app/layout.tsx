@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Libre_Baskerville, Dancing_Script } from "next/font/google";
 import "./globals.css";
 import { baseMetadata } from "@/lib/metadata";
+import { SecurityProvider } from "@/components/security/SecurityProvider";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const libre_baskerville = Libre_Baskerville({
@@ -37,7 +38,9 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${libre_baskerville.variable} ${dancing_script.variable} antialiased selection:bg-kenya-gold selection:text-black`}
       >
-        {children}
+        <SecurityProvider>
+          {children}
+        </SecurityProvider>
       </body>
     </html>
   );
