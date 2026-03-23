@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
 import { AdminMarketingCarousel } from "@/components/admin/AdminMarketingCarousel";
+import { createClient } from "@/lib/supabase";
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState("");
@@ -19,19 +20,38 @@ export default function AdminLoginPage() {
     setIsLoading(true);
     setError(null);
 
-    // MOCK LOGIN FOR DEMO
-    setTimeout(() => {
-      if (email === "admin@polify.ke" && password === "admin123") {
+    const supabase = createClient();
+
+    try {
+      // 1. TRY REAL LOGIN FIRST
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (data.user && !authError) {
+        // Check if user has admin role (optional, layout will check anyway)
+        window.location.href = "/admin";
+        return;
+      }
+
+      // 2. FALLBACK FOR THE NEW SPECIFIC CREDENTIALS (if real login fails or user not in Supabase yet)
+      const targetEmail = "support@polifykenya.co.ke";
+      const targetPassword = "Admin@123@1p";
+
+      if (email === targetEmail && password === targetPassword) {
         // Set a demo cookie that the layout can read
         document.cookie = "admin-demo-session=true; path=/; max-age=3600; SameSite=Lax";
-        // Use window.location.href for a full refresh to ensure the server component 
-        // in the layout picks up the new cookie immediately.
         window.location.href = "/admin";
       } else {
-        setError("Invalid administrative credentials. Please verify your identity.");
+        setError(authError?.message || "Invalid administrative credentials. Please verify your identity.");
         setIsLoading(false);
       }
-    }, 1500);
+    } catch (err) {
+      console.error("Login Error:", err);
+      setError("An unexpected authentication error occurred.");
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -130,12 +150,7 @@ export default function AdminLoginPage() {
                               </>
                            )}
                         </Button>
-                        
-                        <div className="text-center p-4 border border-white/5 bg-white/2">
-                           <p className="text-[9px] text-slate-600 uppercase font-black tracking-widest mb-2">Internal Override (BETA)</p>
-                           <p className="text-[10px] text-slate-400 font-mono select-all">ID: admin@polify.ke<br/>TOKEN: admin123</p>
-                        </div>
-                     </div>
+                                             </div>
                   </form>
                </CardContent>
             </Card>

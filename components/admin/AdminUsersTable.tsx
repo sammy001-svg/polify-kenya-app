@@ -92,15 +92,15 @@ export function AdminUsersTable({ users }: { users: User[] }) {
                       <AvatarFallback className="bg-brand-surface-secondary font-bold">{user.full_name?.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col">
-                      <span className="font-bold text-white text-sm">{user.full_name}</span>
-                      <span className="text-[10px] text-brand-text-muted uppercase tracking-tighter">@{user.username} • {user.role}</span>
+                      <span className="font-bold text-white text-sm">{user.full_name || 'Anonymous Citizen'}</span>
+                      <span className="text-[10px] text-brand-text-muted uppercase tracking-tighter">@{user.username || 'unknown'} • {user.role || 'user'}</span>
                     </div>
                   </div>
               </TableCell>
               <TableCell className="py-4">
                  <div className="flex flex-col gap-0.5">
                    <p className="text-xs text-white/90 font-medium">{user.email}</p>
-                   <p className="text-[10px] text-brand-text-muted font-mono">{user.phone || 'NO_PHONE_STR'}</p>
+                   <p className="text-[10px] text-brand-text-muted font-mono">{user.phone || 'NO_PHONE_RECORD'}</p>
                  </div>
               </TableCell>
               <TableCell className="py-4 font-mono text-[10px] text-blue-400 font-black">
@@ -108,7 +108,7 @@ export function AdminUsersTable({ users }: { users: User[] }) {
               </TableCell>
               <TableCell className="py-4">
                   <div className="flex flex-col">
-                    <span className="text-sm font-black text-brand-primary">KES {user.wallet_balance.toLocaleString()}</span>
+                    <span className="text-sm font-black text-brand-primary">KES {(user.wallet_balance || 0).toLocaleString()}</span>
                     <span className="text-[9px] text-brand-text-muted uppercase tracking-widest font-black">Escrow Liquid</span>
                   </div>
               </TableCell>

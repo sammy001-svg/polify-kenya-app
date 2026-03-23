@@ -30,7 +30,7 @@ export default async function AdminLayout({
 
   // Check Role (Skip if in demo mode or if user exists)
   let userRole = "guest";
-  const userEmail = user?.email || "Demo Administrator";
+  const userEmail = user?.email || (isDemo ? "support@polifykenya.co.ke" : "Demo Administrator");
 
   if (user) {
     const { data: profile } = await supabase

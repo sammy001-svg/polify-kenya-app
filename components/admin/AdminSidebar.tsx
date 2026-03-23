@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   Users,
@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { createClient } from "@/lib/supabase";
 
 const navItems = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -28,6 +29,20 @@ const navItems = [
 
 export function AdminSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const supabase = createClient();
+
+  const handleLogout = async () => {
+    // 1. Clear demo session cookie
+    document.cookie = "admin-demo-session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax";
+    
+    // 2. Sign out of Supabase
+    await supabase.auth.signOut();
+    
+    // 3. Redirect to login
+    router.push("/admin/login");
+    router.refresh(); // Ensure layout state is updated
+  };
 
   return (
     <div className="flex flex-col h-full bg-brand-surface border-r border-border w-64">
@@ -63,10 +78,14 @@ export function AdminSidebar() {
       </div>
 
       <div className="p-4 border-t border-border">
-         <Button variant="outline" className="w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-500/10 border-red-500/20">
-            <LogOut className="w-4 h-4 mr-2" />
-            Exit Admin
-         </Button>
+          <Button 
+            variant="outline" 
+            onClick={handleLogout}
+            className="w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-500/10 border-red-500/20"
+          >
+             <LogOut className="w-4 h-4 mr-2" />
+             Exit Admin
+          </Button>
       </div>
     </div>
   );

@@ -68,22 +68,46 @@ export default async function AdminUsersPage() {
   const cookieStore = await cookies();
   const isDemo = cookieStore.get("admin-demo-session")?.value === "true";
 
-  let users = [];
-  let error = null;
+  let users: any[] = [];
+  let error: { message: string; details?: string; hint?: string } | null = null;
+  console.log("[ADMIN] Attempting to fetch citizens from Supabase...");
+  
+  // 1. Try a simple fetch first to verify the profiles table exists
+  const { data: profileData, error: profileError } = await supabase
+    .from('profiles')
+    .select('*')
+    .order('updated_at', { ascending: false });
 
-  if (!isDemo) {
-    const { data, error: fetchError } = await supabase
-      .from('profiles')
-      .select('*')
-      .order('created_at', { ascending: false });
+  if (profileError) {
+    console.error("[ADMIN] Profile Fetch Error:", profileError.message, profileError.details, profileError.hint);
+    error = profileError;
+  } else {
+    console.log(`[ADMIN] Successfully fetched ${profileData?.length || 0} profiles.`);
     
-    users = data || [];
-    error = fetchError;
+    // 2. If profiles exist, try getting their wallets separately or via join
+    const { data: joinedData, error: joinError } = await supabase
+      .from('profiles')
+      .select('*, wallets(balance)')
+      .order('updated_at', { ascending: false });
+
+    if (joinError) {
+      console.error("[ADMIN] Join Fetch Error (wallets):", joinError.message, joinError.details, joinError.hint);
+      // Fallback: use profile data without balances
+      users = (profileData || []).map(u => ({ ...u, wallet_balance: 0 }));
+    } else if (joinedData) {
+      users = joinedData.map((u) => {
+        const wallets = u.wallets as unknown as { balance: number } | { balance: number }[];
+        return {
+          ...u,
+          wallet_balance: Array.isArray(wallets) ? (wallets[0]?.balance || 0) : (wallets?.balance || 0)
+        };
+      });
+    }
   }
 
-  // Fallback to Mock Data if in demo or if error occurs
-  if (isDemo || (error && users.length === 0)) {
-    if (error) console.warn("Supabase Fetch Error (Falling back to Mock):", error);
+  // Debug: Is it falling back to Mock?
+  if ((error && users.length === 0) || (isDemo && users.length === 0)) {
+    console.warn(`[ADMIN] Falling back to Mock Users (error=${!!error}, isDemo=${isDemo}, userCount=${users.length})`);
     users = MOCK_USERS;
   }
 
