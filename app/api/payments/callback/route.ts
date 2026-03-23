@@ -180,6 +180,10 @@ export async function POST(req: NextRequest) {
           }
        } else {
            console.warn("Payment record not found for reference:", reference);
+           await supabase.from('debug_logs').insert({
+               event_name: 'callback_not_found',
+               data: { reference, status }
+           });
        }
        
        return NextResponse.json({ received: true });
@@ -187,7 +191,6 @@ export async function POST(req: NextRequest) {
     
     // Payment Failed or Cancelled
     if (status === 'failed' || status === 'cancelled') {
-        const supabase = await createClient();
         console.log("Payment Failed/Cancelled:", attributes?.description);
         
         if (reference) {
