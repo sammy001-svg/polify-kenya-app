@@ -47,8 +47,17 @@ export async function initiateWalletDeposit(amount: number, phone: string) {
 
   if (dbError) {
       console.error("Wallet DB Init Error (campaign_payments):", dbError.message, dbError.code);
+      await supabase.from('debug_logs').insert({
+          event_name: 'initiation_db_error',
+          data: { error: dbError.message, reference }
+      });
       return { success: false, message: `Database error: ${dbError.message}` };
   }
+  
+  await supabase.from('debug_logs').insert({
+      event_name: 'initiation_db_success',
+      data: { reference, user_id: user.id }
+  });
   
   console.log(`- Pending payment record created: ${reference}`);
 
