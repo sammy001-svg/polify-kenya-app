@@ -1,0 +1,1 @@
+-- Allow webhooks to find payments by reference\nCREATE POLICY " Allow Webhook Select\ ON public.campaign_payments FOR SELECT USING (true);
