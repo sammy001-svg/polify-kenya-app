@@ -1,3 +1,5 @@
+import { createClient } from "@supabase/supabase-js";
+
 export interface KopoKopoSTKResponse {
   success: boolean;
   message?: string;
@@ -56,13 +58,14 @@ export async function initiateKopoKopoStkPush(params: {
     const callbackUrl = process.env.KOPOKOPO_CALLBACK_URL;
     
     // Normalize phone number to +254 format
+    // Normalize phone number to 254 format (No +)
     let formattedPhone = params.phone.replace(/\D/g, '');
     if (formattedPhone.startsWith('0')) {
-      formattedPhone = '+254' + formattedPhone.substring(1);
-    } else if (formattedPhone.startsWith('254')) {
-      formattedPhone = '+' + formattedPhone;
+      formattedPhone = '254' + formattedPhone.substring(1);
+    } else if (formattedPhone.startsWith('+')) {
+      formattedPhone = formattedPhone.substring(1);
     } else if (formattedPhone.startsWith('7') || formattedPhone.startsWith('1')) {
-      formattedPhone = '+254' + formattedPhone;
+      formattedPhone = '254' + formattedPhone;
     }
 
     const payload = {
@@ -101,6 +104,21 @@ export async function initiateKopoKopoStkPush(params: {
     // Kopo Kopo returns 201 Created and a Location header on success
     const data = await response.json().catch(() => ({}));
     console.log("Kopo Kopo Response:", response.status, data);
+
+    // Log to Supabase for debugging
+    const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+    await supabase.from('debug_logs').insert({
+        event_name: 'kopokopo_initiation_response',
+        data: { 
+            status: response.status, 
+            data, 
+            phone: formattedPhone,
+            reference: params.reference
+        }
+    });
 
     if (response.status === 201) {
       return {
