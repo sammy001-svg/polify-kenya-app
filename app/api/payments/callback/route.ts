@@ -42,24 +42,34 @@ export async function POST(req: NextRequest) {
         attributes?.reference ||
         data?.reference;
 
-    console.log("Processing Callback - Status:", status, "Reference:", reference, "Event:", event?.type);
+     console.log("Processing Callback - Status:", status, "Reference:", reference, "Event:", event?.type);
+     
+     await supabase.from('debug_logs').insert({
+         event_name: 'callback_step_start',
+         data: { status, reference, meta: attributes?.metadata }
+     });
+ 
+     if (status === 'success' || status === 'completed' || status === 'confirmed') {
+        console.log("Payment Confirmed, processing reference:", reference);
+        
+        await supabase.from('debug_logs').insert({
+            event_name: 'callback_query_start',
+            data: { reference }
+        });
 
-    if (status === 'success' || status === 'completed' || status === 'confirmed') {
-       // Payment Successful
-       console.log("Payment Confirmed, processing reference:", reference);
-       
-       const { data: payment, error: fetchError } = await supabase
-         .from('campaign_payments')
-         .select('*')
-         .eq('reference', reference)
-         .single();
-           
-       if (fetchError) {
-          await supabase.from('debug_logs').insert({
-              event_name: 'callback_fetch_error',
-              data: { reference, error: fetchError.message }
-          });
-       }
+        const { data: payment, error: fetchError } = await supabase
+          .from('campaign_payments')
+          .select('*')
+          .eq('reference', reference)
+          .single();
+          
+        if (fetchError) {
+           console.error("Fetch Error:", fetchError);
+           await supabase.from('debug_logs').insert({
+               event_name: 'callback_fetch_error',
+               data: { reference, error: fetchError.message, details: fetchError }
+           });
+        }
 
        if (payment) {
           await supabase.from('debug_logs').insert({
