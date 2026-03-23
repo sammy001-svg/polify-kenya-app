@@ -9,7 +9,16 @@ export async function initiateWalletDeposit(amount: number, phone: string) {
 
   if (!user) {
     console.error("Initiate Deposit Failed: No User");
-    return { success: false, message: "User not authenticated" };
+    return { success: false, message: "User not authenticated - Please sign in again" };
+  }
+
+  // ENV Check
+  if (!process.env.KOPOKOPO_CLIENT_ID || !process.env.KOPOKOPO_CALLBACK_URL) {
+      console.error("Environment variables missing on server!");
+      return { 
+          success: false, 
+          message: "Server Configuration Error: Missing Kopo Kopo credentials on Vercel. Please check Project Settings." 
+      };
   }
   
   console.log(`Initiating deposit for user: ${user.id}, amount: ${amount}`);
