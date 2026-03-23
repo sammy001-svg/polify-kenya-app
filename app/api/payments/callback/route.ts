@@ -49,6 +49,7 @@ export async function POST(req: NextRequest) {
          .single();
           
        if (payment) {
+          console.log(`- Found payment record for user: ${payment.user_id}, amount: ${payment.amount}, plan: ${payment.plan_id}`);
           let actionSuccess = true;
 
           if (payment.plan_id === 'donation' || reference.startsWith('DON-')) {
@@ -72,6 +73,8 @@ export async function POST(req: NextRequest) {
               if (rpcError) {
                   console.error("Wallet Credit Failed:", rpcError);
                   actionSuccess = false;
+              } else {
+                  console.log("Wallet credited successfully via RPC");
               }
               
           } else if (reference.startsWith('PARTY-')) {
@@ -113,7 +116,8 @@ export async function POST(req: NextRequest) {
           }
 
           if (actionSuccess) {
-              await supabase
+              console.log("Action succeeded, updating payment status to completed");
+              const { error: updateError } = await supabase
                 .from('campaign_payments')
                 .update({ 
                     status: 'completed', 
@@ -121,6 +125,8 @@ export async function POST(req: NextRequest) {
                     result_description: attributes?.description || 'Payment confirmed via Kopo Kopo' 
                 })
                 .eq('id', payment.id);
+              
+              if (updateError) console.error("Failed to update payment status:", updateError.message);
           }
        } else {
            console.warn("Payment record not found for reference:", reference);
