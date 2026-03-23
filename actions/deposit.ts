@@ -1,6 +1,6 @@
 "use server";
 
-import { initiateStkPush } from "@/lib/payhero";
+import { initiateKopoKopoStkPush } from "@/lib/kopokopo";
 import { createClient } from "@/lib/supabase-server";
 
 export async function initiateWalletDeposit(amount: number, phone: string) {
@@ -38,12 +38,19 @@ export async function initiateWalletDeposit(amount: number, phone: string) {
       return { success: false, message: "Failed to initialize deposit." };
   }
 
-  // Trigger PayHero
-  const result = await initiateStkPush(amount, phone, reference);
+  // Trigger Kopo Kopo
+  const result = await initiateKopoKopoStkPush({
+    amount,
+    phone,
+    reference,
+    firstName: user.user_metadata?.full_name?.split(' ')[0],
+    lastName: user.user_metadata?.full_name?.split(' ')[1],
+    email: user.email
+  });
   
-  if (result.success && result.checkout_request_id) {
+  if (result.success) {
     await supabase.from('campaign_payments')
-        .update({ checkout_request_id: result.checkout_request_id })
+        .update({ checkout_request_id: result.location })
         .eq('reference', reference);
   } else if (!result.success) {
       await supabase.from('campaign_payments')

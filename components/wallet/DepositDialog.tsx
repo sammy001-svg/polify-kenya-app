@@ -14,7 +14,8 @@ import {
 import { initiateWalletDeposit } from "@/actions/deposit";
 import { checkPaymentStatus } from "@/actions/check-payment";
 import { useToast } from "@/components/ui/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowRight, CircleDollarSign, Phone } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface DepositDialogProps {
   isOpen: boolean;
@@ -87,43 +88,108 @@ export function DepositDialog({ isOpen, onClose, onSuccess }: DepositDialogProps
 
   return (
     <Dialog open={isOpen} onOpenChange={isWaiting ? undefined : onClose}>
-      <DialogContent className="sm:max-w-md bg-black text-white border-white/20">
+      <DialogContent className="sm:max-w-md bg-brand-bg border-white/10 text-white shadow-2xl backdrop-blur-xl">
         <DialogHeader>
-          <DialogTitle>Top Up Wallet</DialogTitle>
-          <DialogDescription>Add funds via M-Pesa</DialogDescription>
+          <div className="mx-auto w-12 h-12 rounded-full bg-brand-primary/10 flex items-center justify-center mb-4">
+            <CircleDollarSign className="w-6 h-6 text-brand-primary" />
+          </div>
+          <DialogTitle className="text-center text-2xl font-black italic tracking-tighter">
+            Top Up Wallet
+          </DialogTitle>
+          <DialogDescription className="text-center text-brand-text-muted">
+            Add funds instantly via M-Pesa STK Push
+          </DialogDescription>
         </DialogHeader>
 
-        {!isWaiting ? (
-            <div className="grid gap-4 py-4">
-                <div className="grid gap-2">
-                    <label className="text-sm font-medium">Amount (KES)</label>
-                    <Input type="number" placeholder="e.g. 500" value={amount} onChange={e => setAmount(e.target.value)} disabled={loading} />
-                    <div className="flex gap-2">
-                        {[100, 500, 1000].map(val => (
-                            <Button key={val} variant="outline" size="sm" onClick={() => setAmount(val.toString())} disabled={loading}>
-                                {val}
-                            </Button>
-                        ))}
-                    </div>
+        <AnimatePresence mode="wait">
+          {!isWaiting ? (
+            <motion.div 
+              key="form"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="grid gap-6 py-6"
+            >
+              <div className="grid gap-2">
+                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-text-muted flex items-center gap-2">
+                   Amount (KES)
+                </label>
+                <div className="relative">
+                  <Input 
+                    type="number" 
+                    placeholder="e.g. 500" 
+                    value={amount} 
+                    onChange={e => setAmount(e.target.value)} 
+                    disabled={loading} 
+                    className="bg-brand-surface-secondary/50 border-white/10 focus:border-brand-primary/50 h-14 text-xl font-black italic tracking-tighter pl-4"
+                  />
                 </div>
-                <div className="grid gap-2">
-                    <label className="text-sm font-medium">M-Pesa Number</label>
-                    <Input placeholder="07XX..." value={phone} onChange={e => setPhone(e.target.value)} disabled={loading} />
+                <div className="flex gap-2 mt-1">
+                  {[100, 500, 1000, 5000].map(val => (
+                    <button 
+                      key={val} 
+                      onClick={() => setAmount(val.toString())} 
+                      disabled={loading}
+                      className="flex-1 py-2 rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold hover:bg-brand-primary hover:text-black transition-colors"
+                    >
+                      {val}
+                    </button>
+                  ))}
                 </div>
-            </div>
-        ) : (
-            <div className="flex flex-col items-center py-8 gap-4">
-                <Loader2 className="h-10 w-10 animate-spin text-primary" />
-                <p className="text-sm text-muted-foreground">Waiting for payment confirmation...</p>
-            </div>
-        )}
+              </div>
+              <div className="grid gap-2">
+                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-text-muted flex items-center gap-2">
+                   <Phone className="w-3 h-3" /> M-Pesa Number
+                </label>
+                <Input 
+                  placeholder="07XX XXX XXX" 
+                  value={phone} 
+                  onChange={e => setPhone(e.target.value)} 
+                  disabled={loading} 
+                  className="bg-brand-surface-secondary/50 border-white/10 focus:border-brand-primary/50 h-14 font-medium px-4"
+                />
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div 
+              key="waiting"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="flex flex-col items-center py-12 gap-6"
+            >
+              <div className="relative">
+                <div className="absolute inset-0 rounded-full bg-brand-primary/20 animate-ping" />
+                <div className="w-16 h-16 rounded-full bg-brand-surface border-2 border-brand-primary/30 flex items-center justify-center relative z-10">
+                   <Loader2 className="h-8 w-8 animate-spin text-brand-primary" />
+                </div>
+              </div>
+              <div className="space-y-2 text-center">
+                <h3 className="text-sm font-black uppercase tracking-widest text-brand-primary animate-pulse">Waiting for PIN...</h3>
+                <p className="text-xs text-brand-text-muted max-w-[200px] leading-relaxed">
+                  Please check your phone and enter your M-Pesa PIN to complete the deposit.
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        <DialogFooter>
-            {!isWaiting && (
-                <Button onClick={handleDeposit} disabled={loading} className="w-full">
-                    {loading ? "Processing..." : "Pay Now"}
-                </Button>
-            )}
+        <DialogFooter className="sm:justify-start">
+          {!isWaiting && (
+            <Button 
+                onClick={handleDeposit} 
+                disabled={loading} 
+                className="w-full h-14 bg-brand-primary hover:bg-brand-primary/90 text-black font-black uppercase tracking-[0.2em] transition-all active:scale-95 group shadow-xl shadow-brand-primary/10"
+            >
+              {loading ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <div className="flex items-center gap-2">
+                  <span>Confirm Deposit</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </div>
+              )}
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

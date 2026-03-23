@@ -1,9 +1,9 @@
 "use server";
 
-import { initiateStkPush, type STKPushResponse } from "@/lib/payhero";
+import { initiateKopoKopoStkPush, type KopoKopoSTKResponse } from "@/lib/kopokopo";
 import { createClient } from "@/lib/supabase-server";
 
-export interface PartyPaymentResponse extends STKPushResponse {
+export interface PartyPaymentResponse extends KopoKopoSTKResponse {
   reference: string;
 }
 
@@ -41,12 +41,19 @@ export async function initiatePartyMembershipPayment(amount: number, phone: stri
       return { success: false, message: "Failed to initialize payment." };
   }
 
-  // Trigger PayHero STK Push
-  const result = await initiateStkPush(amount, phone, reference);
+  // Trigger Kopo Kopo STK Push
+  const result = await initiateKopoKopoStkPush({
+    amount,
+    phone,
+    reference,
+    firstName: user.user_metadata?.full_name?.split(' ')[0],
+    lastName: user.user_metadata?.full_name?.split(' ')[1],
+    email: user.email
+  });
   
-  if (result.success && result.checkout_request_id) {
+  if (result.success) {
     await supabase.from('campaign_payments')
-        .update({ checkout_request_id: result.checkout_request_id })
+        .update({ checkout_request_id: result.location })
         .eq('reference', reference);
   } else if (!result.success) {
       await supabase.from('campaign_payments')

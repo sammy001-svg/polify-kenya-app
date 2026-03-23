@@ -1,6 +1,6 @@
 "use server";
 
-import { initiateStkPush } from "@/lib/payhero";
+import { initiateKopoKopoStkPush } from "@/lib/kopokopo";
 import { createClient } from "@/lib/supabase-server";
 import { revalidatePath } from "next/cache";
 
@@ -40,13 +40,22 @@ export async function processDonationPayment(amount: number, phone: string, camp
   }
 
   // 2. Initiate STK Push
-  const result = await initiateStkPush(amount, phone, reference);
+  const result = await initiateKopoKopoStkPush({
+    amount,
+    phone,
+    reference,
+    firstName: user.user_metadata?.full_name?.split(' ')[0] || "Citizen",
+    lastName: user.user_metadata?.full_name?.split(' ')[1] || "User",
+    email: user.email
+  });
   
   // 3. Update the record with provider info if successful
-  if (result.success && result.checkout_request_id) {
+  // Kopo Kopo doesn't return a checkout_request_id immediately in the body, but a Location header.
+  // We'll store the location or result data.
+  if (result.success) {
       await supabase
         .from('campaign_payments')
-        .update({ checkout_request_id: result.checkout_request_id })
+        .update({ checkout_request_id: result.location })
         .eq('reference', reference);
   } else if (!result.success) {
       // Mark as failed

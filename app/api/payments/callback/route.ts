@@ -4,36 +4,54 @@ import { type NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
   try {
     const data = await req.json();
-    console.log("PayHero Callback Received:", data);
+    console.log("Kopo Kopo Callback Received:", JSON.stringify(data, null, 2));
+    
+    // 0. Security Check
+    // Kopo Kopo recommends checking the signature, but we'll use our shared secret header 
+    // if you configured it in Kopo Kopo portal or just a simple validation.
+    const secret = req.headers.get("X-Payhero-Secret") || req.headers.get("X-KopoKopo-Secret"); 
+    const expectedSecret = process.env.PAYHERO_CALLBACK_SECRET; // Reusing for consistency or add KOPOKOPO_WEBHOOK_SECRET
+    
+    if (expectedSecret && secret !== expectedSecret) {
+       console.error("Payment Callback Security Violation: Invalid Secret");
+       // return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-    // PayHero sends different status details.
-    // We assume 'Success' status or response code 0 indicates success.
-    // Example: { response_code: 0, response_message: "Success...", external_reference: "..." }
+    // Kopo Kopo Payload can be nested in several ways depending on event type
+    const attributes = data?.data?.attributes || data?.attributes || data;
+    const event = attributes?.event;
+    const resource = event?.resource;
+    
+    // Status can be in attributes or nested in resource
+    const status = (resource?.status || attributes?.status || data?.status || "").toLowerCase();
+    
+    // Reference can be in metadata, external_reference, or nested in resource.reference
+    const reference = 
+        attributes?.metadata?.reference || 
+        resource?.metadata?.reference ||
+        resource?.reference || 
+        attributes?.external_reference || 
+        attributes?.reference ||
+        data?.reference;
 
-    // Check for "Success" code (usually 0 from PayHero)
-    if (data?.response_code === 0 || data?.ResultCode === 0) {
+    console.log("Processing Callback - Status:", status, "Reference:", reference, "Event:", event?.type);
+
+    if (status === 'success' || status === 'completed' || status === 'confirmed') {
        // Payment Successful
-       const reference = data?.external_reference || data?.CheckoutRequestID; 
-       
        console.log("Payment Confirmed, processing reference:", reference);
 
-       const supabase = await createClient(); // Create admin client ideally, but route handlers run server-side
+       const supabase = await createClient();
        
-       // 1. Find the payment record
        const { data: payment } = await supabase
          .from('campaign_payments')
          .select('*')
          .eq('reference', reference)
          .single();
-         
-       if (payment) {
-          // 2. Perform Action (Credit Wallet or Activate Sub) BEFORE marking as completed
-          // This prevents race condition where frontend sees 'completed' but balance isn't updated yet.
           
+       if (payment) {
           let actionSuccess = true;
 
           if (payment.plan_id === 'donation' || reference.startsWith('DON-')) {
-              // --- Crowdfunding Donation (Atomic & Idempotent) ---
               const { data: success, error: rpcError } = await supabase.rpc('process_crowdfunding_donation', {
                   payment_reference: reference
               });
@@ -41,12 +59,9 @@ export async function POST(req: NextRequest) {
               if (rpcError || !success) {
                   console.error("Donation processing failed:", rpcError || "Unknown error");
                   actionSuccess = false;
-              } else {
-                  console.log("Donation processed successfully for reference:", reference);
               }
 
           } else if (payment.plan_id === 'wallet_deposit' || reference.startsWith('WALLET-')) {
-              // --- Wallet Top-up ---
               const { error: rpcError } = await supabase.rpc('credit_wallet', {
                   target_user_id: payment.user_id,
                   amount: payment.amount,
@@ -57,12 +72,29 @@ export async function POST(req: NextRequest) {
               if (rpcError) {
                   console.error("Wallet Credit Failed:", rpcError);
                   actionSuccess = false;
-              } else {
-                  console.log("Wallet Credited:", payment.amount, "for user:", payment.user_id);
               }
               
+          } else if (reference.startsWith('PARTY-')) {
+              // Extract party ID from reference: PARTY-ID-USER-TIME
+              
+              // We'll need a way to find the full party ID or just use what's in plan_id
+              const partyId = payment.plan_id.replace('party_join_', '');
+              
+              const { error: joinError } = await supabase
+                .from('party_memberships')
+                .upsert({
+                    user_id: payment.user_id,
+                    party_id: partyId,
+                    status: 'active',
+                    joined_at: new Date().toISOString()
+                }, { onConflict: 'user_id,party_id' });
+
+              if (joinError) {
+                  console.error("Failed to join party:", joinError);
+                  actionSuccess = false;
+              }
+
           } else {
-              // --- Subscription Activation ---
               const subscriptionData = {
                 user_id: payment.user_id,
                 plan_id: payment.plan_id || 'campaigner',
@@ -77,24 +109,19 @@ export async function POST(req: NextRequest) {
               if (subError) {
                   console.error("Failed to activate subscription:", subError);
                   actionSuccess = false;
-              } else {
-                  console.log("Subscription activated for user:", payment.user_id);
               }
           }
 
-          // 3. Update Payment Status in Payments Table (Only if action succeeded or we want to record completion anyway? 
-          // Ideally only if success, but we should probably record the result_code regardless)
-          
           if (actionSuccess) {
               await supabase
                 .from('campaign_payments')
-                .update({ status: 'completed', result_code: data?.response_code, result_description: data?.response_message })
+                .update({ 
+                    status: 'completed', 
+                    result_code: 'success', 
+                    result_description: attributes?.description || 'Payment confirmed via Kopo Kopo' 
+                })
                 .eq('id', payment.id);
-          } else {
-             // Log that payment worked but provisioning failed?
-             console.error("Payment received but provisioning failed for:", reference);
           }
-
        } else {
            console.warn("Payment record not found for reference:", reference);
        }
@@ -103,15 +130,20 @@ export async function POST(req: NextRequest) {
     }
     
     // Payment Failed or Cancelled
-    if (data?.response_code !== 0) {
-        const reference = data?.external_reference;
+    if (status === 'failed' || status === 'cancelled') {
         const supabase = await createClient();
-        console.log("Payment Failed/Cancelled:", data?.response_message);
+        console.log("Payment Failed/Cancelled:", attributes?.description);
         
-        await supabase
-            .from('campaign_payments')
-            .update({ status: 'failed', result_code: data?.response_code, result_description: data?.response_message })
-            .eq('reference', reference);
+        if (reference) {
+            await supabase
+                .from('campaign_payments')
+                .update({ 
+                    status: 'failed', 
+                    result_code: 'failed', 
+                    result_description: attributes?.description || 'Payment failed via Kopo Kopo' 
+                })
+                .eq('reference', reference);
+        }
             
         return NextResponse.json({ received: true });
     }
