@@ -1,4 +1,4 @@
-import fetch from "node-fetch";
+// Use global fetch (available in Node.js 18+)
 
 async function simulateCallback() {
     const reference = process.argv[2];

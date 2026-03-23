@@ -28,7 +28,8 @@ export function SecurityProvider({ children }: { children: ReactNode }) {
       
       const isCtrlOrCmd = e.ctrlKey || e.metaKey;
       const isShift = e.shiftKey;
-      const key = e.key.toLowerCase();
+      const key = e.key?.toLowerCase();
+      if (!key) return;
 
       // Block F12
       if (e.keyCode === 123 || e.key === 'F12') {
