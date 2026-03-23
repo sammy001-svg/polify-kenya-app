@@ -8,8 +8,11 @@ export async function initiateWalletDeposit(amount: number, phone: string) {
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
+    console.error("Initiate Deposit Failed: No User");
     return { success: false, message: "User not authenticated" };
   }
+  
+  console.log(`Initiating deposit for user: ${user.id}, amount: ${amount}`);
 
   // Validate phone
   const phoneRegex = /^(?:254|\+254|0)?((?:7|1)[0-9]{8})$/;
@@ -34,9 +37,11 @@ export async function initiateWalletDeposit(amount: number, phone: string) {
     });
 
   if (dbError) {
-      console.error("Wallet DB Init Error:", dbError);
-      return { success: false, message: "Failed to initialize deposit." };
+      console.error("Wallet DB Init Error (campaign_payments):", dbError.message, dbError.code);
+      return { success: false, message: `Database error: ${dbError.message}` };
   }
+  
+  console.log(`- Pending payment record created: ${reference}`);
 
   // Trigger Kopo Kopo
   const result = await initiateKopoKopoStkPush({

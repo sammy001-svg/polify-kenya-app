@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS public.debug_logs (id UUID DEFAULT gen_random_uuid() PRIMARY KEY, event_name TEXT, data JSONB, created_at TIMESTAMPTZ DEFAULT NOW()); ALTER TABLE public.debug_logs ENABLE ROW LEVEL SECURITY; CREATE POLICY " Admins can view logs\ ON public.debug_logs FOR SELECT USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));

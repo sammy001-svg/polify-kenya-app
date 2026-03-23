@@ -5,6 +5,14 @@ export async function POST(req: NextRequest) {
   try {
     const data = await req.json();
     console.log("Kopo Kopo Callback Received:", JSON.stringify(data, null, 2));
+
+    const supabase = await createClient();
+    
+    // Log the Raw Callback for Debugging
+    await supabase.from('debug_logs').insert({
+        event_name: 'payment_callback',
+        data: data
+    });
     
     // 0. Security Check
     // Kopo Kopo recommends checking the signature, but we'll use our shared secret header 
@@ -39,16 +47,25 @@ export async function POST(req: NextRequest) {
     if (status === 'success' || status === 'completed' || status === 'confirmed') {
        // Payment Successful
        console.log("Payment Confirmed, processing reference:", reference);
-
-       const supabase = await createClient();
        
-       const { data: payment } = await supabase
+       const { data: payment, error: fetchError } = await supabase
          .from('campaign_payments')
          .select('*')
          .eq('reference', reference)
          .single();
-          
+           
+       if (fetchError) {
+          await supabase.from('debug_logs').insert({
+              event_name: 'callback_fetch_error',
+              data: { reference, error: fetchError.message }
+          });
+       }
+
        if (payment) {
+          await supabase.from('debug_logs').insert({
+              event_name: 'callback_payment_found',
+              data: { payment_id: payment.id, user_id: payment.user_id }
+          });
           console.log(`- Found payment record for user: ${payment.user_id}, amount: ${payment.amount}, plan: ${payment.plan_id}`);
           let actionSuccess = true;
 
@@ -57,10 +74,14 @@ export async function POST(req: NextRequest) {
                   payment_reference: reference
               });
 
-              if (rpcError || !success) {
-                  console.error("Donation processing failed:", rpcError || "Unknown error");
-                  actionSuccess = false;
-              }
+               if (rpcError || !success) {
+                   console.error("Donation processing failed:", rpcError || "Unknown error");
+                   await supabase.from('debug_logs').insert({
+                       event_name: 'callback_donation_failed',
+                       data: { reference, error: rpcError?.message || "Unknown error" }
+                   });
+                   actionSuccess = false;
+               }
 
           } else if (payment.plan_id === 'wallet_deposit' || reference.startsWith('WALLET-')) {
               const { error: rpcError } = await supabase.rpc('credit_wallet', {
@@ -70,12 +91,20 @@ export async function POST(req: NextRequest) {
                   reference: reference
               });
               
-              if (rpcError) {
-                  console.error("Wallet Credit Failed:", rpcError);
-                  actionSuccess = false;
-              } else {
-                  console.log("Wallet credited successfully via RPC");
-              }
+               if (rpcError) {
+                   console.error("Wallet Credit Failed:", rpcError);
+                   await supabase.from('debug_logs').insert({
+                       event_name: 'callback_wallet_failed',
+                       data: { reference, error: rpcError.message }
+                   });
+                   actionSuccess = false;
+               } else {
+                   console.log("Wallet credited successfully via RPC");
+                   await supabase.from('debug_logs').insert({
+                       event_name: 'callback_wallet_success',
+                       data: { reference }
+                   });
+               }
               
           } else if (reference.startsWith('PARTY-')) {
               // Extract party ID from reference: PARTY-ID-USER-TIME
@@ -121,12 +150,23 @@ export async function POST(req: NextRequest) {
                 .from('campaign_payments')
                 .update({ 
                     status: 'completed', 
-                    result_code: 'success', 
+                    result_code: 0, 
                     result_description: attributes?.description || 'Payment confirmed via Kopo Kopo' 
                 })
                 .eq('id', payment.id);
               
-              if (updateError) console.error("Failed to update payment status:", updateError.message);
+              if (updateError) {
+                  console.error("Failed to update payment status:", updateError.message);
+                  await supabase.from('debug_logs').insert({
+                      event_name: 'callback_final_update_failed',
+                      data: { reference, error: updateError.message }
+                  });
+              } else {
+                  await supabase.from('debug_logs').insert({
+                      event_name: 'callback_final_update_success',
+                      data: { reference }
+                  });
+              }
           }
        } else {
            console.warn("Payment record not found for reference:", reference);
@@ -145,7 +185,7 @@ export async function POST(req: NextRequest) {
                 .from('campaign_payments')
                 .update({ 
                     status: 'failed', 
-                    result_code: 'failed', 
+                    result_code: 1, 
                     result_description: attributes?.description || 'Payment failed via Kopo Kopo' 
                 })
                 .eq('reference', reference);
