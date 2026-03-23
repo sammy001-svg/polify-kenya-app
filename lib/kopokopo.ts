@@ -58,14 +58,16 @@ export async function initiateKopoKopoStkPush(params: {
     const callbackUrl = process.env.KOPOKOPO_CALLBACK_URL;
     
     // Normalize phone number to +254 format
-    // Normalize phone number to 254 format (No +)
+    // Normalize phone number to E.164 format (+2547XXXXXXXX)
     let formattedPhone = params.phone.replace(/\D/g, '');
     if (formattedPhone.startsWith('0')) {
-      formattedPhone = '254' + formattedPhone.substring(1);
-    } else if (formattedPhone.startsWith('+')) {
-      formattedPhone = formattedPhone.substring(1);
+      formattedPhone = '+254' + formattedPhone.substring(1);
+    } else if (formattedPhone.startsWith('254')) {
+      formattedPhone = '+' + formattedPhone;
     } else if (formattedPhone.startsWith('7') || formattedPhone.startsWith('1')) {
-      formattedPhone = '254' + formattedPhone;
+      formattedPhone = '+254' + formattedPhone;
+    } else if (!formattedPhone.startsWith('+')) {
+      formattedPhone = '+' + formattedPhone;
     }
 
     const payload = {
