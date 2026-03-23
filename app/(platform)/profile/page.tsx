@@ -79,7 +79,10 @@ export default async function ProfilePage() {
       {/* Top Row: Identity & Stats */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-5 flex flex-col gap-6">
-            <CivicIDCard user={user} />
+            <CivicIDCard user={{
+              ...user,
+              ward: user.location?.ward
+            }} />
             <Card className="bg-brand-surface border-border">
               <CardHeader>
                 <CardTitle>Crowdfunding</CardTitle>

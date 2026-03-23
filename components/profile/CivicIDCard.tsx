@@ -71,7 +71,7 @@ export function CivicIDCard({ user }: CivicIDCardProps) {
                      <div className="w-px h-6 bg-white/10" />
                      <div>
                         <div className="text-[9px] text-gray-500 uppercase">Ward</div>
-                        <div className="text-xs font-bold text-white">{user.ward || 'Westlands'}</div>
+                        <div className="text-xs font-bold text-white uppercase tracking-tight">{user.ward || 'Not Set'}</div>
                      </div>
                 </div>
             </div>
