@@ -31,8 +31,13 @@ export function ResultCard({ result }: ResultCardProps) {
           <div className="flex justify-between items-center text-[10px] md:text-sm text-brand-text-muted mt-0.5">
             <div className="flex items-center gap-2">
               <span
-                className={`px-2 py-0.5 rounded-lg text-[8px] md:text-xs font-black text-white uppercase ${result.party_color}`}
+                className={`px-2 py-0.5 rounded-lg text-[8px] md:text-xs font-black text-white uppercase flex items-center gap-1 ${result.party_color}`}
               >
+                {result.party_symbol && (
+                  <div className="w-3.5 h-3.5 rounded-full bg-white p-0.5 flex items-center justify-center shrink-0">
+                    <Image src={result.party_symbol} alt="" width={12} height={12} className="object-contain" />
+                  </div>
+                )}
                 {result.party}
               </span>
               <span className="font-bold">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import {
   Dialog,
@@ -19,6 +19,7 @@ import { Loader2, Send, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 
 export function ContactSupportModal({ trigger }: { trigger: React.ReactNode }) {
+  const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -28,6 +29,11 @@ export function ContactSupportModal({ trigger }: { trigger: React.ReactNode }) {
     email: "",
     message: "",
   });
+
+  // Hydration fix: ensures Radix IDs are consistent by only rendering on client
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,6 +61,10 @@ export function ContactSupportModal({ trigger }: { trigger: React.ReactNode }) {
       setTimeout(() => setSubmitted(false), 300);
     }
   };
+
+  if (!mounted) {
+    return <>{trigger}</>;
+  }
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>

@@ -99,7 +99,7 @@ export function AuditLogPane() {
       </div>
 
       {/* 2. MAIN CARD BODY (Chamfered) */}
-      <div className="relative z-10 -mt-px bg-[#06120E] border-2 border-[#18362A] p-3 [clip-path:polygon(0_0,100%_0,100%_calc(100%-15px),calc(100%-15px)_100%,0_100%)] shadow-[inset_0_0_20px_rgba(0,0,0,0.8)] flex-1 flex flex-col overflow-hidden max-h-[400px]">
+      <div className="relative z-10 -mt-px bg-white border-2 border-slate-200 p-3 [clip-path:polygon(0_0,100%_0,100%_calc(100%-15px),calc(100%-15px)_100%,0_100%)] shadow-2xl flex-1 flex flex-col overflow-hidden max-h-[400px]">
         
         {/* BETA AI TOOLTIP OVERLAY (Side-Floating) */}
         <AnimatePresence>
@@ -108,15 +108,15 @@ export function AuditLogPane() {
                initial={{ opacity: 0, x: -20 }}
                animate={{ opacity: 1, x: 0 }}
                exit={{ opacity: 0, x: -20 }}
-               className="absolute top-2 -left-2 z-50 w-[220px] bg-[#091813]/98 backdrop-blur-xl p-3 border border-[#00FF8C]/40 shadow-2xl [clip-path:polygon(0_0,calc(100%-10px)_0,100%_10px,100%_100%,10px_100%,0_calc(100%-10px))]"
+               className="absolute top-2 -left-2 z-50 w-[220px] bg-white backdrop-blur-xl p-3 border border-slate-300 shadow-2xl [clip-path:polygon(0_0,calc(100%-10px)_0,100%_10px,100%_100%,10px_100%,0_calc(100%-10px))]"
              >
                 <div className="flex flex-col gap-2">
-                   <div className="flex items-center gap-2 border-b border-[#00FF8C]/20 pb-1">
-                      <Info className="w-3.5 h-3.5 text-[#00FF8C]" />
-                      <span className="text-[8px] font-black text-[#00FF8C] tracking-widest uppercase">INGESTION ENGINE</span>
+                   <div className="flex items-center gap-2 border-b border-slate-100 pb-1">
+                      <Info className="w-3.5 h-3.5 text-brand-primary" />
+                      <span className="text-[8px] font-black text-brand-primary tracking-widest uppercase">INGESTION ENGINE</span>
                    </div>
-                   <p className="text-[9px] font-bold text-white/90 leading-relaxed tracking-wide uppercase">
-                     <span className="text-[#00FF8C]">Beta 1 and Beta 2 AI</span> are pulling results live on the clould after being uploaded by retuning office via KIM skit. It capture all results verify and pass them to <span className="text-[#00FF8C]">Poly 1 AI</span> for allocation
+                   <p className="text-[9px] font-bold text-slate-700 leading-relaxed tracking-wide uppercase">
+                      <span className="text-brand-primary">Beta 1 and Beta 2 AI</span> are pulling results live on the cloud after being uploaded by returning officers via KIM kit. It captures all results, verifies them, and passes them to <span className="text-brand-primary">Poly 1 AI</span> for allocation.
                    </p>
                 </div>
              </motion.div>
@@ -124,12 +124,12 @@ export function AuditLogPane() {
         </AnimatePresence>
 
         {/* Inner Border Lines */}
-        <div className="absolute inset-x-0 top-0 h-px bg-[#00FF8C]/20" />
-        <div className="absolute left-0 top-0 bottom-15 w-px bg-[#00FF8C]/10" />
+        <div className="absolute inset-x-0 top-0 h-px bg-slate-100" />
+        <div className="absolute left-0 top-0 bottom-15 w-px bg-slate-100" />
 
         <div 
           ref={scrollRef}
-          className="flex flex-col gap-2 pt-1 flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-[#00FF8C]/20 scrollbar-track-transparent pr-1"
+          className="flex flex-col gap-2 pt-1 flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent pr-1 font-mono"
         >
           <AnimatePresence initial={false}>
             {logs.map((log) => (
@@ -137,32 +137,32 @@ export function AuditLogPane() {
                  key={log.id} 
                  initial={{ opacity: 0, x: -10 }}
                  animate={{ opacity: 1, x: 0 }}
-                 className="flex flex-col py-2 border-b border-[#00FF8C]/5 last:border-0 hover:bg-[#00FF8C]/5 px-2 transition-colors cursor-pointer group/log"
+                 className="flex flex-col py-2 border-b border-slate-50 last:border-0 hover:bg-slate-50 px-2 transition-colors cursor-pointer group/log"
                >
                   <div className="flex items-center gap-3">
                     {/* Status Icon */}
                     {log.type === 'alert' ? (
                       <AlertCircle className="w-3 h-3 text-[#ff4444] shrink-0" />
                     ) : (
-                      <div className="w-0 h-0 border-t-4 border-t-transparent border-l-[6px] border-l-[#00FF8C] border-b-4 border-b-transparent shrink-0 drop-shadow-[0_0_3px_#00FF8C]" />
+                      <div className="w-0 h-0 border-t-4 border-t-transparent border-l-[6px] border-l-brand-primary border-b-4 border-b-transparent shrink-0" />
                     )}
                     
                     <div className="flex flex-col min-w-0 flex-1">
                       <div className="flex justify-between items-start gap-2">
-                        <span className={`text-[10px] font-black tracking-wide truncate ${log.type === 'alert' ? 'text-[#ff4444]' : 'text-[#00FF8C]'}`}>
+                        <span className={`text-[10px] font-black tracking-wide truncate ${log.type === 'alert' ? 'text-[#ff4444]' : 'text-brand-primary'}`}>
                           {log.text.toUpperCase()}
                         </span>
-                        <span className="text-[7px] font-mono text-white/40 tabular-nums">{log.timestamp}</span>
+                        <span className="text-[7px] font-mono text-slate-400 tabular-nums">{log.timestamp}</span>
                       </div>
                       <div className="flex justify-between items-center mt-0.5">
-                        <span className="text-[7px] font-bold text-white/30 uppercase tracking-widest truncate">{log.location}</span>
+                        <span className="text-[7px] font-bold text-slate-500 uppercase tracking-widest truncate">{log.location}</span>
                         
                         {/* Status Bars */}
                         <div className="flex gap-px shrink-0 items-end h-2">
                            {[...Array(5)].map((_, i) => (
                              <div 
                                key={i} 
-                               className={`w-[2px] bg-[#00FF8C] rounded-[1px] ${i < log.bars ? 'h-full opacity-100 shadow-[0_0_3px_#00FF8C]' : 'h-1/2 opacity-10'}`} 
+                               className={`w-[2px] rounded-[1px] ${i < log.bars ? 'h-full bg-brand-primary opacity-100' : 'h-1/2 bg-slate-200 opacity-50'}`} 
                              />
                            ))}
                         </div>
@@ -175,7 +175,7 @@ export function AuditLogPane() {
         </div>
 
         {/* Bottom Right Decorative Triangle Cutout Accent */}
-        <div className="absolute bottom-0 right-0 w-4 h-[2px] bg-[#00FF8C]/50" />
+        <div className="absolute bottom-0 right-0 w-4 h-[2px] bg-slate-200" />
       </div>
     </div>
   );

@@ -204,5 +204,63 @@ export const PARTIES_DATA: PoliticalParty[] = [
         nominationFee: 'Low Cost Entry',
         termLimit: 'Undefined'
     }
+  },
+  {
+    id: 'agano',
+    name: 'Agano Party',
+    abbreviation: 'AGANO',
+    symbol: '/parties/agano-lamp.png',
+    color: 'bg-blue-900',
+    slogan: 'Badilisha Kenya',
+    ideology: 'Christian Democracy',
+    description: 'A party focused on integrity, religious values and anti-corruption.',
+    leadership: {
+      leader: { name: 'David Mwaure' },
+      secretaryGeneral: { name: 'Waihenya Ndirangu' },
+      chairperson: { name: 'Sammy Kamotho' }
+    },
+    stats: {
+      founded: '2006',
+      membersCount: '0.5M',
+      electedGovernors: 0,
+      electedSenators: 0,
+      electedMPs: 0,
+      electedMCAs: 5
+    },
+    manifestoSummary: ['Anti-corruption', 'Family Values', 'Economic Recovery'],
+    constitutionParameters: {
+        membershipFee: 'KES 50',
+        nominationFee: 'KES 10,000',
+        termLimit: '5 Years'
+    }
+  },
+  {
+    id: 'roots',
+    name: 'Roots Party of Kenya',
+    abbreviation: 'ROOTS',
+    symbol: '/parties/roots-leaf.png',
+    color: 'bg-green-500',
+    slogan: 'Freedom and justice',
+    ideology: 'Libertarianism',
+    description: 'Advocating for the legalization of marijuana for medicinal and economic purposes.',
+    leadership: {
+      leader: { name: 'George Wajackoyah' },
+      secretaryGeneral: { name: 'Adam Kadernani' },
+      chairperson: { name: 'Vinicent Musyoka' }
+    },
+    stats: {
+      founded: '2011',
+      membersCount: '0.8M',
+      electedGovernors: 0,
+      electedSenators: 0,
+      electedMPs: 0,
+      electedMCAs: 2
+    },
+    manifestoSummary: ['Marijuana Legalization', 'Snake Farming', 'Debt Management'],
+    constitutionParameters: {
+        membershipFee: 'KES 50',
+        nominationFee: 'KES 0',
+        termLimit: '10 Years'
+    }
   }
 ];

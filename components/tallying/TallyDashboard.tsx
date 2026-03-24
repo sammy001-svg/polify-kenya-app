@@ -4,61 +4,100 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { Toaster } from "sonner";
+import dynamic from "next/dynamic";
 import { SummaryHeader } from "./SummaryHeader";
-import { ElectionHeatMap } from "./ElectionHeatMap";
 import { DetailedResultCard } from "./DetailedResultCard";
 import { DataProcessingNodeV2 } from "./DataProcessingNodeV2";
 import { AIAlertsPane } from "./AIAlertsPane";
 import { AuditLogPane } from "./AuditLogPane";
-import { ResultProjectionsNode } from "./ResultProjectionsNode";
 import { VerifiedBadge } from "./VerifiedBadge";
+
+// Lazy-load heavy visualization components
+const ElectionHeatMap = dynamic(() => import("./ElectionHeatMap").then(mod => mod.ElectionHeatMap), { 
+  ssr: false,
+  loading: () => <div className="w-full h-full bg-[#0A1612]/40 animate-pulse border border-[#18362A]" />
+});
+
+const ResultProjectionsNode = dynamic(() => import("./ResultProjectionsNode").then(mod => mod.ResultProjectionsNode), { ssr: false });
 
 interface Candidate {
   name: string;
   votes: number;
   photo?: string;
   party_color: string;
+  party_symbol?: string;
 }
 
 export function TallyDashboard() {
   const [presidential, setPresidential] = useState<Candidate[]>([
-    { name: "Candidate A", votes: 7290045, photo: "/images/candidates/william_ruto.png", party_color: "bg-brand-primary" },
-    { name: "Candidate B", votes: 6025811, photo: "/images/candidates/raila_odinga.png", party_color: "bg-kenya-red" },
-    { name: "Candidate C", votes: 80705, photo: "", party_color: "bg-white/10" },
-    { name: "Candidate D", votes: 40352, photo: "", party_color: "bg-white/10" },
-    { name: "Others", votes: 13449, photo: "", party_color: "bg-white/10" }
+    { name: "Candidate A", votes: 1, photo: "/images/candidates/william_ruto.png", party_color: "bg-yellow-400", party_symbol: "/parties/uda-wheelbarrow.png" },
+    { name: "Candidate B", votes: 1, photo: "/images/candidates/raila_odinga.png", party_color: "bg-orange-500", party_symbol: "/parties/odm-orange.png" },
+    { name: "Candidate C", votes: 0, photo: "/images/candidates/david_mwaure.png", party_color: "bg-blue-900", party_symbol: "/parties/agano-lamp.png" },
+    { name: "Candidate D", votes: 0, photo: "/images/candidates/george_wajackoyah.png", party_color: "bg-green-500", party_symbol: "/parties/roots-leaf.png" }
   ]);
 
   const [parliamentary, setParliamentary] = useState<Candidate[]>([
-    { name: "Candidate M", votes: 3412091, photo: "", party_color: "bg-kenya-green" },
-    { name: "Candidate N", votes: 2944502, photo: "", party_color: "bg-kenya-gold" },
+    { name: "Candidate M", votes: 1, photo: "/images/candidates/p1.png", party_color: "bg-yellow-400", party_symbol: "/parties/uda-wheelbarrow.png" },
+    { name: "Candidate N", votes: 1, photo: "/images/candidates/p2.png", party_color: "bg-orange-500", party_symbol: "/parties/odm-orange.png" },
     /* cspell:disable-next-line */
-    { name: "M. Ochieng", votes: 97500, photo: "", party_color: "bg-white/5" },
+    { name: "M. Ochieng", votes: 0, photo: "/images/candidates/p3.png", party_color: "bg-blue-400", party_symbol: "/parties/wiper-umbrella.png" },
     /* cspell:disable-next-line */
-    { name: "S. Kamau", votes: 32500, photo: "", party_color: "bg-white/5" },
-    { name: "Others", votes: 13000, photo: "", party_color: "bg-white/5" }
+    { name: "S. Kamau", votes: 0, photo: "/images/candidates/p4.png", party_color: "bg-red-600", party_symbol: "/parties/jubilee-dove.png" }
   ]);
 
-  // Simulated AI Result Streaming
+  const [governor, setGovernor] = useState<Candidate[]>([
+    { name: "Candidate X", votes: 1, photo: "/images/candidates/p1.png", party_color: "bg-yellow-400", party_symbol: "/parties/uda-wheelbarrow.png" },
+    { name: "Candidate Y", votes: 1, photo: "/images/candidates/p2.png", party_color: "bg-orange-500", party_symbol: "/parties/odm-orange.png" },
+    { name: "Candidate Z", votes: 0, photo: "/images/candidates/p3.png", party_color: "bg-blue-400", party_symbol: "/parties/wiper-umbrella.png" }
+  ]);
+
+  const [senator, setSenator] = useState<Candidate[]>([
+    { name: "Candidate P", votes: 1, photo: "/images/candidates/p4.png", party_color: "bg-yellow-400", party_symbol: "/parties/uda-wheelbarrow.png" },
+    { name: "Candidate Q", votes: 1, photo: "/images/candidates/p1.png", party_color: "bg-orange-500", party_symbol: "/parties/odm-orange.png" }
+  ]);
+
+  // Aggressive Real-Time Tally Simulation (Sprinting from 0)
   useEffect(() => {
     const interval = setInterval(() => {
-      // 70% chance to update presidential, 30% parliamentary
-      if (Math.random() > 0.3) {
-        setPresidential(prev => {
-          const next = [...prev];
-          const idx = Math.floor(Math.random() * 2); // Mostly top 2
-          next[idx].votes += Math.floor(Math.random() * 2500) + 500;
-          return next;
-        });
-      } else {
-        setParliamentary(prev => {
-          const next = [...prev];
-          const idx = Math.floor(Math.random() * 2);
-          next[idx].votes += Math.floor(Math.random() * 1500) + 200;
-          return next;
-        });
+      // Pick multiple categories to surge simultaneously for more "action"
+      const surgeCount = Math.floor(Math.random() * 2) + 1; // 1 or 2 categories per tick
+      
+      for(let i = 0; i < surgeCount; i++) {
+        const categorySelector = Math.random();
+        
+        if (categorySelector > 0.7) { // Presidential
+          setPresidential(prev => {
+            const next = [...prev];
+            const idx = Math.floor(Math.random() * next.length);
+            // Massive spikes to create position swaps
+            const boost = Math.floor(Math.random() * 15000) + 1000;
+            next[idx].votes += boost;
+            return next;
+          });
+        } else if (categorySelector > 0.45) { // Parliamentary
+          setParliamentary(prev => {
+            const next = [...prev];
+            const idx = Math.floor(Math.random() * next.length);
+            next[idx].votes += Math.floor(Math.random() * 10000) + 500;
+            return next;
+          });
+        } else if (categorySelector > 0.2) { // Governor
+          setGovernor(prev => {
+            const next = [...prev];
+            const idx = Math.floor(Math.random() * next.length);
+            next[idx].votes += Math.floor(Math.random() * 8000) + 300;
+            return next;
+          });
+        } else { // Senator
+          setSenator(prev => {
+            const next = [...prev];
+            const idx = Math.floor(Math.random() * next.length);
+            next[idx].votes += Math.floor(Math.random() * 5000) + 100;
+            return next;
+          });
+        }
       }
-    }, 4000);
+    }, 400); // Super fast 400ms "Surge" interval
 
     return () => clearInterval(interval);
   }, []);
@@ -70,7 +109,7 @@ export function TallyDashboard() {
       .map(c => ({
         ...c,
         votes: c.votes.toLocaleString(),
-        pct: ((c.votes / total) * 100).toFixed(1) + "%"
+        pct: total > 0 ? ((c.votes / total) * 100).toFixed(1) + "%" : "0%"
       }));
   }, [presidential]);
 
@@ -81,9 +120,31 @@ export function TallyDashboard() {
       .map(c => ({
         ...c,
         votes: c.votes.toLocaleString(),
-        pct: ((c.votes / total) * 100).toFixed(1) + "%"
+        pct: total > 0 ? ((c.votes / total) * 100).toFixed(1) + "%" : "0%"
       }));
   }, [parliamentary]);
+
+  const sortedGovernor = useMemo(() => {
+    const total = governor.reduce((acc, c) => acc + c.votes, 0);
+    return [...governor]
+      .sort((a, b) => b.votes - a.votes)
+      .map(c => ({
+        ...c,
+        votes: c.votes.toLocaleString(),
+        pct: total > 0 ? ((c.votes / total) * 100).toFixed(1) + "%" : "0%"
+      }));
+  }, [governor]);
+
+  const sortedSenator = useMemo(() => {
+    const total = senator.reduce((acc, c) => acc + c.votes, 0);
+    return [...senator]
+      .sort((a, b) => b.votes - a.votes)
+      .map(c => ({
+        ...c,
+        votes: c.votes.toLocaleString(),
+        pct: total > 0 ? ((c.votes / total) * 100).toFixed(1) + "%" : "0%"
+      }));
+  }, [senator]);
 
   return (
     <div className="tally-hub-overhaul flex flex-col gap-0 min-h-screen bg-transparent relative overflow-hidden selection:bg-brand-primary/30 selection:text-white">
@@ -96,30 +157,19 @@ export function TallyDashboard() {
         }
       `}} />
       
-      {/* 1. TOP SUMMARY HEADER (HUD Title & Global Stats) */}
       <SummaryHeader />
 
-      {/* Global HUD Layer (Background Grid & Scanlines) */}
+      {/* Global HUD Layer - Toned down for new image background */}
       <div className="absolute inset-0 pointer-events-none z-0">
-        {/* Deep Field Grid */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,128,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,128,0.03)_1px,transparent_1px)] bg-size-[60px_60px] mask-[radial-gradient(ellipse_at_center,black_40%,transparent_100%)]" />
-        
-        {/* Atmospheric Glow */}
-        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_40%,rgba(0,255,128,0.04),transparent_70%)]" />
-        
-        {/* Heavy Scanlines */}
-        <div className="absolute inset-0 opacity-[0.15] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.02),rgba(0,255,0,0.01),rgba(0,0,255,0.02))] bg-size-[100%_4px,3px_100%]" />
-        
-        {/* Floating Particles / Dust */}
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 mix-blend-overlay shadow-[inset_0_0_100px_rgba(0,0,0,0.8)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.02)_1px,transparent_1px)] bg-size-[60px_60px] mask-[radial-gradient(ellipse_at_center,black_40%,transparent_100%)]" />
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_40%,rgba(0,0,0,0.02),transparent_70%)]" />
+        <div className="absolute inset-0 opacity-[0.02] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(0,0,0,0.01),rgba(0,0,0,0.01),rgba(0,0,0,0.01))] bg-size-[100%_4px,3px_100%]" />
       </div>
 
       <div className="flex-1 p-4 md:p-6 flex flex-col relative z-10 w-full overflow-x-hidden">
-        
-        {/* Main 3-Column Command Hub Layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-4 md:gap-5 flex-1 w-full">
             
-            {/* LEFT COLUMN (Presidential, Parliamentary, Data Processing) */}
+            {/* LEFT COLUMN */}
             <div className="md:col-span-1 xl:col-span-3 flex flex-col gap-4 md:gap-5 h-full order-2 xl:order-1">
                 <DetailedResultCard 
                    title="Presidential Results"
@@ -148,37 +198,27 @@ export function TallyDashboard() {
                 </div>
             </div>
 
-            {/* CENTER COLUMN (Election Map, AI Alerts, Projections) - Mobile Order 1 */}
+            {/* CENTER COLUMN */}
             <div className="md:col-span-2 xl:col-span-6 flex flex-col gap-4 md:gap-6 h-full pb-10 md:pb-20 order-1 xl:order-2"> 
-                {/* Main Interactive Map (Tallest) */}
                 <div className="flex-1 w-full min-h-[350px] md:min-h-[450px]">
                    <ElectionHeatMap />
                 </div>
-                
-                {/* AI Alerts (Mid) */}
                 <div className="h-auto md:h-[180px] w-full shrink-0">
                    <AIAlertsPane />
                 </div>
-
-                {/* Status & Projections (Bottom) */}
                 <div className="h-auto md:h-[160px] w-full shrink-0">
                    <ResultProjectionsNode />
                 </div>
             </div>
 
-            {/* RIGHT COLUMN (Governor, MCA, Audit Feed) - Mobile Order 3 */}
+            {/* RIGHT COLUMN */}
             <div className="md:col-span-1 xl:col-span-3 flex flex-col gap-4 md:gap-5 h-full order-3">
                 <DetailedResultCard 
                    title="Governor Results"
                    reporting="875 / 1200"
                    showDropdown={true}
                    dropdownType="county"
-                   candidates={[
-                      { name: "Candidate X", pct: "61.4%", votes: "1,203,501", photo: "/images/candidates/william_ruto.png", party_color: "bg-brand-primary" },
-                      { name: "Candidate Y", pct: "37.6%", votes: "736,960", photo: "/images/candidates/raila_odinga.png", party_color: "bg-kenya-red" },
-                      { name: "Candidate Z", pct: "0.8%", votes: "15,680", photo: "", party_color: "bg-white/10" },
-                      { name: "Others", pct: "0.2%", votes: "3,920", photo: "", party_color: "bg-white/10" },
-                   ]}
+                   candidates={sortedGovernor}
                 />
                 <DetailedResultCard 
                    title="Senator / Women Rep Results"
@@ -186,17 +226,11 @@ export function TallyDashboard() {
                    showDropdown={true}
                    dropdownType="county"
                    roleOptions={["SENATOR", "WOMEN REP"]}
-                   candidates={[
-                      { name: "Candidate P", pct: "48.9%", votes: "42,054", party_color: "bg-kenya-green" },
-                      { name: "Candidate Q", pct: "47.2%", votes: "40,592", party_color: "bg-kenya-gold" },
-                      { name: "Others", pct: "3.9%", votes: "3,354", party_color: "bg-white/5" }
-                   ]}
+                   candidates={sortedSenator}
                 />
                 <div className="grow">
                    <AuditLogPane />
                 </div>
-                
-                {/* Final Verification Stamp */}
                 <div className="p-4 bg-linear-to-br from-brand-primary/10 to-transparent border border-brand-primary/20 rounded-2xl shrink-0 backdrop-blur-md">
                    <VerifiedBadge variant="small" />
                 </div>

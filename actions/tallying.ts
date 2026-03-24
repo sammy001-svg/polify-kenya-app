@@ -8,6 +8,7 @@ export interface CandidateResult {
     candidate_name: string;
     party: string;
     party_color: string;
+    party_symbol?: string;
     photo_url: string;
     votes: number;
     total_valid_votes: number;
@@ -177,6 +178,7 @@ export async function getResults(level: 'national' | 'county' | 'constituency' |
             candidate_name: candidate.name,
             party: candidate.party,
             party_color: partyInfo.color,
+            party_symbol: partyInfo.symbol,
             photo_url: photo_url === '/placeholder-avatar.jpg' ? '' : (photo_url || ""),
             votes: r.votes,
             total_valid_votes: r.total_valid_votes,

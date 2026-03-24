@@ -1,9 +1,7 @@
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { BottomNav } from "@/components/layout/BottomNav";
-import { XPNotification } from "@/components/gamification/XPNotification";
-import { PolifyAI } from "@/components/trust/PolifyAI";
-import { SystemTour } from "@/components/layout/SystemTour";
+import { ClientLayoutUtilities } from "@/components/layout/ClientLayoutUtilities";
 import type { Metadata } from "next";
 import { baseMetadata } from "@/lib/metadata";
 
@@ -30,9 +28,7 @@ export default function PlatformLayout({
         </main>
       </div>
       <BottomNav />
-      <XPNotification />
-      <PolifyAI />
-      <SystemTour />
+      <ClientLayoutUtilities />
     </div>
   );
 }
