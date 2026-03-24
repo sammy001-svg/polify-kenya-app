@@ -160,7 +160,7 @@ export function DetailedResultCard({
       </AnimatePresence>
 
       {/* 2. MAIN CARD BODY (Chamfered) */}
-      <div className="relative z-10 -mt-px bg-[#06120E] border-2 border-[#18362A] p-3 md:p-4 [clip-path:polygon(0_0,100%_0,100%_calc(100%-15px),calc(100%-15px)_100%,0_100%)] shadow-[inset_0_0_30px_rgba(0,0,0,0.8)] flex-1 flex flex-col min-h-[300px] md:min-h-0">
+      <div className="relative z-10 -mt-px bg-[#25671E] border-2 border-[#18362A]/50 p-3 md:p-4 [clip-path:polygon(0_0,100%_0,100%_calc(100%-15px),calc(100%-15px)_100%,0_100%)] shadow-[inset_0_0_30px_rgba(0,0,0,0.4)] flex-1 flex flex-col h-[400px] md:h-[450px]">
         
         {/* Inner Border (glow) */}
         <div className="absolute inset-x-0 top-0 h-px bg-[#00FF8C]/30" />
@@ -173,7 +173,7 @@ export function DetailedResultCard({
               <div className="relative">
                  <button 
                   onClick={() => setShowLocationMenu(!showLocationMenu)}
-                  className="flex items-center gap-2 bg-[#091813] border border-[#00FF8C]/30 px-2 md:px-3 py-1 text-[9px] md:text-[10px] font-black text-white hover:border-[#00FF8C]/60 transition-colors uppercase tracking-widest"
+                  className="flex items-center gap-2 bg-black/20 border border-[#00FF8C]/30 px-2 md:px-3 py-1 text-[9px] md:text-[10px] font-black text-white hover:border-[#00FF8C]/60 transition-colors uppercase tracking-widest"
                  >
                     <Search className="w-3 h-3 text-[#00FF8C]" />
                     <span className="truncate max-w-[80px] md:max-w-none">{selectedLocation}</span>
@@ -236,7 +236,7 @@ export function DetailedResultCard({
                 <div className="relative">
                   <button 
                     onClick={() => setShowRoleMenu(!showRoleMenu)}
-                    className="flex items-center gap-2 bg-[#091813] border border-[#00FF8C]/30 px-2 md:px-3 py-1 text-[9px] md:text-[10px] font-black text-white hover:border-[#00FF8C]/60 transition-colors uppercase tracking-widest"
+                    className="flex items-center gap-2 bg-black/20 border border-[#00FF8C]/30 px-2 md:px-3 py-1 text-[9px] md:text-[10px] font-black text-white hover:border-[#00FF8C]/60 transition-colors uppercase tracking-widest"
                   >
                      <span className="truncate max-w-[80px] md:max-w-none">{selectedRole}</span>
                      <ChevronDown className={cn("w-3 h-3 text-[#00FF8C]/50 transition-transform", showRoleMenu && "rotate-180")} />
