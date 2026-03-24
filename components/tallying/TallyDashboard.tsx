@@ -1,208 +1,150 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo } from "react";
-import {
-  getResults,
-  getProjections,
-  CandidateResult,
-  TallyStats,
-} from "@/actions/tallying";
-import { createClient } from "@/lib/supabase";
 import { Toaster } from "sonner";
+import { SummaryHeader } from "./SummaryHeader";
+import { ElectionHeatMap } from "./ElectionHeatMap";
+import { DetailedResultCard } from "./DetailedResultCard";
+import { DataProcessingNodeV2 } from "./DataProcessingNodeV2";
+import { AIAlertsPane } from "./AIAlertsPane";
+import { AuditLogPane } from "./AuditLogPane";
+import { ResultProjectionsNode } from "./ResultProjectionsNode";
 import { VerifiedBadge } from "./VerifiedBadge";
-import { FuturisticNewsFeed } from "./FuturisticNewsFeed";
-import { DataStreamsTable } from "./DataStreamsTable";
-import { AIVerificationNode } from "./AIVerificationNode";
-import { CandidateResultsGrid } from "./CandidateResultsGrid";
-import { LiveTicker } from "./LiveTicker";
-import { DataVelocityHub } from "./DataVelocityHub";
-import { Shield, Activity } from "lucide-react";
 
 export function TallyDashboard() {
-  const [level] = useState<
-    "national" | "county" | "constituency" | "ward"
-  >("national");
-  const [locationName] = useState<string>("Kenya");
-
-  const [results, setResults] = useState<CandidateResult[]>([]);
-  const [stats, setStats] = useState<TallyStats | null>(null);
-
-  const [loading, setLoading] = useState(true);
-  const [showProjections] = useState(false);
-
-  const supabase = useMemo(() => createClient(), []);
-
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const resData = await (showProjections && level === "national"
-          ? getProjections()
-          : getResults(level, locationName));
-
-      setResults(Array.isArray(resData) ? resData : resData.results);
-      if (!(Array.isArray(resData)) && resData.stats) setStats(resData.stats);
-    } catch (error) {
-      console.error("Failed to fetch data:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [level, locationName, showProjections]);
-
-  useEffect(() => {
-    fetchData();
-    const channel = supabase
-      .channel("public:election_results")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "election_results" },
-        () => {
-          fetchData();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [fetchData, supabase]);
-
-  // Derived stat values
-  const totalVotes = results.reduce((acc, c) => acc + (c.votes || 0), 0);
-  const stationsReportingPct = stats && stats.total_stations > 0
-    ? ((stats.reporting_stations / stats.total_stations) * 100).toFixed(1)
-    : "0.0";
-
   return (
-    <div className="flex flex-col gap-0 min-h-screen lg:h-screen lg:max-h-[1080px] bg-brand-bg rounded-[48px] border border-white/10 relative overflow-hidden shadow-[0_0_150px_rgba(0,0,0,1)]">
-      {/* Live Ticker at the absolute top */}
-      <LiveTicker />
+    <div className="tally-hub-overhaul flex flex-col gap-0 min-h-screen bg-transparent relative overflow-hidden selection:bg-brand-primary/30 selection:text-white">
+      <style dangerouslySetInnerHTML={{ __html: `
+        .main-content-container:has(.tally-hub-overhaul) {
+          max-width: none !important;
+          padding: 0 !important;
+          margin: 0 !important;
+          width: 100% !important;
+        }
+      `}} />
+      
+      {/* 1. TOP SUMMARY HEADER (HUD Title & Global Stats) */}
+      <SummaryHeader />
 
-      {/* Background HUD Grid & Scanline */}
-      <div className="absolute inset-0 pointer-events-none mt-10">
-        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_0%,rgba(0,255,128,0.08),transparent_70%)]" />
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10" />
-        <div className="absolute top-0 left-0 w-full h-1/2 bg-linear-to-b from-brand-primary/2 to-transparent" />
-        <div className="absolute inset-0 opacity-10 bg-[linear-gradient(transparent_0%,rgba(0,255,128,0.05)_50%,transparent_100%)] bg-size-[100%_4px] animate-scanline" />
+      {/* Global HUD Layer (Background Grid & Scanlines) */}
+      <div className="absolute inset-0 pointer-events-none z-0">
+        {/* Deep Field Grid */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,128,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,128,0.03)_1px,transparent_1px)] bg-size-[60px_60px] mask-[radial-gradient(ellipse_at_center,black_40%,transparent_100%)]" />
+        
+        {/* Atmospheric Glow */}
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_40%,rgba(0,255,128,0.04),transparent_70%)]" />
+        
+        {/* Heavy Scanlines */}
+        <div className="absolute inset-0 opacity-[0.15] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.02),rgba(0,255,0,0.01),rgba(0,0,255,0.02))] bg-size-[100%_4px,3px_100%]" />
+        
+        {/* Floating Particles / Dust */}
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 mix-blend-overlay shadow-[inset_0_0_100px_rgba(0,0,0,0.8)]" />
       </div>
 
-      <div className="p-4 md:p-8 flex flex-col h-full relative z-10 pt-16">
-        {/* Top Header Section */}
-        <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-6 border-b border-white/5 pb-6 mb-6">
-            <div className="flex items-center gap-6">
-                {/* Kenya Flag - Premium HUD Styled */}
-                <div className="w-14 h-9 border border-white/20 rounded-lg shadow-[0_0_20px_rgba(255,255,255,0.05)] overflow-hidden flex flex-col relative shrink-0 group">
-                    <div className="h-[30%] bg-black" />
-                    <div className="h-[5%] bg-white" />
-                    <div className="h-[30%] bg-kenya-red" />
-                    <div className="h-[5%] bg-white" />
-                    <div className="h-[30%] bg-kenya-green" />
-                </div>
-
-                <div className="space-y-0.5">
-                    <div className="flex items-center gap-2">
-                        {/* ELEC_SYNC_001_ACTIVE */}
-                        <span className="text-[8px] font-black text-white/30 uppercase tracking-[0.4em]">ELEC_SYNC_001_ACTIVE</span>
-                    </div>
-                    <h2 className="text-2xl md:text-3xl font-black tracking-tighter text-white uppercase holographic-glow flex items-center gap-3">
-                        TALLYING_CENTRE <span className="text-white/20 text-xl font-thin">{" // "}</span> <span className="text-brand-primary">HUD_V2</span>
-                    </h2>
-                </div>
-            </div>
-
-            <div className="flex gap-4 items-center">
-               <div className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl flex items-center gap-3 backdrop-blur-xl">
-                  <div className="flex -space-x-2">
-                     {[1,2,3].map(i => (
-                        <div key={i} className="w-6 h-6 rounded-full border border-black bg-brand-surface flex items-center justify-center">
-                           <Shield className="w-3 h-3 text-brand-primary" />
-                        </div>
-                     ))}
-                  </div>
-                  <div className="text-left leading-none">
-                     <span className="text-[7px] font-black text-white/30 uppercase block">Trust Rating</span>
-                     <span className="text-[10px] font-black text-white">AA+ CERTIFIED</span>
-                  </div>
-               </div>
-               <VerifiedBadge variant="small" />
-            </div>
-        </div>
-
-        {/* Main Tripartite Layout - Fixed Unified Height */}
-        <div className="grid grid-cols-12 gap-6 flex-1 min-h-0">
+      <div className="flex-1 p-4 md:p-6 flex flex-col relative z-10 w-full overflow-x-hidden">
+        
+        {/* Main 3-Column Command Hub Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-4 md:gap-5 flex-1 w-full">
             
-            {/* LEFT SIDEBAR: AI Auditor & Feed */}
-            <div className="col-span-12 lg:col-span-3 flex flex-col gap-6 h-full min-h-0">
-                 <div className="flex-3 min-h-0">
-                    <AIVerificationNode />
-                 </div>
-                
-                <div className="flex-2 min-h-0 bg-black/40 backdrop-blur-md border border-white/5 rounded-[32px] p-5 shadow-inner overflow-hidden">
-                    <FuturisticNewsFeed />
+            {/* LEFT COLUMN (Presidential, Parliamentary, Data Processing) */}
+            <div className="md:col-span-1 xl:col-span-3 flex flex-col gap-4 md:gap-5 h-full order-2 xl:order-1">
+                <DetailedResultCard 
+                   title="Presidential Results"
+                   reporting="458 / 600"
+                   candidates={[
+                      { name: "Candidate A", pct: "54.2%", votes: "7,290,045", photo: "/images/candidates/william_ruto.png", party_color: "bg-brand-primary" },
+                      { name: "Candidate B", pct: "44.8%", votes: "6,025,811", photo: "/images/candidates/raila_odinga.png", party_color: "bg-kenya-red" },
+                      { name: "Candidate C", pct: "0.6%", votes: "80,705", photo: "", party_color: "bg-white/10" },
+                      { name: "Candidate D", pct: "0.3%", votes: "40,352", photo: "", party_color: "bg-white/10" },
+                      { name: "Others", pct: "0.1%", votes: "13,449", photo: "", party_color: "bg-white/10" }
+                   ]}
+                   /* cspell:disable */
+                   form34As={[
+                     { id: "34A-ELD-08", stationName: "Eldoret Town Hall", county: "Uasin Gishu", constituency: "Kesses", timestamp: "31 mins ago" },
+                     { id: "34A-NKR-22", stationName: "Nakuru High School", county: "Nakuru", constituency: "Nakuru Town East", timestamp: "45 mins ago" },
+                     { id: "34A-MAC-03", stationName: "Machakos Boys", county: "Machakos", constituency: "Machakos Town", timestamp: "1 hr ago" },
+                     { id: "34A-MER-11", stationName: "Meru Primary", county: "Meru", constituency: "Imenti North", timestamp: "1 hr 12 mins ago" },
+                     { id: "34A-KAK-07", stationName: "Bukhungu Stadium", county: "Kakamega", constituency: "Lurambi", timestamp: "2 hrs ago" },
+                     { id: "34A-NYR-14", stationName: "Ruring'u Stadium", county: "Nyeri", constituency: "Nyeri Town", timestamp: "2 hrs 30 mins ago" },
+                     { id: "34A-GAR-02", stationName: "Garissa Primary", county: "Garissa", constituency: "Garissa Township", timestamp: "3 hrs ago" },
+                   ]}
+                />
+                <DetailedResultCard 
+                   title="Parliamentary Results"
+                   reporting="328 / 600"
+                   showDropdown={true}
+                   dropdownType="constituency"
+                   candidates={[
+                      { name: "Candidate M", pct: "52.5%", votes: "3,412,091", photo: "", party_color: "bg-kenya-green" },
+                      { name: "Candidate N", pct: "45.3%", votes: "2,944,502", photo: "", party_color: "bg-kenya-gold" },
+                      /* cspell:disable-next-line */
+                      { name: "M. Ochieng", pct: "1.5%", votes: "97,500", photo: "", party_color: "bg-white/5" },
+                      /* cspell:disable-next-line */
+                      { name: "S. Kamau", pct: "0.5%", votes: "32,500", photo: "", party_color: "bg-white/5" },
+                      { name: "Others", pct: "0.2%", votes: "13,000", photo: "", party_color: "bg-white/5" }
+                   ]}
+                />
+                <div className="grow">
+                    <DataProcessingNodeV2 />
                 </div>
             </div>
 
-            {/* CENTER: Main Results Grid & Stats */}
-            <div className="col-span-12 lg:col-span-6 flex flex-col gap-6 h-full min-h-0">
-                {/* 1. Candidate Results Grid */}
-                <div className="flex-4 min-h-0">
-                    <div className="flex items-center justify-between mb-4 px-2">
-                        <h3 className="text-[10px] font-black text-white uppercase tracking-[0.4em] flex items-center gap-2">
-                            <Activity className="w-4 h-4 text-brand-primary" />
-                            Live_Candidate_Telemetry
-                        </h3>
-                        {loading && <span className="text-[8px] font-black text-brand-primary animate-pulse tracking-widest uppercase">Fetching_Data...</span>}
-                    </div>
-                    <div className="h-full overflow-y-auto no-scrollbar">
-                        <CandidateResultsGrid candidates={results} />
-                    </div>
+            {/* CENTER COLUMN (Election Map, AI Alerts, Projections) - Mobile Order 1 */}
+            <div className="md:col-span-2 xl:col-span-6 flex flex-col gap-4 md:gap-6 h-full pb-10 md:pb-20 order-1 xl:order-2"> 
+                {/* Main Interactive Map (Tallest) */}
+                <div className="flex-1 w-full min-h-[350px] md:min-h-[450px]">
+                   <ElectionHeatMap />
+                </div>
+                
+                {/* AI Alerts (Mid) */}
+                <div className="h-auto md:h-[180px] w-full shrink-0">
+                   <AIAlertsPane />
                 </div>
 
-                {/* 2. Secondary stats */}
-                <div className="flex-[1.8] bg-white/2 border border-white/10 rounded-[40px] p-6 relative overflow-hidden group min-h-0">
-                    <div className="grid grid-cols-2 gap-6 h-full relative z-10">
-                        <div className="p-5 bg-white/3 border border-white/5 rounded-[32px] group/stat hover:border-brand-primary/20 transition-all flex flex-col justify-center">
-                            <div className="text-[9px] font-black text-white/20 uppercase tracking-[0.3em] mb-2 flex justify-between">
-                                <span>Total_Votes</span>
-                                <span className="text-brand-primary">SYNC_OK</span>
-                            </div>
-                            <div className="text-3xl font-black text-white tracking-tighter">
-                                {totalVotes.toLocaleString()}
-                            </div>
-                        </div>
-                        <div className="p-5 bg-white/3 border border-white/5 rounded-[32px] group/stat hover:border-kenya-green/20 transition-all flex flex-col justify-center">
-                            <div className="text-[9px] font-black text-white/20 uppercase tracking-[0.3em] mb-2 flex justify-between">
-                                <span>Station_Sync</span>
-                                <span className="text-kenya-green">LIVE</span>
-                            </div>
-                            <div className="text-3xl font-black text-kenya-green tracking-tighter">
-                                {stationsReportingPct}%
-                            </div>
-                        </div>
-                    </div>
+                {/* Status & Projections (Bottom) */}
+                <div className="h-auto md:h-[160px] w-full shrink-0">
+                   <ResultProjectionsNode />
                 </div>
             </div>
 
-            {/* RIGHT SIDEBAR: Data Streams & Velocity */}
-            <div className="col-span-12 lg:col-span-3 flex flex-col gap-6 h-full min-h-0">
-                <div className="flex-[1.5]">
-                    <DataVelocityHub />
+            {/* RIGHT COLUMN (Governor, MCA, Audit Feed) - Mobile Order 3 */}
+            <div className="md:col-span-1 xl:col-span-3 flex flex-col gap-4 md:gap-5 h-full order-3">
+                <DetailedResultCard 
+                   title="Governor Results"
+                   reporting="875 / 1200"
+                   showDropdown={true}
+                   dropdownType="county"
+                   candidates={[
+                      { name: "Candidate X", pct: "61.4%", votes: "1,203,501", photo: "/images/candidates/william_ruto.png", party_color: "bg-brand-primary" },
+                      { name: "Candidate Y", pct: "37.6%", votes: "736,960", photo: "/images/candidates/raila_odinga.png", party_color: "bg-kenya-red" },
+                      { name: "Candidate Z", pct: "0.8%", votes: "15,680", photo: "", party_color: "bg-white/10" },
+                      { name: "Others", pct: "0.2%", votes: "3,920", photo: "", party_color: "bg-white/10" },
+                   ]}
+                />
+                <DetailedResultCard 
+                   title="Senator / Women Rep Results"
+                   reporting="210 / 300"
+                   showDropdown={true}
+                   dropdownType="county"
+                   roleOptions={["SENATOR", "WOMEN REP"]}
+                   candidates={[
+                      { name: "Candidate P", pct: "48.9%", votes: "42,054", party_color: "bg-kenya-green" },
+                      { name: "Candidate Q", pct: "47.2%", votes: "40,592", party_color: "bg-kenya-gold" },
+                      { name: "Others", pct: "3.9%", votes: "3,354", party_color: "bg-white/5" }
+                   ]}
+                />
+                <div className="grow">
+                   <AuditLogPane />
                 </div>
                 
-                <div className="flex-[2.5] min-h-0 bg-black/40 backdrop-blur-md border border-white/5 rounded-[32px] p-6 shadow-2xl relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-4">
-                        <div className="w-1.5 h-1.5 rounded-full bg-kenya-red animate-ping" />
-                    </div>
-                    <DataStreamsTable />
-                </div>
-
-                <div className="p-6 bg-linear-to-br from-brand-primary/10 to-transparent border border-brand-primary/20 rounded-[40px] shadow-2xl relative group shrink-0">
-                   <VerifiedBadge variant="large" />
+                {/* Final Verification Stamp */}
+                <div className="p-4 bg-linear-to-br from-brand-primary/10 to-transparent border border-brand-primary/20 rounded-2xl shrink-0 backdrop-blur-md">
+                   <VerifiedBadge variant="small" />
                 </div>
             </div>
         </div>
       </div>
 
-      <Toaster position="top-right" theme="dark" />
+      <Toaster position="top-right" theme="dark" closeButton richColors />
     </div>
   );
 }

@@ -25,20 +25,38 @@ export function MyRepresentatives({ location }: MyRepresentativesProps) {
 
   // Filter relevant representatives
   const getRepForPosition = (type: string) => {
-    if (!location) return null;
+    if (!location || !location.county) return null;
     
     return SAMPLE_POLITICIANS.find(p => {
       if (p.position !== type) return false;
       
-      if (type === 'Governor' || type === 'Senator') {
-        return p.county?.toLowerCase() === location.county?.toLowerCase();
+      const pCounty = p.county?.toLowerCase() || "";
+      const locCounty = location.county?.toLowerCase() || "";
+      
+      // Match County-level leaders (Governor, Senator, Woman Rep)
+      if (type === 'Governor' || type === 'Senator' || type === 'Woman Rep') {
+        return pCounty === locCounty || pCounty.includes(locCounty) || locCounty.includes(pCounty);
       }
+      
+      // Match Constituency-level leaders (MP)
       if (type === 'MP') {
-        return p.constituency?.toLowerCase() === location.constituency?.toLowerCase();
+        if (!location.constituency) return false;
+        const pConstituency = p.constituency?.toLowerCase() || "";
+        const locConstituency = location.constituency?.toLowerCase() || "";
+        
+        // Match both ID (e.g., 'westlands') and name (e.g., 'Westlands')
+        return pConstituency === locConstituency || 
+               pConstituency.replace(/[-\s]/g, '') === locConstituency.replace(/[-\s]/g, '');
       }
+      
+      // Match Ward-level leaders (MCA)
       if (type === 'MCA') {
-        return p.ward?.toLowerCase() === location.ward?.toLowerCase();
+        if (!location.ward) return false;
+        const pWard = p.ward?.toLowerCase() || "";
+        const locWard = location.ward?.toLowerCase() || "";
+        return pWard === locWard || pWard.includes(locWard) || locWard.includes(pWard);
       }
+      
       return false;
     });
   };

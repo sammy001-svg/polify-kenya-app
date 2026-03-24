@@ -105,7 +105,7 @@ export function AIVerificationNode() {
         <AnimatePresence initial={false}>
             {logs.map((log, i) => (
                 <motion.div 
-                    key={log + i}
+                    key={`log-${i}-${log.slice(0, 10)}`}
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.4 }}

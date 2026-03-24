@@ -18,6 +18,7 @@ export default function RepresentativesPage() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("name");
   const [loading, setLoading] = useState(true);
+  const [userProfile, setUserProfile] = useState<{name: string, county: string, constituency: string, ward: string} | null>(null);
   
   const positions: (PositionType | "all")[] = ["all", "Governor", "Senator", "Woman Rep", "MP", "MCA"];
 
@@ -29,25 +30,51 @@ export default function RepresentativesPage() {
       if (user) {
         const { data: profile } = await supabase
           .from('profiles')
-          .select('county, constituency, ward')
+          .select('full_name, county, constituency, ward')
           .eq('id', user.id)
           .single();
         
         if (profile) {
+          setUserProfile({
+            name: profile.full_name || "Citizen",
+            county: profile.county || "",
+            constituency: profile.constituency || "",
+            ward: profile.ward || ""
+          });
+
           // Robust matching for county
           const profileCounty = profile.county?.toLowerCase() || "";
-          const county = KENYA_COUNTIES.find(c => 
+          const foundCounty = KENYA_COUNTIES.find(c => 
             c.name.toLowerCase() === profileCounty || 
             c.id.toLowerCase() === profileCounty ||
             profileCounty.includes(c.name.toLowerCase()) ||
             c.name.toLowerCase().includes(profileCounty)
           );
           
-          if (county) {
-            setSelectedCounty(county.id);
-            // Also match constituency and ward and default to user's if available
-            setSelectedConstituency(profile.constituency || "");
-            setSelectedWard(profile.ward || "");
+          if (foundCounty) {
+            setSelectedCounty(foundCounty.id);
+            // Default select constituency if it matches
+            if (profile.constituency) {
+              const profileConst = profile.constituency.toLowerCase();
+              // Check if this constituency exists in this county
+              const countyLoc = KENYA_LOCATIONS.find(kl => kl.name.toLowerCase() === foundCounty.name.toLowerCase());
+              const matchedConst = countyLoc?.constituencies.find(c => 
+                c.name.toLowerCase() === profileConst || 
+                profileConst.includes(c.name.toLowerCase())
+              );
+              if (matchedConst) {
+                setSelectedConstituency(matchedConst.name);
+                
+                if (profile.ward) {
+                  const profileWard = profile.ward.toLowerCase();
+                  const matchedWard = matchedConst.wards.find(w => 
+                    w.toLowerCase() === profileWard || 
+                    profileWard.includes(w.toLowerCase())
+                  );
+                  if (matchedWard) setSelectedWard(matchedWard);
+                }
+              }
+            }
           }
         }
       }
@@ -72,28 +99,48 @@ export default function RepresentativesPage() {
   
   // Filter politicians
   let filteredPoliticians = SAMPLE_POLITICIANS;
+
+  // 1. Base Filter by County (User's County by default if no selection)
+  const filterCounty = selectedCounty || (userProfile?.county ? KENYA_COUNTIES.find(c => c.name.toLowerCase() === userProfile.county.toLowerCase())?.id : "");
+  
+  if (filterCounty) {
+    filteredPoliticians = filteredPoliticians.filter(p => p.county?.toLowerCase() === filterCounty.toLowerCase());
+  }
+
+  // 2. Strict Position Restriction (Only show user's leaders for MP/MCA unless manually exploring)
+  if (userProfile && userProfile.county && !searchQuery) {
+    filteredPoliticians = filteredPoliticians.filter(p => {
+      // President and Opposition are always visible
+      if (p.position === 'President' || p.position === 'Opposition Leader') return true;
+      
+      // If manually exploring a DIFFERENT county, show all leaders in that county
+      if (selectedCounty && selectedCounty.toLowerCase() !== (KENYA_COUNTIES.find(c => c.name.toLowerCase() === userProfile.county.toLowerCase())?.id || "").toLowerCase()) {
+         return true; 
+      }
+
+      // If in user's county, restrict MP and MCA
+      if (p.position === 'MP') {
+        const targetConst = selectedConstituency || userProfile.constituency;
+        if (!targetConst) return true; // Show all MPs if no target at all (unlikely)
+        return p.constituency?.toLowerCase() === targetConst.toLowerCase() ||
+               p.constituency?.replace(/[-\s]/g, '') === targetConst.toLowerCase().replace(/[-\s]/g, '');
+      }
+      
+      if (p.position === 'MCA') {
+        const targetWard = selectedWard || userProfile.ward;
+        if (!targetWard) return true;
+        return p.ward?.toLowerCase() === targetWard.toLowerCase();
+      }
+
+      return true; // Governor, Senator, Woman Rep
+    });
+  }
   
   // Search filter
   if (searchQuery) {
     filteredPoliticians = filteredPoliticians.filter(p => 
       p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.party.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }
-  
-  if (selectedCounty) {
-    filteredPoliticians = filteredPoliticians.filter(p => p.county?.toLowerCase() === selectedCounty.toLowerCase());
-  }
-  
-  if (selectedConstituency) {
-    filteredPoliticians = filteredPoliticians.filter(p => 
-      p.position !== 'MP' || p.constituency?.toLowerCase() === selectedConstituency.toLowerCase()
-    );
-  }
-
-  if (selectedWard) {
-    filteredPoliticians = filteredPoliticians.filter(p => 
-      p.position !== 'MCA' || p.ward?.toLowerCase() === selectedWard.toLowerCase()
     );
   }
   
