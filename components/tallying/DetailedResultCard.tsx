@@ -1,5 +1,7 @@
 "use client";
 
+/* cspell:ignore EMBAKASI, cand */
+
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
@@ -278,50 +280,62 @@ export function DetailedResultCard({
 
         {/* Candidates List with Scroll */}
         <div className="flex flex-col gap-2 md:gap-3 overflow-y-auto pr-1 flex-1 scrollbar-thin scrollbar-thumb-[#00FF8C]/20 scrollbar-track-transparent">
-          {candidates.map((candidate, idx) => (
-             <div key={idx} className="relative group/cand border border-transparent hover:border-[#00FF8C]/20 hover:bg-[#00FF8C]/5 transition-all p-1.5 md:p-2">
-                <div className="flex items-center gap-2 md:gap-3 mb-1.5 flex-1">
-                   {/* Candidate Photo Block */}
-                   <div className="relative w-10 h-10 md:w-12 md:h-12 shrink-0 border border-[#18362A] bg-black/50 overflow-hidden">
-                      {candidate.photo ? (
-                         <Image src={candidate.photo} alt={candidate.name} fill className="object-cover grayscale group-hover/cand:grayscale-0 transition-all" />
-                      ) : (
-                         <div className="w-full h-full flex items-center justify-center bg-[#091813]">
-                            <span className="text-[10px] font-black text-white/20">NO_IMG</span>
-                         </div>
-                      )}
-                      {/* Selection Notch */}
-                      <div className={cn("absolute top-0 left-0 w-1 md:w-1.5 h-full", candidate.party_color)} />
-                   </div>
+          <AnimatePresence mode="popLayout">
+            {candidates.map((candidate) => (
+               <motion.div 
+                 layout
+                 key={candidate.name} 
+                 initial={{ opacity: 0, x: -10 }}
+                 animate={{ opacity: 1, x: 0 }}
+                 transition={{ 
+                    layout: { type: "spring", stiffness: 300, damping: 30 },
+                    opacity: { duration: 0.2 }
+                 }}
+                 className="relative group/cand border border-transparent hover:border-[#00FF8C]/20 hover:bg-[#00FF8C]/5 transition-all p-1.5 md:p-2"
+               >
+                  <div className="flex items-center gap-2 md:gap-3 mb-1.5 flex-1">
+                     {/* Candidate Photo Block */}
+                     <div className="relative w-10 h-10 md:w-12 md:h-12 shrink-0 border border-[#18362A] bg-black/50 overflow-hidden">
+                        {candidate.photo ? (
+                           <Image src={candidate.photo} alt={candidate.name} fill className="object-cover grayscale group-hover/cand:grayscale-0 transition-all" />
+                        ) : (
+                           <div className="w-full h-full flex items-center justify-center bg-[#091813]">
+                              <span className="text-[10px] font-black text-white/20">NO_IMG</span>
+                           </div>
+                        )}
+                        {/* Selection Notch */}
+                        <div className={cn("absolute top-0 left-0 w-1 md:w-1.5 h-full", candidate.party_color)} />
+                     </div>
 
-                   <div className="flex flex-col min-w-0 flex-1">
-                      <div className="flex justify-between items-start">
-                         <span className="text-[11px] md:text-sm font-black text-white truncate group-hover/cand:text-[#00FF8C] transition-colors uppercase tracking-tight">{candidate.name}</span>
-                         <span className="text-sm md:text-xl font-black text-white tracking-tighter ml-2 tabular-nums">{candidate.pct}</span>
-                      </div>
-                      <div className="flex justify-between items-center -mt-px">
-                         <span className="text-[7px] md:text-[8px] font-bold text-white/40 uppercase tracking-[0.2em] flex items-center gap-1">
-                            <Play className="w-1.5 md:w-2 h-1.5 md:h-2 text-[#00FF8C]/60 fill-[#00FF8C]/60" />
-                            Validated_Stream
-                         </span>
-                         <span className="text-[9px] md:text-xs font-black text-[#00FF8C]/60 tracking-tight tabular-nums">{candidate.votes || "0"}</span>
-                      </div>
-                   </div>
-                </div>
+                     <div className="flex flex-col min-w-0 flex-1">
+                        <div className="flex justify-between items-start">
+                           <span className="text-[11px] md:text-sm font-black text-white truncate group-hover/cand:text-[#00FF8C] transition-colors uppercase tracking-tight">{candidate.name}</span>
+                           <span className="text-sm md:text-xl font-black text-white tracking-tighter ml-2 tabular-nums">{candidate.pct}</span>
+                        </div>
+                        <div className="flex justify-between items-center -mt-px">
+                           <span className="text-[7px] md:text-[8px] font-bold text-white/40 uppercase tracking-[0.2em] flex items-center gap-1">
+                              <Play className="w-1.5 md:w-2 h-1.5 md:h-2 text-[#00FF8C]/60 fill-[#00FF8C]/60" />
+                              Validated_Stream
+                           </span>
+                           <span className="text-[9px] md:text-xs font-black text-[#00FF8C]/60 tracking-tight tabular-nums">{candidate.votes || "0"}</span>
+                        </div>
+                     </div>
+                  </div>
 
-                {/* Progress Bar Container */}
-                <div className="h-1 md:h-1.5 w-full bg-[#18362A]/40 relative overflow-hidden">
-                   <motion.div 
-                      initial={{ width: 0 }}
-                      animate={{ width: candidate.pct }}
-                      transition={{ duration: 1, delay: idx * 0.1 }}
-                      className={cn("h-full relative", candidate.party_color)}
-                   >
-                      <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent_0%,rgba(255,255,255,0.3)_50%,transparent_100%)] bg-size-[200%_100%] animate-[shine_3s_infinite]" />
-                   </motion.div>
-                </div>
-             </div>
-          ))}
+                  {/* Progress Bar Container */}
+                  <div className="h-1 md:h-1.5 w-full bg-[#18362A]/40 relative overflow-hidden">
+                     <motion.div 
+                        initial={{ width: 0 }}
+                        animate={{ width: candidate.pct }}
+                        transition={{ duration: 0.8 }}
+                        className={cn("h-full relative", candidate.party_color)}
+                     >
+                        <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent_0%,rgba(255,255,255,0.3)_50%,transparent_100%)] bg-size-[200%_100%] animate-[shine_3s_infinite]" />
+                     </motion.div>
+                  </div>
+               </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
 
         {/* Bottom Right Decorative Triangle Cutout Accent */}

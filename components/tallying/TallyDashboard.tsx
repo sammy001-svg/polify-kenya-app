@@ -1,5 +1,8 @@
 "use client";
 
+/* cspell:ignore Scanlines */
+
+import { useEffect, useState, useMemo } from "react";
 import { Toaster } from "sonner";
 import { SummaryHeader } from "./SummaryHeader";
 import { ElectionHeatMap } from "./ElectionHeatMap";
@@ -10,7 +13,78 @@ import { AuditLogPane } from "./AuditLogPane";
 import { ResultProjectionsNode } from "./ResultProjectionsNode";
 import { VerifiedBadge } from "./VerifiedBadge";
 
+interface Candidate {
+  name: string;
+  votes: number;
+  photo?: string;
+  party_color: string;
+}
+
 export function TallyDashboard() {
+  const [presidential, setPresidential] = useState<Candidate[]>([
+    { name: "Candidate A", votes: 7290045, photo: "/images/candidates/william_ruto.png", party_color: "bg-brand-primary" },
+    { name: "Candidate B", votes: 6025811, photo: "/images/candidates/raila_odinga.png", party_color: "bg-kenya-red" },
+    { name: "Candidate C", votes: 80705, photo: "", party_color: "bg-white/10" },
+    { name: "Candidate D", votes: 40352, photo: "", party_color: "bg-white/10" },
+    { name: "Others", votes: 13449, photo: "", party_color: "bg-white/10" }
+  ]);
+
+  const [parliamentary, setParliamentary] = useState<Candidate[]>([
+    { name: "Candidate M", votes: 3412091, photo: "", party_color: "bg-kenya-green" },
+    { name: "Candidate N", votes: 2944502, photo: "", party_color: "bg-kenya-gold" },
+    /* cspell:disable-next-line */
+    { name: "M. Ochieng", votes: 97500, photo: "", party_color: "bg-white/5" },
+    /* cspell:disable-next-line */
+    { name: "S. Kamau", votes: 32500, photo: "", party_color: "bg-white/5" },
+    { name: "Others", votes: 13000, photo: "", party_color: "bg-white/5" }
+  ]);
+
+  // Simulated AI Result Streaming
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // 70% chance to update presidential, 30% parliamentary
+      if (Math.random() > 0.3) {
+        setPresidential(prev => {
+          const next = [...prev];
+          const idx = Math.floor(Math.random() * 2); // Mostly top 2
+          next[idx].votes += Math.floor(Math.random() * 2500) + 500;
+          return next;
+        });
+      } else {
+        setParliamentary(prev => {
+          const next = [...prev];
+          const idx = Math.floor(Math.random() * 2);
+          next[idx].votes += Math.floor(Math.random() * 1500) + 200;
+          return next;
+        });
+      }
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const sortedPresidential = useMemo(() => {
+    const total = presidential.reduce((acc, c) => acc + c.votes, 0);
+    return [...presidential]
+      .sort((a, b) => b.votes - a.votes)
+      .map(c => ({
+        ...c,
+        votes: c.votes.toLocaleString(),
+        pct: ((c.votes / total) * 100).toFixed(1) + "%"
+      }));
+  }, [presidential]);
+
+  const sortedParliamentary = useMemo(() => {
+    const total = parliamentary.reduce((acc, c) => acc + c.votes, 0);
+    return [...parliamentary]
+      .sort((a, b) => b.votes - a.votes)
+      .map(c => ({
+        ...c,
+        votes: c.votes.toLocaleString(),
+        pct: ((c.votes / total) * 100).toFixed(1) + "%"
+      }));
+  }, [parliamentary]);
+
   return (
     <div className="tally-hub-overhaul flex flex-col gap-0 min-h-screen bg-transparent relative overflow-hidden selection:bg-brand-primary/30 selection:text-white">
       <style dangerouslySetInnerHTML={{ __html: `
@@ -50,13 +124,7 @@ export function TallyDashboard() {
                 <DetailedResultCard 
                    title="Presidential Results"
                    reporting="458 / 600"
-                   candidates={[
-                      { name: "Candidate A", pct: "54.2%", votes: "7,290,045", photo: "/images/candidates/william_ruto.png", party_color: "bg-brand-primary" },
-                      { name: "Candidate B", pct: "44.8%", votes: "6,025,811", photo: "/images/candidates/raila_odinga.png", party_color: "bg-kenya-red" },
-                      { name: "Candidate C", pct: "0.6%", votes: "80,705", photo: "", party_color: "bg-white/10" },
-                      { name: "Candidate D", pct: "0.3%", votes: "40,352", photo: "", party_color: "bg-white/10" },
-                      { name: "Others", pct: "0.1%", votes: "13,449", photo: "", party_color: "bg-white/10" }
-                   ]}
+                   candidates={sortedPresidential}
                    /* cspell:disable */
                    form34As={[
                      { id: "34A-ELD-08", stationName: "Eldoret Town Hall", county: "Uasin Gishu", constituency: "Kesses", timestamp: "31 mins ago" },
@@ -73,15 +141,7 @@ export function TallyDashboard() {
                    reporting="328 / 600"
                    showDropdown={true}
                    dropdownType="constituency"
-                   candidates={[
-                      { name: "Candidate M", pct: "52.5%", votes: "3,412,091", photo: "", party_color: "bg-kenya-green" },
-                      { name: "Candidate N", pct: "45.3%", votes: "2,944,502", photo: "", party_color: "bg-kenya-gold" },
-                      /* cspell:disable-next-line */
-                      { name: "M. Ochieng", pct: "1.5%", votes: "97,500", photo: "", party_color: "bg-white/5" },
-                      /* cspell:disable-next-line */
-                      { name: "S. Kamau", pct: "0.5%", votes: "32,500", photo: "", party_color: "bg-white/5" },
-                      { name: "Others", pct: "0.2%", votes: "13,000", photo: "", party_color: "bg-white/5" }
-                   ]}
+                   candidates={sortedParliamentary}
                 />
                 <div className="grow">
                     <DataProcessingNodeV2 />

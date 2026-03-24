@@ -260,7 +260,7 @@ export function ElectionHeatMap() {
                  initial={{ opacity: 0, scale: 0.9 }}
                  animate={{ opacity: 1, scale: 1 }}
                  exit={{ opacity: 0, scale: 0.9 }}
-                 className="fixed z-[100] pointer-events-none"
+                 className="fixed z-100 pointer-events-none"
                  style={{ 
                     left: tooltipPos.x + 20, 
                     top: tooltipPos.y - 40 
@@ -276,7 +276,7 @@ export function ElectionHeatMap() {
                      </p>
                      <div className="flex justify-between items-center mt-0.5">
                         <span className="text-[6px] font-mono text-[#00FF8C]/40">SCANNING NODE_3301...</span>
-                        <div className="flex gap-[1px]">
+                        <div className="flex gap-px">
                            {[1,2,3,4].map(i => (
                              <div key={i} className="w-[1.5px] h-1.5 bg-[#00FF8C] rounded-px animate-pulse" style={{ animationDelay: `${i * 100}ms` }} />
                            ))}

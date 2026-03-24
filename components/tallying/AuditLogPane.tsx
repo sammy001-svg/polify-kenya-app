@@ -73,7 +73,7 @@ export function AuditLogPane() {
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* 1. ANGLED TITLE TAB */}
-      <div className="relative z-20 flex w-full md:w-fit min-w-0 md:min-w-[400px] h-8 bg-[#091813] border-t border-l border-r border-[#18362A] [clip-path:polygon(0_0,calc(100%-10px)_0,100%_100%,0_100%)] md:[clip-path:polygon(0_0,calc(100%-25px)_0,100%_100%,0_100%)] ml-auto">
+      <div className="relative z-20 flex w-full h-8 bg-[#091813] border-t border-l border-r border-[#18362A] [clip-path:polygon(0_0,calc(100%-15px)_0,100%_100%,0_100%)]">
          <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#00FF8C] shadow-[0_0_8px_#00FF8C]" />
          <div className="absolute inset-0 bg-linear-to-r from-[#00FF8C]/10 to-transparent pointer-events-none" />
          
