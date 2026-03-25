@@ -4,6 +4,7 @@ const siteUrl = "https://polify-kenya-app.vercel.app";
 
 export const baseMetadata: Metadata = {
   metadataBase: new URL(siteUrl),
+  manifest: "/manifest.json",
   title: {
     default: "PoliFy Kenya | AI-Powered Civic Intelligence",
     template: "%s | PoliFy Kenya",
