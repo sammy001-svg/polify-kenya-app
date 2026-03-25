@@ -3,6 +3,7 @@ import { Inter, Libre_Baskerville, Dancing_Script } from "next/font/google";
 import "./globals.css";
 import { baseMetadata } from "@/lib/metadata";
 import { SecurityProvider } from "@/components/security/SecurityProvider";
+import { InstallPWA } from "@/components/pwa/InstallPWA";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const libre_baskerville = Libre_Baskerville({
@@ -40,7 +41,23 @@ export default function RootLayout({
       >
         <SecurityProvider>
           {children}
+          <InstallPWA />
         </SecurityProvider>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js', { scope: '/' }).then(function(registration) {
+                    console.log('PWA ServiceWorker registered successfully:', registration.scope);
+                  }, function(err) {
+                    console.error('PWA ServiceWorker registration failed:', err);
+                  });
+                });
+              }
+            `,
+          }}
+        />
       </body>
     </html>
   );
