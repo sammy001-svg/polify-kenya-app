@@ -193,3 +193,37 @@ export async function uploadPetitionImage(file: File, userId: string): Promise<s
 
   return data.publicUrl;
 }
+
+/**
+ * Uploads a campaign document to Supabase Storage
+ * @param file - The file to upload (PDF, JPG, PNG)
+ * @param userId - The user's ID
+ * @returns Promise resolving to the public URL of the uploaded document
+ */
+export async function uploadCampaignDocument(file: File, userId: string): Promise<string> {
+  const supabase = createClient();
+
+  // Generate unique filename
+  const fileExt = file.name.split(".").pop();
+  const fileName = `${userId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+  // Upload to Supabase Storage
+  const { error: uploadError } = await supabase.storage
+    .from("campaign-docs")
+    .upload(fileName, file, {
+      upsert: false,
+      contentType: file.type,
+    });
+
+  if (uploadError) {
+    if (uploadError.message.toLowerCase().includes("bucket not found")) {
+      throw new Error(`The 'campaign-docs' storage bucket does not exist. Please create a PUBLIC bucket named 'campaign-docs' in your Supabase Dashboard Storage section.`);
+    }
+    throw new Error(`Failed to upload document: ${uploadError.message}`);
+  }
+
+  // Get public URL
+  const { data } = supabase.storage.from("campaign-docs").getPublicUrl(fileName);
+
+  return data.publicUrl;
+}

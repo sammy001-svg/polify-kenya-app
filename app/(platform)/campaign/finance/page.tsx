@@ -1,7 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { useDropzone } from 'react-dropzone';
+import { toast } from 'sonner';
 import { MOCK_DONATIONS, MOCK_EXPENSES, MOCK_BUDGET, Donation, Expense, SourceType, ExpenseCategory } from '@/lib/finance-data';
+import { saveDocumentMetadata, getCampaignDocuments } from '@/actions/finance';
+import { uploadCampaignDocument } from '@/lib/upload-helper';
+import { createClient } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -22,7 +27,8 @@ import {
   FileText,
   Scale,
   Settings,
-  Archive
+  Archive,
+  X
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -53,6 +59,15 @@ type JournalEntry = {
     lines: JournalLine[];
 };
 
+type UploadedDoc = {
+    id: string;
+    name: string;
+    type: string;
+    date: string;
+    size: string;
+    url?: string;
+};
+
 export default function FinancePage() {
   const [userRole, setUserRole] = useState<UserRole>('politician');
   const [donations, setDonations] = useState<Donation[]>(MOCK_DONATIONS);
@@ -60,6 +75,81 @@ export default function FinancePage() {
   const [journalEntries, setJournalEntries] = useState<JournalEntry[]>([]);
   const [showLogModal, setShowLogModal] = useState<'donation' | 'expense' | null>(null);
   const [showJournalModal, setShowJournalModal] = useState(false);
+  const [previewDoc, setPreviewDoc] = useState<UploadedDoc | null>(null);
+  const [isLoadingDocs, setIsLoadingDocs] = useState(true);
+  
+  const [uploadedDocs, setUploadedDocs] = useState<UploadedDoc[]>([]);
+
+  useEffect(() => {
+    const loadDocs = async () => {
+      try {
+        const docs = await getCampaignDocuments();
+        setUploadedDocs(docs.map((d) => ({
+          ...d,
+          id: d.id,
+          name: d.name,
+          type: d.type,
+          url: d.url,
+          size: d.size || '0.0 MB',
+          date: new Date(d.created_at || Date.now()).toLocaleDateString()
+        })));
+      } catch (error) {
+        console.error('Failed to load documents:', error);
+      } finally {
+        setIsLoadingDocs(false);
+      }
+    };
+    loadDocs();
+  }, []);
+
+  const onDropDocs = useCallback(async (acceptedFiles: File[]) => {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      toast.error("You must be logged in to upload documents.");
+      return;
+    }
+
+    const toastId = toast.loading(`Uploading ${acceptedFiles.length} document(s)...`);
+
+    try {
+      for (const file of acceptedFiles) {
+        // 1. Upload to Storage
+        const publicUrl = await uploadCampaignDocument(file, user.id);
+
+        // 2. Save Metadata to DB
+        const metadata = {
+          name: file.name,
+          type: file.type.includes('pdf') ? 'Statement' : (file.type.includes('image') ? 'Receipt' : 'Invoice'),
+          size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
+          url: publicUrl
+        };
+
+        const savedDoc = await saveDocumentMetadata(metadata);
+        
+        // 3. Update local state
+        setUploadedDocs(prev => [{
+          ...savedDoc,
+          date: 'Just now'
+        }, ...prev]);
+      }
+      
+      toast.success("Documents uploaded and saved successfully!", { id: toastId });
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error("Upload Error:", error);
+      toast.error(`Upload failed: ${errorMessage}`, { id: toastId });
+    }
+  }, []);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop: onDropDocs,
+    accept: {
+      'application/pdf': ['.pdf'],
+      'image/*': ['.jpg', '.jpeg', '.png']
+    }
+  });
 
   // Journal Entry State
   const [journalDate, setJournalDate] = useState(new Date().toISOString().split('T')[0]);
@@ -390,39 +480,59 @@ export default function FinancePage() {
             {/* DOCUMENTS TAB */}
             <TabsContent value="documents">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                     <Card className="border-border border-dashed bg-brand-surface-secondary/10">
-                         <CardContent className="flex flex-col items-center justify-center h-64 gap-4">
+                     <div {...getRootProps()} className={`cursor-pointer transition-all ${isDragActive ? 'scale-95 opacity-80' : ''}`}>
+                         <input {...getInputProps()} />
+                         <Card className={`border-border border-dashed h-64 bg-brand-surface-secondary/10 flex flex-col items-center justify-center gap-4 hover:border-brand-text/50 transition-colors ${isDragActive ? 'border-brand-text bg-brand-surface-secondary/20' : ''}`}>
                              <div className="w-16 h-16 rounded-full bg-brand-surface-secondary flex items-center justify-center">
                                  <Plus className="w-6 h-6 text-brand-text-muted" />
                              </div>
-                             <div className="text-center">
+                             <div className="text-center px-4">
                                  <p className="font-bold">Upload Source Document</p>
                                  <p className="text-sm text-brand-text-muted">Drag & drop receipts, invoices, or bank statements.</p>
                              </div>
-                             <Button variant="outline">Browse Files</Button>
-                         </CardContent>
-                     </Card>
+                             <Button variant="outline" type="button">Browse Files</Button>
+                         </Card>
+                     </div>
                      <Card className="border-border">
                          <CardHeader>
                              <CardTitle>Recent Uploads</CardTitle>
                          </CardHeader>
-                         <CardContent className="space-y-4">
-                             {[
-                                 { name: "INV-2024-001.pdf", type: "Invoice", date: "Today", size: "2.4 MB" },
-                                 { name: "Receipt-Fuel-Shell.jpg", type: "Receipt", date: "Yesterday", size: "1.1 MB" },
-                                 { name: "Bank-Stmt-July.pdf", type: "Statement", date: "Jul 31", size: "4.5 MB" },
-                             ].map((file, i) => (
-                                 <div key={i} className="flex items-center justify-between p-3 border border-border rounded-lg">
-                                     <div className="flex items-center gap-3">
-                                         <FileText className="w-8 h-8 text-blue-500" />
-                                         <div>
-                                             <p className="font-bold text-sm">{file.name}</p>
-                                             <p className="text-xs text-brand-text-muted">{file.type} • {file.date}</p>
-                                         </div>
-                                     </div>
-                                     <span className="text-xs font-mono text-brand-text-muted">{file.size}</span>
+                         <CardContent className="space-y-4 max-h-[400px] overflow-auto pr-2">
+                             {isLoadingDocs ? (
+                                 <div className="flex flex-col items-center justify-center py-12 gap-3">
+                                     <div className="w-8 h-8 border-4 border-brand-text border-t-transparent rounded-full animate-spin" />
+                                     <p className="text-sm text-brand-text-muted">Loading documents...</p>
                                  </div>
-                             ))}
+                             ) : (
+                                 <>
+                                     {uploadedDocs.map((file) => (
+                                         <div 
+                                            key={file.id} 
+                                            onClick={() => setPreviewDoc(file)}
+                                            className="flex items-center justify-between p-3 border border-border rounded-lg hover:bg-brand-surface-secondary/20 cursor-pointer transition-colors group"
+                                         >
+                                             <div className="flex items-center gap-3">
+                                                 <div className={`p-2 rounded-lg ${file.name.toLowerCase().endsWith('.pdf') ? 'bg-red-500/10 text-red-500' : 'bg-blue-500/10 text-blue-500'}`}>
+                                                    <FileText className="w-6 h-6" />
+                                                 </div>
+                                                 <div>
+                                                     <p className="font-bold text-sm truncate max-w-[180px] group-hover:text-blue-500 transition-colors">{file.name}</p>
+                                                     <p className="text-xs text-brand-text-muted">{file.type} • {file.date}</p>
+                                                 </div>
+                                             </div>
+                                             <div className="flex items-center gap-2">
+                                                 <span className="text-xs font-mono text-brand-text-muted group-hover:hidden transition-colors">{file.size}</span>
+                                                 <span className="text-xs font-bold text-blue-500 hidden group-hover:block transition-all">View Document</span>
+                                             </div>
+                                         </div>
+                                     ))}
+                                     {uploadedDocs.length === 0 && (
+                                         <div className="text-center py-8 text-brand-text-muted italic">
+                                             No documents uploaded yet.
+                                         </div>
+                                     )}
+                                 </>
+                             )}
                          </CardContent>
                      </Card>
                 </div>
@@ -677,6 +787,48 @@ export default function FinancePage() {
                             <Button className="bg-brand-text text-brand-surface" onClick={handleSaveJournal}>Post Entry</Button>
                         </div>
                     </CardContent>
+                </Card>
+            </div>
+        )}
+
+        {/* Document Preview Modal */}
+        {previewDoc && (
+            <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+                <Card className="w-full max-w-4xl max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 overflow-hidden">
+                    <CardHeader className="flex flex-row items-center justify-between bg-brand-surface border-b border-border shrink-0">
+                        <div>
+                            <CardTitle className="text-lg truncate max-w-[400px]">{previewDoc.name}</CardTitle>
+                            <CardDescription>{previewDoc.type} • {previewDoc.size}</CardDescription>
+                        </div>
+                        <Button variant="ghost" size="icon" onClick={() => setPreviewDoc(null)}>
+                            <X className="w-6 h-6" />
+                        </Button>
+                    </CardHeader>
+                    <CardContent className="flex-1 overflow-auto p-0 flex items-center justify-center bg-black/20">
+                        {previewDoc.url ? (
+                            (previewDoc.name.toLowerCase().endsWith('.pdf') && !previewDoc.url.includes('placehold.co')) ? (
+                                <iframe src={previewDoc.url} className="w-full h-[70vh]" title={previewDoc.name} />
+                            ) : (
+                                <img src={previewDoc.url} alt={previewDoc.name} className="max-w-full max-h-full object-contain" />
+                            )
+                        ) : (
+                            <div className="py-20 text-brand-text-muted">No preview available for this file type.</div>
+                        )}
+                    </CardContent>
+                    <div className="p-4 border-t border-border flex justify-end gap-2 bg-brand-surface shrink-0">
+                        <Button variant="outline" onClick={() => {
+                            const link = document.createElement('a');
+                            link.href = previewDoc.url || '';
+                            link.download = previewDoc.name;
+                            link.click();
+                        }} disabled={!previewDoc.url}>
+                            <Download className="w-4 h-4 mr-2" /> Download
+                        </Button>
+                        <Button variant="outline" onClick={() => window.open(previewDoc.url, '_blank')} disabled={!previewDoc.url}>
+                            Open in New Tab
+                        </Button>
+                        <Button onClick={() => setPreviewDoc(null)}>Close</Button>
+                    </div>
                 </Card>
             </div>
         )}

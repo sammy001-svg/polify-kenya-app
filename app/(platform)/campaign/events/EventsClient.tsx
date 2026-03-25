@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -31,6 +31,9 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { createClient } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
+import { useDropzone } from "react-dropzone";
+import { uploadCampaignDocument } from "@/lib/upload-helper";
+import { toast as sonnerToast } from "sonner";
 
 const getEventIcon = (type: EventType) => {
   switch (type) {
@@ -83,6 +86,7 @@ export function EventsClient({ initialEvents }: EventsClientProps) {
     type: "TownHall",
     status: "Upcoming",
   });
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const supabase = createClient();
 
   // Real-time updates
@@ -119,6 +123,40 @@ export function EventsClient({ initialEvents }: EventsClientProps) {
     );
   }, [events]);
 
+  const onDropImage = useCallback(async (acceptedFiles: File[]) => {
+    if (acceptedFiles.length === 0) return;
+    
+    const file = acceptedFiles[0];
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      sonnerToast.error("You must be logged in to upload images.");
+      return;
+    }
+
+    setIsUploadingImage(true);
+    const toastId = sonnerToast.loading("Uploading event image...");
+
+    try {
+      const publicUrl = await uploadCampaignDocument(file, user.id);
+      setNewEvent(prev => ({ ...prev, image_url: publicUrl }));
+      sonnerToast.success("Event image uploaded!", { id: toastId });
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error("Upload Error:", error);
+      sonnerToast.error(`Upload failed: ${errorMessage}`, { id: toastId });
+    } finally {
+      setIsUploadingImage(false);
+    }
+  }, [supabase]);
+
+  const { getRootProps: getImgProps, getInputProps: getImgInputProps, isDragActive: isImgActive } = useDropzone({
+    onDrop: onDropImage,
+    accept: { 'image/*': ['.jpeg', '.jpg', '.png', '.webp'] },
+    maxFiles: 1,
+    multiple: false
+  });
+
   const handleCreate = async () => {
     if (!newEvent.title || !newEvent.date || !newEvent.location) {
       toast({
@@ -133,7 +171,11 @@ export function EventsClient({ initialEvents }: EventsClientProps) {
     const res = await createEvent(newEvent);
 
     if (res.error) {
-      toast({ title: "Error", description: res.error, variant: "destructive" });
+      toast({ 
+        title: "Error", 
+        description: `${res.error}${res.details ? ` - ${res.details}` : ''}`, 
+        variant: "destructive" 
+      });
     } else {
       toast({ title: "Success", description: "Event scheduled successfully." });
       setShowAddForm(false);
@@ -169,9 +211,12 @@ export function EventsClient({ initialEvents }: EventsClientProps) {
               <Calendar className="w-6 h-6 text-kenya-red" />
               Campaign Scheduler
             </h1>
-            <p className="text-sm text-brand-text-muted">
+            <div className="text-sm text-brand-text-muted flex items-center gap-2">
               Manage events, rallies, and volunteer assignments.
-            </p>
+              <Badge variant="outline" className="text-[9px] h-4 bg-brand-primary/10 text-brand-primary border-brand-primary/20 italic font-black">
+                Syncs to Mashinani Events
+              </Badge>
+            </div>
           </div>
         </div>
         <Button
@@ -282,17 +327,36 @@ export function EventsClient({ initialEvents }: EventsClientProps) {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-bold">Header Image URL</label>
-              <Input
-                placeholder="https://images.unsplash.com/..."
-                value={newEvent.image_url || ""}
-                onChange={(e) =>
-                  setNewEvent({ ...newEvent, image_url: e.target.value })
-                }
-              />
-              <p className="text-[10px] text-brand-text-muted mt-1 italic">
-                Use high-quality images from Unsplash for better visibility.
-              </p>
+              <label className="text-sm font-bold">Event Header Image</label>
+              <div 
+                {...getImgProps()} 
+                className={cn(
+                  "border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all",
+                  isImgActive ? "border-brand-primary bg-brand-primary/5" : "border-border hover:border-brand-text-muted hover:bg-brand-surface-secondary/10",
+                  newEvent.image_url ? "border-kenya-green/50 bg-kenya-green/5" : ""
+                )}
+              >
+                <input {...getImgInputProps()} />
+                {isUploadingImage ? (
+                  <div className="flex flex-col items-center gap-2">
+                    <Loader2 className="w-8 h-8 animate-spin text-brand-primary" />
+                    <p className="text-sm text-brand-text-muted">Uploading image...</p>
+                  </div>
+                ) : newEvent.image_url ? (
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="h-20 w-full rounded-lg overflow-hidden relative">
+                      <img src={newEvent.image_url} alt="Event preview" className="w-full h-full object-cover" />
+                    </div>
+                    <p className="text-xs text-kenya-green font-bold">Image Ready! Click or drag to replace.</p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center gap-2">
+                    <Megaphone className="w-8 h-8 text-brand-text-muted opacity-50" />
+                    <p className="text-sm">Click or drag event poster here</p>
+                    <p className="text-[10px] text-brand-text-muted italic">JPG, PNG or WebP</p>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="space-y-2">

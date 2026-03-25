@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/components/ui/use-toast";
+import { createClient } from "@/lib/supabase";
 
 export default function TownHallPage() {
   const { toast } = useToast();
@@ -21,35 +22,81 @@ export default function TownHallPage() {
   const [activeFilter, setActiveFilter] = useState<
     "All" | EventType
   >("All");
-  const [events, setEvents] = useState<CampaignEvent[]>(CAMPAIGN_EVENTS);
+  const [events, setEvents] = useState<CampaignEvent[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadEvents() {
       setLoading(true);
-      const data: CampaignEventWithProfile[] = await getAllPublicEvents();
-      // Map DB events to EventCard expected format
-      const mappedEvents: CampaignEvent[] = (data || []).map((e) => ({
-        id: e.id,
-        politicianName: e.profiles?.full_name || "Unknown Candidate",
-        politicianAvatar:
-          e.profiles?.avatar_url ||
-          `https://api.dicebear.com/7.x/avataaars/svg?seed=${e.id}`,
-        party: e.profiles?.party || "Independent",
-        title: e.title,
-        description: e.description || "No description provided.",
-        image_url:
-          e.image_url ||
-          "https://images.unsplash.com/photo-1540910419892-f39aefe24aa2?q=80&w=2070&auto=format&fit=crop",
-        location: e.location,
-        date: format(new Date(e.date), "PPP") + (e.time ? ` at ${e.time}` : ""),
-        type: e.type as EventType,
-        attendees: `${e.volunteers_registered || 0} RSVPs`,
-      }));
-      setEvents([...mappedEvents, ...CAMPAIGN_EVENTS]);
+      try {
+        const data: CampaignEventWithProfile[] = await getAllPublicEvents();
+        // Map DB events to EventCard expected format
+        const mappedEvents: CampaignEvent[] = (data || []).map((e) => ({
+          id: e.id,
+          politicianName: e.profiles?.full_name || "Campaign Team",
+          politicianAvatar:
+            e.profiles?.avatar_url ||
+            `https://api.dicebear.com/7.x/avataaars/svg?seed=${e.id}`,
+          party: e.profiles?.party || "General",
+          title: e.title,
+          description: e.description || "No description provided.",
+          image_url:
+            e.image_url ||
+            "https://images.unsplash.com/photo-1540910419892-f39aefe24aa2?q=80&w=2070&auto=format&fit=crop",
+          location: e.location,
+          date: format(new Date(e.date), "PPP") + (e.time ? ` at ${e.time}` : ""),
+          type: e.type as EventType,
+          attendees: `${e.volunteers_registered || 0} RSVPs`,
+        }));
+        setEvents(mappedEvents);
+      } catch (err: any) {
+        console.error("Failed to load events:", err);
+        toast({
+          title: "Database Error",
+          description: err.message || "Could not synchronize events pulse.",
+          variant: "destructive",
+        });
+      }
       setLoading(false);
     }
     loadEvents();
+  }, []);
+
+  // Real-time updates for MASHINANI EVENTS
+  useEffect(() => {
+    const supabase = createClient();
+    const channel = supabase
+      .channel("live_events_updates")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "campaign_events" },
+        async (payload) => {
+          if (payload.eventType === "INSERT") {
+            // Re-fetch everything or just add the new one
+            // Re-fetching is safer because we need the profiles join
+            const data: CampaignEventWithProfile[] = await getAllPublicEvents();
+            const mappedEvents: CampaignEvent[] = (data || []).map((e) => ({
+              id: e.id,
+              politicianName: e.profiles?.full_name || "Unknown Candidate",
+              politicianAvatar: e.profiles?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${e.id}`,
+              party: e.profiles?.party || "Independent",
+              title: e.title,
+              description: e.description || "No description provided.",
+              image_url: e.image_url || "https://images.unsplash.com/photo-1540910419892-f39aefe24aa2?q=80&w=2070&auto=format&fit=crop",
+              location: e.location,
+              date: format(new Date(e.date), "PPP") + (e.time ? ` at ${e.time}` : ""),
+              type: e.type as EventType,
+              attendees: `${e.volunteers_registered || 0} RSVPs`,
+            }));
+            setEvents(mappedEvents);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const handleSharePage = async () => {
@@ -69,7 +116,7 @@ export default function TownHallPage() {
           description: "Campaign Pulse link copied to clipboard!",
         });
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error sharing:", err);
     }
   };

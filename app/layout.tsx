@@ -4,6 +4,7 @@ import "./globals.css";
 import { baseMetadata } from "@/lib/metadata";
 import { SecurityProvider } from "@/components/security/SecurityProvider";
 import { PWAProvider } from "@/components/pwa/PWAProvider";
+import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const libre_baskerville = Libre_Baskerville({
@@ -27,8 +28,6 @@ export const viewport = {
   initialScale: 1,
 };
 
-
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -42,6 +41,7 @@ export default function RootLayout({
         <PWAProvider>
           <SecurityProvider>
             {children}
+            <Toaster position="bottom-right" richColors />
           </SecurityProvider>
         </PWAProvider>
       </body>

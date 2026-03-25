@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -22,52 +22,64 @@ import {
   FileImage,
   Video,
   Download,
+  Upload,
+  X,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
+import { useDropzone } from "react-dropzone";
+import { toast } from "sonner";
+
+import { generateAIContent } from "@/actions/ai-content";
+import { MOCK_CAMPAIGN_PROFILE } from "@/lib/campaign-profile";
 
 type ContentType = "speech" | "social" | "press" | "flyer" | "video";
 
 export default function ContentStudioPage() {
+  const profile = MOCK_CAMPAIGN_PROFILE;
   const [activeType, setActiveType] = useState<ContentType>("speech");
-  const [topic, setTopic] = useState("");
+  const [briefMessage, setBriefMessage] = useState("");
   const [tone, setTone] = useState("inspiring");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [generatedContent, setGeneratedContent] = useState("");
+  const [userImage, setUserImage] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const flyerRef = useRef<HTMLDivElement>(null);
 
-  const handleGenerate = () => {
-    if (!topic) return;
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setUserImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  }, []);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: { "image/*": [] },
+    multiple: false,
+  });
+
+  const handleGenerate = async () => {
+    if (!briefMessage) return;
     setIsGenerating(true);
-    setGeneratedContent(""); // Clear previous
+    setGeneratedContent(""); 
 
-    // Simulate AI generation
-    setTimeout(() => {
-      let content = "";
-      if (activeType === "speech") {
-        content = `[OPENING]\nMy fellow citizens, we gather here today not just to talk, but to act. The issue of ${topic} has weighed heavily on our community for too long.\n\n[BODY]\nI have listened to your concerns. I have walked the streets of our wards. And I tell you this: We will fix this. By implementing strict oversight and allocating resources where they matter most, we will turn the tide on ${topic}.\n\n[CLOSING]\nTogether, we are unstoppable. Let us march forward towards a brighter future! Thank you, and God bless you all.`;
-      } else if (activeType === "social") {
-        content = `🚨 TIME FOR ACTION!\n\nWe cannot ignore the ${topic} crisis any longer. My administration promises IMMEDIATE solutions, not just empty talk. \n\nAre you with me? 👇 #Campaign2027 #Fix${topic.replace(/\s/g, "")} #Leadership`;
-      } else if (activeType === "press") {
-        content = `FOR IMMEDIATE RELEASE\n\nSTATEMENT ON ${topic.toUpperCase()}\n\n[CITY, Date] – The Campaign Office firmly addresses the ongoing situation regarding ${topic}. We categorically state our commitment to transparency and rapid development.\n\n"We are rolling out a 3-point plan to tackle this head-on," said the Candidate. "Our focus remains on the people."\n\n###`;
-      } else if (activeType === "flyer") {
-        // For flyer, we just set a flag or short copy, the visual preview will handle the rest
-        content = JSON.stringify({
-          headline: `A New Vision for ${topic}`,
-          slogan: "Leadership That Listens, Action That Matters",
-          bullet1: "✔ Community-first solutions",
-          bullet2: "✔ Transparency & Accountability",
-          bullet3: "✔ Immediate Resource Allocation",
-        });
-      } else if (activeType === "video") {
-        content = `[SCENE START]\n\nFADE IN:\n\nINT. CAMPAIGN OFFICE - DAY\n\nCandidate looks comfortably into the camera.\n\nCANDIDATE\n"They said it couldn't be done. They said ${topic} was too complex."\n\nCUT TO:\n\nMontage of community work and engagement.\n\nCANDIDATE (V.O)\n"But we are proving them wrong every single day."\n\nGRAPHIC ON SCREEN: VOTE FOR CHANGE\n\n[SCENE END]`;
-      }
-
-      setGeneratedContent(content);
+    try {
+      const result = await generateAIContent(activeType, briefMessage, tone, !!userImage);
+      setGeneratedContent(result);
+    } catch (error) {
+      console.error("AI Generation Error:", error);
+      setGeneratedContent("An error occurred during AI generation. Please try again.");
+    } finally {
       setIsGenerating(false);
-    }, 2000);
+    }
   };
 
   const copyToClipboard = () => {
@@ -78,24 +90,47 @@ export default function ContentStudioPage() {
 
   const handleDownloadPDF = async () => {
     if (!flyerRef.current) return;
+    setIsDownloading(true);
+    const toastId = toast.loading("Preparing high-quality PDF...");
 
     try {
       const canvas = await html2canvas(flyerRef.current, {
-        scale: 2, // Higher resolution
-        useCORS: true, // Handle images if any
+        scale: 2, // Standard high quality
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: "#000000", // Fallback bg
+        logging: false, // Cleaner console
       });
 
-      const imgData = canvas.toDataURL("image/png");
+      const imgData = canvas.toDataURL("image/jpeg", 0.95); // JPEG slightly smaller/faster than PNG
       const pdf = new jsPDF({
         orientation: "portrait",
-        unit: "px",
-        format: [canvas.width, canvas.height],
+        unit: "pt",
+        format: "a4",
       });
 
-      pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
-      pdf.save("campaign-flyer.pdf");
+      // A4 is 595.28 x 841.89 pt
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      
+      // Calculate ratio to fit the page
+      const ratio = Math.min(pageWidth / canvas.width, pageHeight / canvas.height);
+      const imgWidth = canvas.width * ratio;
+      const imgHeight = canvas.height * ratio;
+      
+      // Center it
+      const x = (pageWidth - imgWidth) / 2;
+      const y = (pageHeight - imgHeight) / 2;
+
+      pdf.addImage(imgData, "JPEG", x, y, imgWidth, imgHeight);
+      pdf.save(`${profile.candidateName.toLowerCase().replace(/\s/g, "-")}-flyer.pdf`);
+      
+      toast.success("Success! Your flyer has been downloaded.", { id: toastId });
     } catch (err) {
       console.error("Failed to generate PDF", err);
+      toast.error("Error: Could not generate PDF. Try using a simpler image or re-generating.", { id: toastId });
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -115,7 +150,7 @@ export default function ContentStudioPage() {
             AI Content Studio
           </h1>
           <p className="text-brand-text-muted">
-            Generate campaign speeches, social posts, flyers, and video scripts.
+            Generate campaign speeches, social posts, flyers, and video scripts for {profile.candidateName}.
           </p>
         </div>
       </div>
@@ -171,15 +206,44 @@ export default function ContentStudioPage() {
                 </div>
               </div>
 
+              {/* Image Upload Grid */}
               <div className="space-y-3">
                 <label className="text-sm font-bold text-brand-text-muted uppercase tracking-wider">
-                  Topic / Core Policy
+                  Image Content (Optional)
+                </label>
+                {userImage ? (
+                   <div className="relative w-full aspect-video rounded-xl overflow-hidden group border border-border bg-black/20">
+                     <Image src={userImage} alt="User upload" fill className="object-cover" />
+                     <button 
+                       onClick={() => setUserImage(null)}
+                       className="absolute top-2 right-2 p-1.5 bg-black/60 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-kenya-red"
+                     >
+                       <X className="w-4 h-4" />
+                     </button>
+                   </div>
+                ) : (
+                  <div 
+                    {...getRootProps()} 
+                    className={`h-24 rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-2 transition-all cursor-pointer ${isDragActive ? "border-kenya-purple bg-kenya-purple/5" : "border-white/10 hover:border-white/20 hover:bg-white/5"}`}
+                  >
+                    <input {...getInputProps()} />
+                    <Upload className="w-5 h-5 text-brand-text-muted" />
+                    <span className="text-[10px] font-black uppercase tracking-widest text-brand-text-muted">
+                      {isDragActive ? "Drop here" : "Upload Image"}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-3">
+                <label className="text-sm font-bold text-brand-text-muted uppercase tracking-wider">
+                  Brief Message
                 </label>
                 <Textarea
-                  placeholder="e.g. Youth Unemployment, Road Infrastructure in Ward 4..."
+                  placeholder="e.g. My plan for youth jobs, why I'm running for ward 4..."
                   className="bg-brand-surface-secondary border-transparent resize-none h-24"
-                  value={topic}
-                  onChange={(e) => setTopic(e.target.value)}
+                  value={briefMessage}
+                  onChange={(e) => setBriefMessage(e.target.value)}
                 />
               </div>
 
@@ -204,7 +268,7 @@ export default function ContentStudioPage() {
 
               <Button
                 onClick={handleGenerate}
-                disabled={!topic || isGenerating}
+                disabled={!briefMessage || isGenerating}
                 className="w-full h-12 bg-linear-to-r from-kenya-purple to-indigo-600 hover:opacity-90 text-white font-black uppercase tracking-widest text-sm"
               >
                 {isGenerating ? (
@@ -238,9 +302,18 @@ export default function ContentStudioPage() {
                     <Button
                       size="sm"
                       onClick={handleDownloadPDF}
-                      className="bg-kenya-red hover:bg-kenya-red/90 text-white"
+                      disabled={isDownloading}
+                      className="bg-kenya-red hover:bg-kenya-red/90 text-white min-w-[140px]"
                     >
-                      <Download className="w-4 h-4 mr-2" /> Download PDF
+                      {isDownloading ? (
+                        <>
+                          <Sparkles className="w-4 h-4 mr-2 animate-spin" /> Preparing...
+                        </>
+                      ) : (
+                        <>
+                          <Download className="w-4 h-4 mr-2" /> Download PDF
+                        </>
+                      )}
                     </Button>
                   ) : (
                     <Button
@@ -262,85 +335,78 @@ export default function ContentStudioPage() {
               {generatedContent ? (
                 <>
                   {activeType === "flyer" ? (
-                    <div className="flex-1 flex items-center justify-center p-4 bg-gray-100 rounded-lg overflow-auto">
-                      <div
-                        ref={flyerRef}
-                        className="w-[400px] h-[560px] text-white p-8 flex flex-col justify-between relative shadow-2xl"
-                        style={{
-                          background: "linear-gradient(to bottom right, #0f172a, #000000)",
-                          backgroundImage: "linear-gradient(to bottom right, #0f172a, #000000), url('/placeholder-bg.jpg')",
-                          backgroundSize: "cover",
-                          backgroundBlendMode: "overlay",
-                        }}
-                      >
-                        <div className="absolute top-0 right-0 p-4">
-                          <div className="w-16 h-16 bg-kenya-red rounded-full flex items-center justify-center font-black text-xl">
-                            Vote
-                          </div>
-                        </div>
-                        <div className="z-10 mt-10">
-                          <h2 className="text-4xl font-black uppercase leading-tight mb-4 text-kenya-yellow">
-                            {JSON.parse(generatedContent).headline}
-                          </h2>
-                          <p className="text-lg font-medium text-gray-200">
-                            {JSON.parse(generatedContent).slogan}
-                          </p>
-                        </div>
+                    <div className="flex-1 flex items-center justify-center p-4 bg-black/20 rounded-lg overflow-auto">
+                      {(() => {
+                        let data;
+                        try {
+                          data = JSON.parse(generatedContent);
+                        } catch {
+                          return (
+                            <div className="text-center p-8 bg-brand-surface-secondary rounded-xl border border-dashed border-white/20">
+                              <Sparkles className="w-8 h-8 mx-auto mb-4 text-brand-text-muted" />
+                              <p className="text-sm font-medium">Please re-generate your flyer to see the latest design.</p>
+                            </div>
+                          );
+                        }
+                        
+                        return (
+                          <div
+                            ref={flyerRef}
+                            className="w-[400px] h-[560px] text-white p-8 flex flex-col justify-between relative shadow-2xl"
+                            style={{
+                              background: "linear-gradient(to bottom right, #060a11, #000000)",
+                              backgroundImage: `linear-gradient(to bottom right, rgba(6, 10, 17, 0.9), rgba(0, 0, 0, 0.95)), url('${userImage || "/placeholder-bg.jpg"}')`,
+                              backgroundSize: "cover",
+                              backgroundBlendMode: "overlay",
+                            }}
+                          >
+                            <div className="absolute top-0 right-0 p-4">
+                              <div className="w-16 h-16 bg-kenya-red rounded-full flex items-center justify-center font-black text-xl shadow-lg border-2 border-white/20">
+                                Vote
+                              </div>
+                            </div>
+                            
+                            <div className="z-10 mt-6">
+                              <h2 className={`font-black uppercase leading-tight mb-4 text-kenya-yellow drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)] ${data.headline?.length > 30 ? 'text-3xl' : 'text-4xl'}`}>
+                                {data.headline}
+                              </h2>
+                              <p className="text-lg font-medium text-white drop-shadow-md italic opacity-90">
+                                {data.slogan}
+                              </p>
+                            </div>
 
-                        <div className="z-10 space-y-4 my-8">
-                          <div className="flex items-center gap-3 bg-white/10 p-3 rounded-lg backdrop-blur-sm">
-                            <span className="text-kenya-green font-bold text-xl">
-                              ✓
-                            </span>
-                            <span className="font-bold">
-                              {JSON.parse(generatedContent).bullet1.replace(
-                                "✔ ",
-                                "",
-                              )}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-3 bg-white/10 p-3 rounded-lg backdrop-blur-sm">
-                            <span className="text-kenya-green font-bold text-xl">
-                              ✓
-                            </span>
-                            <span className="font-bold">
-                              {JSON.parse(generatedContent).bullet2.replace(
-                                "✔ ",
-                                "",
-                              )}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-3 bg-white/10 p-3 rounded-lg backdrop-blur-sm">
-                            <span className="text-kenya-green font-bold text-xl">
-                              ✓
-                            </span>
-                            <span className="font-bold">
-                              {JSON.parse(generatedContent).bullet3.replace(
-                                "✔ ",
-                                "",
-                              )}
-                            </span>
-                          </div>
-                        </div>
+                            <div className="z-10 space-y-4 my-6">
+                              {[data.bullet1, data.bullet2, data.bullet3].map((bullet, idx) => (
+                                <div key={idx} className="flex items-center gap-3 bg-white/5 p-3 rounded-lg backdrop-blur-md border border-white/10 hover:bg-white/10 transition-colors">
+                                  <span className="text-kenya-green font-bold text-xl drop-shadow-sm">✓</span>
+                                  <span className="font-bold text-sm tracking-wide">
+                                    {bullet}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
 
-                        <div className="z-10 border-t border-white/30 pt-4 flex items-center justify-between">
-                          <div>
-                            <p className="text-xs uppercase tracking-widest text-gray-400">
-                              Candidate for Ward 4
-                            </p>
-                            <p className="text-xl font-black">Jane Doe</p>
+                            <div className="z-10 border-t border-white/20 pt-4 flex items-center justify-between">
+                              <div>
+                                <p className="text-[9px] uppercase font-black tracking-[0.25em] text-kenya-yellow/70 mb-1">
+                                  Candidate for {profile.office}
+                                </p>
+                                <p className="text-2xl font-black tracking-tighter leading-none">{profile.candidateName}</p>
+                              </div>
+                              <div className="text-right">
+                                <div className="text-3xl mb-1 grayscale brightness-125">{profile.partyLogo}</div>
+                                <p className="text-[10px] text-white/50 font-black uppercase tracking-widest">
+                                  {profile.party}
+                                </p>
+                              </div>
+                            </div>
                           </div>
-                          <div className="text-right">
-                            <p className="text-xs text-kenya-yellow font-bold">
-                              #Campaign2027
-                            </p>
-                          </div>
-                        </div>
-                      </div>
+                        );
+                      })()}
                     </div>
                   ) : activeType === "video" ? (
                     <div className="prose prose-invert max-w-none flex-1">
-                      <div className="bg-black/50 p-6 rounded-lg border border-white/10 font-mono text-sm">
+                      <div className="bg-black/50 p-6 rounded-lg border border-white/10 font-mono text-sm leading-relaxed">
                         {generatedContent.split("\n").map((line, i) => (
                           <div
                             key={i}

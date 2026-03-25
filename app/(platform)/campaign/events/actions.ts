@@ -59,15 +59,25 @@ export async function getEvents(): Promise<CampaignEvent[]> {
 export async function getAllPublicEvents(): Promise<CampaignEventWithProfile[]> {
   try {
     const supabase = await createClient();
-    const now = new Date().toISOString();
+    const today = new Date().toISOString().split('T')[0];
+
+    const { data: rawData, error: rawError } = await supabase
+      .from("campaign_events")
+      .select("*")
+      .gte("date", today);
 
     const { data, error } = await supabase
       .from("campaign_events")
       .select("*, profiles:created_by(full_name, avatar_url, party)")
-      .gte("date", now)
+      .gte("date", today)
       .order("date", { ascending: true });
 
-    if (error) throw error;
+    if (error) {
+      console.warn("Profiles join failed, falling back to raw events:", error);
+      // Fallback: return raw data mapped with empty profiles
+      return (rawData || []).map(e => ({ ...e, profiles: null })) as CampaignEventWithProfile[];
+    }
+    
     return (data as CampaignEventWithProfile[]) || [];
   } catch (error) {
     console.error("Error in getAllPublicEvents:", error);
@@ -108,7 +118,7 @@ export async function createEvent(formData: Partial<CampaignEvent>) {
     // Ensure volunteers_needed is a valid positive number
     const vNeeded = Math.max(0, Number(volunteers_needed) || 0);
 
-    const { error } = await supabase.from("campaign_events").insert({
+    const result = await supabase.from("campaign_events").insert({
       created_by: user.id,
       title,
       type,
@@ -122,14 +132,22 @@ export async function createEvent(formData: Partial<CampaignEvent>) {
       status: "Upcoming",
     });
 
-    if (error) throw error;
+    const { error } = result;
+
+    if (error) {
+      console.error("Supabase Error:", error);
+      return { 
+        error: `Database Error (${error.code}): ${error.message}`,
+        details: error.hint
+      };
+    }
 
     revalidatePath("/campaign/events");
     revalidatePath("/live");
     return { success: true };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error in createEvent:", error);
-    return { error: error instanceof Error ? error.message : "Failed to create event." };
+    return { error: error.message || "Failed to create event." };
   }
 }
 

@@ -24,7 +24,7 @@ export const CAMPAIGN_EVENTS: CampaignEvent[] = [
     description:
       "Engaging with local traders and farmers in Nakuru to discuss the Bottom-Up Economic Transformation Agenda. We are listening to your concerns and building a better Kenya for everyone.",
     image_url:
-      "https://images.unsplash.com/photo-1541872703-74c5e4063857?q=80&w=2070&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1540910419892-f39aefe24aa2?q=80&w=2070&auto=format&fit=crop",
     location: "Nakuru City Hall",
     date: "Today, 2:00 PM",
     type: "TownHall",
