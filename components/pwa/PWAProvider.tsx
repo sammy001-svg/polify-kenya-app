@@ -22,7 +22,6 @@ declare global {
 
 const PWAContext = createContext<{
   isInstallable: boolean;
-  install: () => Promise<void>;
 } | null>(null);
 
 export function PWAProvider({ children }: { children: React.ReactNode }) {
@@ -30,86 +29,68 @@ export function PWAProvider({ children }: { children: React.ReactNode }) {
   const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
-    // Initialize window variable
+    let mounted = true;
+
+    // Initialize window variable safely
     if (typeof window !== 'undefined' && window.deferredPrompt === undefined) {
       window.deferredPrompt = null;
     }
 
-    // 1. Register Service Worker Immediately & Robustly
-    const registerSW = () => {
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js', { scope: '/' })
-          .then((reg) => console.log('PWA SW Registered:', reg.scope))
-          .catch((err) => console.error('PWA SW Failed:', err));
-      }
-    };
-
-    if (document.readyState === 'complete') {
-      registerSW();
-    } else {
-      window.addEventListener('load', registerSW);
+    // 1. Register Service Worker Immediately
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js', { scope: '/' })
+        .catch((err) => console.error('PWA SW Failed:', err));
     }
 
-    // 2. Capture Install Prompt
+    // 2. Capture Install Prompt (The key to success)
     const handler = (e: Event) => {
-      console.log('beforeinstallprompt event fired');
       e.preventDefault();
-      // Store on window to prevent React state proxying/delay from breaking the user-gesture requirement
+      // Store entirely on the global window object to bypass React proxies
       window.deferredPrompt = e as BeforeInstallPromptEvent;
-      setIsReady(true);
-      
-      const lastDismissed = localStorage.getItem('pwa-prompt-dismissed');
-      const now = Date.now();
-      const oneDay = 24 * 60 * 60 * 1000;
-
-      if (!lastDismissed || now - parseInt(lastDismissed) > oneDay) {
-        setShowPopup(true);
+      if (mounted) {
+        setIsReady(true);
+        const lastDismissed = localStorage.getItem('pwa-prompt-dismissed');
+        const now = Date.now();
+        const oneDay = 24 * 60 * 60 * 1000;
+        
+        // Show immediately if they haven't dismissed it
+        if (!lastDismissed || now - parseInt(lastDismissed) > oneDay) {
+          setShowPopup(true);
+        }
       }
     };
 
     window.addEventListener('beforeinstallprompt', handler);
-    
-    // 3. Fallback: Show popup even if event doesn't fire (e.g. iOS or already installed)
+
+    // 3. Fallback: Show popup even if event doesn't fire (iOS / Already Installed)
     const timer = setTimeout(() => {
-      const lastDismissed = localStorage.getItem('pwa-prompt-dismissed');
-      const now = Date.now();
-      const oneDay = 24 * 60 * 60 * 1000;
-      if (!lastDismissed || now - parseInt(lastDismissed) > oneDay) {
-        setShowPopup(true);
+      if (mounted) {
+        const lastDismissed = localStorage.getItem('pwa-prompt-dismissed');
+        const now = Date.now();
+        const oneDay = 24 * 60 * 60 * 1000;
+        if (!lastDismissed || now - parseInt(lastDismissed) > oneDay) {
+          setShowPopup(true);
+        }
       }
     }, 8000);
 
+    // 4. App Installed event
+    const installHandler = () => {
+      window.deferredPrompt = null;
+      if (mounted) {
+        setIsReady(false);
+        setShowPopup(false);
+      }
+    };
+    window.addEventListener('appinstalled', installHandler);
+
     return () => {
+      mounted = false;
       window.removeEventListener('beforeinstallprompt', handler);
+      window.removeEventListener('appinstalled', installHandler);
       clearTimeout(timer);
     };
   }, []);
-
-  const install = async () => {
-    const promptEvent = window.deferredPrompt;
-    if (promptEvent) {
-      try {
-        console.log("Attempting native prompt...");
-        // Call it and wait
-        await promptEvent.prompt();
-        const { outcome } = await promptEvent.userChoice;
-        console.log('PWA Install Outcome:', outcome);
-        window.deferredPrompt = null;
-        setIsReady(false);
-        setShowPopup(false);
-        if (outcome === 'accepted') {
-          alert('Installation started! Check your applications or home screen.');
-        }
-      } catch (err: unknown) {
-        console.error('PWA Install Error:', err);
-        const errorMessage = err instanceof Error ? err.message : String(err);
-        alert(`Browser blocked the installation prompt:\n${errorMessage}\n\nPlease install manually via your browser's menu (⋮ or ︙) -> "Install App".`);
-      }
-    } else {
-      // Manual instruction alert or toast
-      alert('To install: \n\n1. Open browser menu (⋮ or ︙) \n2. Click "Install App" or "Add to Home Screen"\n\nNote: Please ensure you are not visiting in Incognito mode.');
-    }
-  };
 
   const dismiss = () => {
     setShowPopup(false);
@@ -117,7 +98,7 @@ export function PWAProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <PWAContext.Provider value={{ isInstallable: isReady, install }}>
+    <PWAContext.Provider value={{ isInstallable: isReady }}>
       {children}
       
       <AnimatePresence>
@@ -129,16 +110,17 @@ export function PWAProvider({ children }: { children: React.ReactNode }) {
             className="fixed bottom-6 left-1/2 -translate-x-1/2 z-9999 w-[90%] max-w-md"
           >
             <div className="relative overflow-hidden rounded-2xl border border-white/20 bg-black/80 p-6 backdrop-blur-2xl shadow-2xl">
-              <div className="absolute inset-0 bg-linear-to-br from-kenya-green/30 to-kenya-red/30 opacity-40" />
+              {/* Important: pointer-events-none prevents this gradient layer from intercepting clicks */}
+              <div className="absolute inset-0 bg-linear-to-br from-kenya-green/30 to-kenya-red/30 opacity-40 pointer-events-none z-0" />
               
               <button 
                 onClick={dismiss}
-                className="absolute top-4 right-4 text-white/60 hover:text-white transition-colors p-2 cursor-pointer"
+                className="absolute top-4 right-4 text-white/60 hover:text-white transition-colors p-2 cursor-pointer z-10"
               >
                 <X size={20} />
               </button>
 
-              <div className="relative flex items-center gap-4">
+              <div className="relative z-10 flex items-center gap-4">
                 <div className="relative h-14 w-14 overflow-hidden rounded-xl border border-white/20 shadow-lg bg-white/10 p-2">
                   <Image
                     src="/icon.png"
@@ -158,14 +140,35 @@ export function PWAProvider({ children }: { children: React.ReactNode }) {
                 </div>
               </div>
 
-              <div className="mt-5 flex flex-col gap-2">
+              <div className="relative z-10 mt-5 flex flex-col gap-2">
                 <button 
-                  onClick={install}
-                  className="w-full flex items-center justify-center bg-kenya-green hover:bg-kenya-green/90 text-white font-bold h-12 rounded-xl shadow-[0_4px_25px_rgba(1,96,90,0.4)] cursor-pointer transition-all active:scale-95"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (window.deferredPrompt) {
+                      try {
+                        // Fully synchronous raw call
+                        window.deferredPrompt.prompt();
+                        window.deferredPrompt.userChoice.then(() => {
+                           window.deferredPrompt = null;
+                           setIsReady(false);
+                           setShowPopup(false);
+                        }).catch((err: unknown) => {
+                           console.error(err);
+                        });
+                      } catch (err: unknown) {
+                        const errorMessage = err instanceof Error ? err.message : String(err);
+                        alert(`Browser blocked the installation prompt:\n${errorMessage}`);
+                      }
+                    } else {
+                      alert('To install: \n\n1. Open browser menu (⋮ or ︙) \n2. Click "Install App" or "Add to Home Screen"');
+                    }
+                  }}
+                  className="w-full flex items-center justify-center bg-kenya-green hover:bg-kenya-green/90 text-white font-bold h-12 rounded-xl border-none outline-none shadow-[0_4px_25px_rgba(1,96,90,0.4)] cursor-pointer transition-all active:scale-95"
                 >
-                  <Download className="mr-2 h-4 w-4" />
-                  {isReady ? 'Install Now' : 'How to Install'}
+                  <Download className="mr-2 h-4 w-4 pointer-events-none" />
+                  <span className="pointer-events-none">{isReady ? 'Install Now' : 'How to Install'}</span>
                 </button>
+
                 <p className="text-[10px] text-center text-white/40 uppercase tracking-[0.2em] font-bold">
                   Works on Laptop • Desktop • Mobile
                 </p>
@@ -183,3 +186,4 @@ export const usePWA = () => {
   if (!context) throw new Error('usePWA must be used within PWAProvider');
   return context;
 };
+
