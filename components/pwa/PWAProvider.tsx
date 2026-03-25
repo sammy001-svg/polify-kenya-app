@@ -31,6 +31,12 @@ export function PWAProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let mounted = true;
 
+    // Check if already installed
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || ('standalone' in navigator && (navigator as unknown as { standalone?: boolean }).standalone === true);
+    if (isStandalone) {
+      return; // Already installed, don't show prompt
+    }
+
     // Initialize window variable safely
     if (typeof window !== 'undefined' && window.deferredPrompt === undefined) {
       window.deferredPrompt = null;
@@ -42,6 +48,13 @@ export function PWAProvider({ children }: { children: React.ReactNode }) {
         .catch((err) => console.error('PWA SW Failed:', err));
     }
 
+    const checkShouldShow = () => {
+      const lastDismissed = localStorage.getItem('pwa-prompt-dismissed');
+      const now = Date.now();
+      const oneDay = 24 * 60 * 60 * 1000;
+      return !lastDismissed || now - parseInt(lastDismissed) > oneDay;
+    };
+
     // 2. Capture Install Prompt (The key to success)
     const handler = (e: Event) => {
       e.preventDefault();
@@ -49,12 +62,7 @@ export function PWAProvider({ children }: { children: React.ReactNode }) {
       window.deferredPrompt = e as BeforeInstallPromptEvent;
       if (mounted) {
         setIsReady(true);
-        const lastDismissed = localStorage.getItem('pwa-prompt-dismissed');
-        const now = Date.now();
-        const oneDay = 24 * 60 * 60 * 1000;
-        
-        // Show immediately if they haven't dismissed it
-        if (!lastDismissed || now - parseInt(lastDismissed) > oneDay) {
+        if (checkShouldShow()) {
           setShowPopup(true);
         }
       }
@@ -62,17 +70,13 @@ export function PWAProvider({ children }: { children: React.ReactNode }) {
 
     window.addEventListener('beforeinstallprompt', handler);
 
-    // 3. Fallback: Show popup even if event doesn't fire (iOS / Already Installed)
+    // 3. Fallback: Show popup even if event doesn't fire (iOS / Other browsers)
+    // Reduce fallback time for mobile UX
     const timer = setTimeout(() => {
-      if (mounted) {
-        const lastDismissed = localStorage.getItem('pwa-prompt-dismissed');
-        const now = Date.now();
-        const oneDay = 24 * 60 * 60 * 1000;
-        if (!lastDismissed || now - parseInt(lastDismissed) > oneDay) {
-          setShowPopup(true);
-        }
+      if (mounted && checkShouldShow()) {
+        setShowPopup(true);
       }
-    }, 8000);
+    }, 4000);
 
     // 4. App Installed event
     const installHandler = () => {
@@ -83,6 +87,16 @@ export function PWAProvider({ children }: { children: React.ReactNode }) {
       }
     };
     window.addEventListener('appinstalled', installHandler);
+
+    // Check if event already fired before mount
+    if (window.deferredPrompt && checkShouldShow()) {
+      setTimeout(() => {
+        if (mounted) {
+          setIsReady(true);
+          setShowPopup(true);
+        }
+      }, 0);
+    }
 
     return () => {
       mounted = false;
@@ -107,7 +121,7 @@ export function PWAProvider({ children }: { children: React.ReactNode }) {
             initial={{ y: 50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 50, opacity: 0 }}
-            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-9999 w-[90%] max-w-md"
+            className="fixed bottom-6 md:bottom-10 left-1/2 -translate-x-1/2 z-9999 w-[90%] max-w-md"
           >
             <div className="relative overflow-hidden rounded-2xl border border-white/20 bg-black/80 p-6 backdrop-blur-2xl shadow-2xl">
               {/* Important: pointer-events-none prevents this gradient layer from intercepting clicks */}
@@ -115,9 +129,9 @@ export function PWAProvider({ children }: { children: React.ReactNode }) {
               
               <button 
                 onClick={dismiss}
-                className="absolute top-4 right-4 text-white/60 hover:text-white transition-colors p-2 cursor-pointer z-10"
+                className="absolute top-4 right-4 text-white/60 hover:text-white transition-colors p-2 cursor-pointer z-20"
               >
-                <X size={20} />
+                <X size={20} className="pointer-events-none" />
               </button>
 
               <div className="relative z-10 flex items-center gap-4">
