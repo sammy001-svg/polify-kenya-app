@@ -9,12 +9,34 @@ import {
   getAllPublicEvents,
   CampaignEventWithProfile,
 } from "@/app/(platform)/campaign/events/actions";
-import { CAMPAIGN_EVENTS, CampaignEvent, EventType } from "@/lib/events-data";
+import { CampaignEvent, EventType } from "@/lib/events-data";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/components/ui/use-toast";
 import { createClient } from "@/lib/supabase";
+import Image from "next/image";
+
+const HERO_SLIDES = [
+  {
+    title: "Mashinani Pulse",
+    description: "Real-time updates from the ground. Track rallies, town halls, and major policy launches across all 47 counties.",
+    image: "/poli-landing-v2-3.png",
+    color: "from-kenya-red/40"
+  },
+  {
+    title: "Citizen Voice",
+    description: "Join the conversation at local town halls. Your presence shapes the future of our nation's leadership.",
+    image: "/poli-landing-v2-1.jpg",
+    color: "from-kenya-green/40"
+  },
+  {
+    title: "Vision 2027",
+    description: "Experience history in the making. Follow the official launch of transformative manifestos and campaign promises.",
+    image: "/poli-landing-v2-2.png",
+    color: "from-kenya-gold/40"
+  }
+];
 
 export default function TownHallPage() {
   const { toast } = useToast();
@@ -24,6 +46,14 @@ export default function TownHallPage() {
   >("All");
   const [events, setEvents] = useState<CampaignEvent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlideIndex((prev) => (prev + 1) % HERO_SLIDES.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     async function loadEvents() {
@@ -33,11 +63,11 @@ export default function TownHallPage() {
         // Map DB events to EventCard expected format
         const mappedEvents: CampaignEvent[] = (data || []).map((e) => ({
           id: e.id,
-          politicianName: e.profiles?.full_name || "Campaign Team",
+          politicianName: e.profiles?.full_name || e.profiles?.username || "Citizen Creator",
           politicianAvatar:
             e.profiles?.avatar_url ||
-            `https://api.dicebear.com/7.x/avataaars/svg?seed=${e.id}`,
-          party: e.profiles?.party || "General",
+            `https://api.dicebear.com/7.x/pixel-art/svg?seed=${e.id}`,
+          party: e.profiles?.party || "Independent",
           title: e.title,
           description: e.description || "No description provided.",
           image_url:
@@ -47,20 +77,22 @@ export default function TownHallPage() {
           date: format(new Date(e.date), "PPP") + (e.time ? ` at ${e.time}` : ""),
           type: e.type as EventType,
           attendees: `${e.volunteers_registered || 0} RSVPs`,
+          reservation_count: e.reservation_count,
+          likes_count: e.likes_count,
         }));
         setEvents(mappedEvents);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Failed to load events:", err);
         toast({
           title: "Database Error",
-          description: err.message || "Could not synchronize events pulse.",
+          description: (err as Error).message || "Could not synchronize events pulse.",
           variant: "destructive",
         });
       }
       setLoading(false);
     }
     loadEvents();
-  }, []);
+  }, [toast]);
 
   // Real-time updates for MASHINANI EVENTS
   useEffect(() => {
@@ -71,14 +103,12 @@ export default function TownHallPage() {
         "postgres_changes",
         { event: "*", schema: "public", table: "campaign_events" },
         async (payload) => {
-          if (payload.eventType === "INSERT") {
-            // Re-fetch everything or just add the new one
-            // Re-fetching is safer because we need the profiles join
+          if (payload.eventType === "INSERT" || payload.eventType === "UPDATE" || payload.eventType === "DELETE") {
             const data: CampaignEventWithProfile[] = await getAllPublicEvents();
             const mappedEvents: CampaignEvent[] = (data || []).map((e) => ({
               id: e.id,
-              politicianName: e.profiles?.full_name || "Unknown Candidate",
-              politicianAvatar: e.profiles?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${e.id}`,
+              politicianName: e.profiles?.full_name || e.profiles?.username || "Citizen Creator",
+              politicianAvatar: e.profiles?.avatar_url || `https://api.dicebear.com/7.x/pixel-art/svg?seed=${e.id}`,
               party: e.profiles?.party || "Independent",
               title: e.title,
               description: e.description || "No description provided.",
@@ -87,9 +117,58 @@ export default function TownHallPage() {
               date: format(new Date(e.date), "PPP") + (e.time ? ` at ${e.time}` : ""),
               type: e.type as EventType,
               attendees: `${e.volunteers_registered || 0} RSVPs`,
+              reservation_count: e.reservation_count,
+              likes_count: e.likes_count,
             }));
             setEvents(mappedEvents);
           }
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "event_likes" },
+        async () => {
+          const data: CampaignEventWithProfile[] = await getAllPublicEvents();
+          const mappedEvents: CampaignEvent[] = (data || []).map((e) => ({
+            id: e.id,
+            politicianName: e.profiles?.full_name || e.profiles?.username || "Citizen Creator",
+            politicianAvatar: e.profiles?.avatar_url || `https://api.dicebear.com/7.x/pixel-art/svg?seed=${e.id}`,
+            party: e.profiles?.party || "Independent",
+            title: e.title,
+            description: e.description || "No description provided.",
+            image_url: e.image_url || "https://images.unsplash.com/photo-1540910419892-f39aefe24aa2?q=80&w=2070&auto=format&fit=crop",
+            location: e.location,
+            date: format(new Date(e.date), "PPP") + (e.time ? ` at ${e.time}` : ""),
+            type: e.type as EventType,
+            attendees: `${e.volunteers_registered || 0} RSVPs`,
+            reservation_count: e.reservation_count,
+            likes_count: e.likes_count,
+          }));
+          setEvents(mappedEvents);
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "event_reservations" },
+        async () => {
+          // Re-fetch everything when reservations change to get new counts
+          const data: CampaignEventWithProfile[] = await getAllPublicEvents();
+          const mappedEvents: CampaignEvent[] = (data || []).map((e) => ({
+            id: e.id,
+            politicianName: e.profiles?.full_name || e.profiles?.username || "Citizen Creator",
+            politicianAvatar: e.profiles?.avatar_url || `https://api.dicebear.com/7.x/pixel-art/svg?seed=${e.id}`,
+            party: e.profiles?.party || "Independent",
+            title: e.title,
+            description: e.description || "No description provided.",
+            image_url: e.image_url || "https://images.unsplash.com/photo-1540910419892-f39aefe24aa2?q=80&w=2070&auto=format&fit=crop",
+            location: e.location,
+            date: format(new Date(e.date), "PPP") + (e.time ? ` at ${e.time}` : ""),
+            type: e.type as EventType,
+            attendees: `${e.volunteers_registered || 0} RSVPs`,
+            reservation_count: e.reservation_count,
+            likes_count: e.likes_count,
+          }));
+          setEvents(mappedEvents);
         }
       )
       .subscribe();
@@ -116,7 +195,7 @@ export default function TownHallPage() {
           description: "Campaign Pulse link copied to clipboard!",
         });
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error sharing:", err);
     }
   };
@@ -131,23 +210,63 @@ export default function TownHallPage() {
 
   return (
     <div className="space-y-10 pb-20">
-      {/* Hero Section */}
-      <section className="relative h-[250px] md:h-[350px] rounded-3xl overflow-hidden group">
-        <div className="absolute inset-0 bg-linear-to-r from-black via-black/40 to-transparent z-10" />
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1540910419892-f39aefe24aa2?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center group-hover:scale-105 transition-transform duration-700" />
+      {/* Hero Carousel Section */}
+      <section className="relative h-[300px] md:h-[400px] rounded-3xl overflow-hidden shadow-2xl border border-white/10 group">
+        <AnimatePresence mode="sync">
+          <motion.div
+            key={currentSlideIndex}
+            initial={{ opacity: 0, scale: 1.05 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1, ease: "easeInOut" }}
+            className="absolute inset-0"
+          >
+            <Image
+              src={HERO_SLIDES[currentSlideIndex].image}
+              alt={HERO_SLIDES[currentSlideIndex].title}
+              fill
+              className="object-cover"
+              priority
+            />
+            {/* Gradient Overlay */}
+            <div className={cn("absolute inset-0 bg-linear-to-r from-black via-black/40 to-transparent z-10", HERO_SLIDES[currentSlideIndex].color)} />
 
-        <div className="relative z-20 h-full flex flex-col justify-center px-6 md:px-12 max-w-2xl space-y-4">
-          <Badge className="w-fit bg-kenya-red/20 text-kenya-red border-kenya-red/30 py-1 px-4 font-black uppercase tracking-widest italic flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-kenya-red animate-pulse" />
-            Live Campaign Pulse
-          </Badge>
-          <h1 className="text-4xl md:text-6xl font-black italic tracking-tighter text-white leading-none">
-            MASHINANI <span className="text-brand-primary">EVENTS</span>
-          </h1>
-          <p className="text-lg text-white/70 font-medium leading-relaxed max-w-lg">
-            Real-time updates from the ground. Track rallies, town halls, and
-            major policy launches across all 47 counties.
-          </p>
+            {/* Content */}
+            <div className="relative z-20 h-full flex flex-col justify-center px-6 md:px-12 max-w-2xl space-y-4">
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.3, duration: 0.8 }}
+              >
+                <Badge className="w-fit bg-kenya-red/20 text-kenya-red border-kenya-red/30 py-1 px-4 font-black uppercase tracking-widest italic flex items-center gap-2 mb-4">
+                  <span className="w-2 h-2 rounded-full bg-kenya-red animate-pulse" />
+                  Live Campaign Pulse
+                </Badge>
+                <h1 className="text-4xl md:text-6xl font-black italic tracking-tighter text-white leading-none mb-4 uppercase">
+                  {HERO_SLIDES[currentSlideIndex].title.split(' ')[0]} <span className="text-brand-primary">{HERO_SLIDES[currentSlideIndex].title.split(' ')[1]}</span>
+                </h1>
+                <p className="text-lg text-white/90 font-medium leading-relaxed max-w-lg text-shadow-md">
+                  {HERO_SLIDES[currentSlideIndex].description}
+                </p>
+              </motion.div>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Carousel Indicators */}
+        <div className="absolute bottom-8 left-6 md:left-12 flex items-center gap-2 z-30">
+          {HERO_SLIDES.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentSlideIndex(i)}
+              className={cn(
+                "w-2 h-2 rounded-full transition-all duration-300 cursor-pointer",
+                i === currentSlideIndex 
+                  ? "w-10 bg-brand-primary shadow-[0_0_15px_rgba(255,188,0,0.4)]" 
+                  : "bg-white/30 hover:bg-white/50"
+              )}
+            />
+          ))}
         </div>
       </section>
 
@@ -178,7 +297,7 @@ export default function TownHallPage() {
           </button>
         </div>
 
-        <div className="flex gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 no-scrollbar">
+        <div className="flex gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 no-scrollbar flex-nowrap scroll-smooth snap-x items-center justify-start md:justify-end">
           {(
             [
               "All",
@@ -194,7 +313,7 @@ export default function TownHallPage() {
               key={filter}
               onClick={() => setActiveFilter(filter)}
               className={cn(
-                "px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest whitespace-nowrap transition-all border",
+                "px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest whitespace-nowrap transition-all border shrink-0 snap-start",
                 activeFilter === filter
                   ? "bg-brand-primary text-black border-brand-primary"
                   : "bg-white/5 text-brand-text-muted border-white/10 hover:border-white/20",

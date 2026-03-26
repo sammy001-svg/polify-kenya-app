@@ -12,6 +12,8 @@ export interface CampaignEvent {
   date: string;
   type: EventType;
   attendees: string;
+  reservation_count?: number;
+  likes_count?: number;
 }
 
 export const CAMPAIGN_EVENTS: CampaignEvent[] = [

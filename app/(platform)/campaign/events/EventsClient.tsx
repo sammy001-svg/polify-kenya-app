@@ -22,12 +22,14 @@ import {
   Handshake,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   createEvent,
   deleteEvent,
   CampaignEvent,
   EventType,
 } from "./actions";
+import { AttendeeListDialog } from "@/components/campaign/AttendeeListDialog";
 import { useToast } from "@/components/ui/use-toast";
 import { createClient } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
@@ -108,6 +110,16 @@ export function EventsClient({ initialEvents }: EventsClientProps) {
           }
         }
       )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "event_reservations" },
+        async () => {
+          // Re-fetch all events from the server action to get updated counts
+          const { getEvents } = await import("./actions");
+          const updatedEvents = await getEvents();
+          setEvents(updatedEvents);
+        }
+      )
       .subscribe();
 
     return () => {
@@ -118,7 +130,7 @@ export function EventsClient({ initialEvents }: EventsClientProps) {
   // Dynamic Stats
   const volNeeded = useMemo(() => {
     return events.reduce(
-      (acc, e) => acc + (Math.max(0, (e.volunteers_needed || 0) - (e.volunteers_registered || 0))),
+      (acc, e) => acc + (Math.max(0, (e.volunteers_needed || 0) - (e.reservation_count || 0))),
       0
     );
   }, [events]);
@@ -345,7 +357,7 @@ export function EventsClient({ initialEvents }: EventsClientProps) {
                 ) : newEvent.image_url ? (
                   <div className="flex flex-col items-center gap-2">
                     <div className="h-20 w-full rounded-lg overflow-hidden relative">
-                      <img src={newEvent.image_url} alt="Event preview" className="w-full h-full object-cover" />
+                      <Image src={newEvent.image_url} alt="Event preview" fill className="object-cover" />
                     </div>
                     <p className="text-xs text-kenya-green font-bold">Image Ready! Click or drag to replace.</p>
                   </div>
@@ -456,9 +468,15 @@ export function EventsClient({ initialEvents }: EventsClientProps) {
                         <MapPin className="w-3 h-3" /> {event.location}
                       </div>
                     </div>
-                    <h4 className="font-bold text-lg group-hover:text-kenya-red transition-colors">
-                      {event.title}
-                    </h4>
+                    <AttendeeListDialog 
+                      eventId={event.id} 
+                      eventTitle={event.title} 
+                      trigger={
+                        <h4 className="font-bold text-lg group-hover:text-kenya-red transition-colors cursor-pointer hover:underline decoration-kenya-red/30 underline-offset-4">
+                          {event.title}
+                        </h4>
+                      }
+                    />
                     <p className="text-sm text-brand-text-muted line-clamp-2">
                       {event.description}
                     </p>
@@ -466,12 +484,12 @@ export function EventsClient({ initialEvents }: EventsClientProps) {
                     <div className="mt-auto pt-4 flex items-center gap-6 text-xs font-medium">
                       <div className="flex items-center gap-1 text-brand-text">
                         <Users className="w-4 h-4 text-brand-text-muted" />
-                        {event.volunteers_registered || 0} RSVPs
+                        {event.reservation_count || 0} RSVPs
                       </div>
                       {event.volunteers_needed > 0 && (
                         <div className="flex items-center gap-1 text-kenya-green">
                           <HandHeart className="w-4 h-4" />
-                          {event.volunteers_registered || 0}/
+                          {event.reservation_count || 0}/
                           {event.volunteers_needed} Volunteers
                         </div>
                       )}

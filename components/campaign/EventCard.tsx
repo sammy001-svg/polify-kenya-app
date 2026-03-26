@@ -1,6 +1,4 @@
-"use client";
-
-import React from "react";
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
@@ -14,16 +12,32 @@ import { MapPin, Calendar, Users, Share2, Heart } from "lucide-react";
 import Image from "next/image";
 import { CampaignEvent } from "@/lib/events-data";
 import { cn } from "@/lib/utils";
+import { JoinEventDialog } from "./JoinEventDialog";
+import { likeEvent } from "@/app/(platform)/campaign/events/actions";
 
 interface EventCardProps {
   event: CampaignEvent;
 }
 
 export function EventCard({ event }: EventCardProps) {
+  const [isLiked, setIsLiked] = useState(false);
+  const [localLikes, setLocalLikes] = useState(event.likes_count || 0);
+
+  const handleLike = async () => {
+    if (isLiked) return;
+    setIsLiked(true);
+    setLocalLikes((prev: number) => prev + 1);
+    const result = await likeEvent(event.id);
+    if (result.error) {
+      setIsLiked(false);
+      setLocalLikes((prev: number) => prev - 1);
+    }
+  };
+
   const handleShare = async () => {
     const shareData = {
-      title: event.title,
-      text: `Join ${event.politicianName} at the "${event.title}" in ${event.location}. ${event.description}`,
+      title: `JOIN EVENT: ${event.title}`,
+      text: `Join ${event.politicianName} for "${event.title}" in ${event.location}. Check it out here:`,
       url: window.location.href,
     };
 
@@ -31,8 +45,8 @@ export function EventCard({ event }: EventCardProps) {
       if (navigator.share) {
         await navigator.share(shareData);
       } else {
-        await navigator.clipboard.writeText(window.location.href);
-        alert("Event link copied to clipboard!");
+        await navigator.clipboard.writeText(`${shareData.title}\n${shareData.text}\n${shareData.url}`);
+        alert("Event details copied to clipboard!");
       }
     } catch (err) {
       console.error("Error sharing:", err);
@@ -85,9 +99,21 @@ export function EventCard({ event }: EventCardProps) {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/10 text-white">
-            <Users className="w-3.5 h-3.5 text-brand-primary" />
-            <span className="text-[10px] font-black">{event.attendees}</span>
+          <div className="flex flex-col gap-1 items-end">
+             <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/10 text-white">
+              <Users className="w-3.5 h-3.5 text-brand-primary" />
+              <span className="text-[10px] font-black">
+                {event.reservation_count !== undefined 
+                  ? `${event.reservation_count} RSVPs` 
+                  : event.attendees}
+              </span>
+            </div>
+            {localLikes > 0 && (
+              <div className="flex items-center gap-1.5 bg-kenya-red/20 backdrop-blur-md px-2 py-0.5 rounded-full border border-kenya-red/30 text-kenya-red animate-in fade-in zoom-in duration-300">
+                <Heart className="w-3 h-3 fill-current" />
+                <span className="text-[9px] font-black">{localLikes}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -120,13 +146,15 @@ export function EventCard({ event }: EventCardProps) {
       </CardContent>
 
       <CardFooter className="pt-2 pb-6 flex gap-3">
-        <Button className="flex-1 bg-white text-black font-black uppercase tracking-widest text-[10px] h-10 rounded-xl hover:bg-white/90 transition-all active:scale-95 border-none shadow-lg">
-          Join Event
-        </Button>
+        <JoinEventDialog eventId={event.id} eventTitle={event.title}>
+          <Button className="flex-1 bg-white text-black font-black uppercase tracking-widest text-[10px] h-10 rounded-xl hover:bg-white/90 transition-all active:scale-95 border-none shadow-lg">
+            Join Event
+          </Button>
+        </JoinEventDialog>
         <Button
           variant="outline"
           size="icon"
-          className="w-10 h-10 rounded-xl border-white/10 hover:bg-white/5 text-white"
+          className="w-10 h-10 rounded-xl border-white/10 hover:bg-white/5 text-white active:scale-90 transition-transform"
           onClick={handleShare}
         >
           <Share2 className="w-4 h-4" />
@@ -134,9 +162,16 @@ export function EventCard({ event }: EventCardProps) {
         <Button
           variant="outline"
           size="icon"
-          className="w-10 h-10 rounded-xl border-white/10 hover:bg-white/5 text-white"
+          className={cn(
+            "w-10 h-10 rounded-xl border-white/10 transition-all active:scale-90",
+            isLiked 
+              ? "bg-kenya-red/20 border-kenya-red/50 text-kenya-red" 
+              : "hover:bg-white/5 text-white"
+          )}
+          onClick={handleLike}
+          disabled={isLiked}
         >
-          <Heart className="w-4 h-4" />
+          <Heart className={cn("w-4 h-4", isLiked && "fill-current")} />
         </Button>
       </CardFooter>
     </Card>

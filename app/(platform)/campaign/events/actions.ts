@@ -24,6 +24,8 @@ export interface CampaignEvent {
   volunteers_needed: number;
   volunteers_registered: number;
   status: string;
+  reservation_count?: number;
+  likes_count?: number;
 }
 
 export interface CampaignEventWithProfile extends CampaignEvent {
@@ -31,6 +33,7 @@ export interface CampaignEventWithProfile extends CampaignEvent {
     full_name: string | null;
     avatar_url: string | null;
     party: string | null;
+    username: string | null;
   } | null;
 }
 
@@ -44,43 +47,83 @@ export async function getEvents(): Promise<CampaignEvent[]> {
 
     const { data, error } = await supabase
       .from("campaign_events")
-      .select("*")
+      .select("*, event_reservations(count), event_likes(count)")
       .eq("created_by", user.id)
       .order("date", { ascending: true });
 
     if (error) throw error;
-    return (data as CampaignEvent[]) || [];
-  } catch (error) {
-    console.error("Error in getEvents:", error);
+    return (data as (CampaignEvent & { 
+      event_reservations: { count: number }[];
+      event_likes: { count: number }[];
+    })[]).map(e => ({
+      ...e,
+      reservation_count: e.event_reservations?.[0]?.count || 0,
+      likes_count: e.event_likes?.[0]?.count || 0
+    })) as CampaignEvent[];
+  } catch (error: unknown) {
+    const err = error as { message?: string; details?: string; hint?: string };
+    console.error("Error in getEvents:", err?.message || error, err?.details, err?.hint);
     return [];
   }
 }
 
-export async function getAllPublicEvents(): Promise<CampaignEventWithProfile[]> {
+export async function getAllPublicEvents(): Promise<
+  CampaignEventWithProfile[]
+> {
   try {
     const supabase = await createClient();
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().split("T")[0];
 
-    const { data: rawData, error: rawError } = await supabase
+    const { data: rawData } = await supabase
       .from("campaign_events")
-      .select("*")
+      .select("*, event_reservations(count), event_likes(count)")
       .gte("date", today);
 
-    const { data, error } = await supabase
+    const { data, error: profileError } = await supabase
       .from("campaign_events")
-      .select("*, profiles:created_by(full_name, avatar_url, party)")
+      .select(
+        "*, profiles:created_by(full_name, avatar_url, party, username), event_reservations(count), event_likes(count)",
+      )
       .gte("date", today)
       .order("date", { ascending: true });
 
-    if (error) {
-      console.warn("Profiles join failed, falling back to raw events:", error);
-      // Fallback: return raw data mapped with empty profiles
-      return (rawData || []).map(e => ({ ...e, profiles: null })) as CampaignEventWithProfile[];
+    if (profileError) {
+      console.warn("Profiles join failed, falling back to raw events:", profileError);
+      // Fallback: return raw data mapped with empty profiles but KEEP counts if available
+      return ((rawData as (CampaignEvent & { 
+        event_reservations: { count: number }[];
+        event_likes: { count: number }[];
+      })[]) || []).map((e) => ({
+        ...(e as object),
+        profiles: null,
+        reservation_count: e.event_reservations?.[0]?.count || 0,
+        likes_count: e.event_likes?.[0]?.count || 0,
+      })) as CampaignEventWithProfile[];
+    }
+
+    if (!data || data.length === 0) {
+      console.log("No public events found or query returned empty.");
+      return [];
     }
     
-    return (data as CampaignEventWithProfile[]) || [];
-  } catch (error) {
-    console.error("Error in getAllPublicEvents:", error);
+    // Log the first result to debug counts
+    console.log("First event reservation data:", {
+      id: data[0].id,
+      res_data: data[0].event_reservations,
+      count: data[0].event_reservations?.[0]?.count
+    });
+
+    return (data as (CampaignEventWithProfile & { 
+      event_reservations: { count: number }[];
+      event_likes: { count: number }[];
+    })[]).map((e) => ({
+      ...e,
+      reservation_count: e.event_reservations?.[0]?.count || 0,
+      likes_count: e.event_likes?.[0]?.count || 0,
+    })) as CampaignEventWithProfile[];
+  } catch (error: unknown) {
+    const err = error as { message?: string; details?: string; hint?: string };
+    console.error("Error in getAllPublicEvents:", err?.message || error, err?.details, err?.hint);
     return [];
   }
 }
@@ -136,18 +179,18 @@ export async function createEvent(formData: Partial<CampaignEvent>) {
 
     if (error) {
       console.error("Supabase Error:", error);
-      return { 
+      return {
         error: `Database Error (${error.code}): ${error.message}`,
-        details: error.hint
+        details: error.hint,
       };
     }
 
     revalidatePath("/campaign/events");
     revalidatePath("/live");
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error in createEvent:", error);
-    return { error: error.message || "Failed to create event." };
+    return { error: (error as Error).message || "Failed to create event." };
   }
 }
 
@@ -168,10 +211,99 @@ export async function deleteEvent(eventId: string) {
     if (error) throw error;
 
     revalidatePath("/campaign/events");
+    revalidatePath("/campaign/events");
     revalidatePath("/live");
     return { success: true };
   } catch (error) {
     console.error("Error in deleteEvent:", error);
-    return { error: error instanceof Error ? error.message : "Failed to delete event." };
+    return {
+      error: error instanceof Error ? error.message : "Failed to delete event.",
+    };
+  }
+}
+
+export async function joinEvent(
+  eventId: string,
+  fullName: string,
+  phoneNumber: string,
+) {
+  try {
+    const supabase = await createClient();
+
+    if (!fullName || !phoneNumber) {
+      return { error: "Name and Phone Number are required." };
+    }
+
+    const { error } = await supabase.from("event_reservations").insert({
+      event_id: eventId,
+      full_name: fullName,
+      phone_number: phoneNumber,
+    });
+
+    if (error) {
+      if (error.code === "23505") {
+        return {
+          error:
+            "You have already registered for this event with this phone number.",
+        };
+      }
+      throw error;
+    }
+
+    revalidatePath("/live");
+    return { success: true };
+  } catch (error: unknown) {
+    console.error("Error in joinEvent:", error);
+    return { error: (error as Error).message || "Failed to join event." };
+  }
+}
+
+export async function getEventReservations(eventId: string) {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return { error: "Unauthorized" };
+
+    // Verify user owns the event
+    const { data: event, error: eventError } = await supabase
+      .from("campaign_events")
+      .select("created_by")
+      .eq("id", eventId)
+      .single();
+
+    if (eventError || !event || event.created_by !== user.id) {
+      return { error: "You don't have permission to view these reservations." };
+    }
+
+    const { data, error } = await supabase
+      .from("event_reservations")
+      .select("*")
+      .eq("event_id", eventId)
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+    return { data };
+  } catch (error: unknown) {
+    console.error("Error in getEventReservations:", error);
+    return { error: (error as Error).message || "Failed to fetch reservations." };
+  }
+}
+
+export async function likeEvent(eventId: string) {
+  try {
+    const supabase = await createClient();
+    const { error } = await supabase.from("event_likes").insert({
+      event_id: eventId,
+    });
+
+    if (error) throw error;
+    revalidatePath("/live");
+    revalidatePath("/campaign/events");
+    return { success: true };
+  } catch (error: unknown) {
+    console.error("Error in likeEvent:", error);
+    return { error: (error as Error).message || "Failed to like event." };
   }
 }
