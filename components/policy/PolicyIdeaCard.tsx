@@ -1,8 +1,8 @@
 "use client";
 
-import { PolicyIdea, ANALYST_PERSONAS } from "@/lib/gamification";
+import { PolicyIdea } from "@/lib/gamification";
 import { GamificationService } from "@/lib/gamification-service";
-import { NATIONAL_PROJECTS } from "@/lib/national-projects";
+
 import {
   ThumbsUp,
   MessageSquare,
@@ -10,20 +10,12 @@ import {
   Clock,
   ChevronDown,
   ChevronUp,
-  Gavel,
-  Sparkles,
-  FileText,
-  TrendingUp,
   ShieldCheck,
-  Zap,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase";
 import { PolicyComments } from "./PolicyComments";
-import { AIDraftBill } from "./AIDraftBill";
-import { AIAnalystSheet } from "./AIAnalystSheet";
-import { AnalystAvatars } from "./AnalystAvatars";
-import { Button } from "@/components/ui/button";
+
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -35,11 +27,7 @@ export function PolicyIdeaCard({ idea }: PolicyIdeaCardProps) {
   const [voted, setVoted] = useState(false);
   const [voteCount, setVoteCount] = useState(idea.votes);
   const [showComments, setShowComments] = useState(false);
-  const [showBill, setShowBill] = useState(false);
-  const [isDrafting, setIsDrafting] = useState(false);
-  const [isAnalystOpen, setIsAnalystOpen] = useState(false);
-  const [draftedBill, setDraftedBill] = useState(idea.ai_draft_bill);
-  const [currentPersonaIndex, setCurrentPersonaIndex] = useState(0);
+
   const [currentUser, setCurrentUser] = useState<{ id: string } | null>(null);
   const supabase = createClient();
 
@@ -63,18 +51,7 @@ export function PolicyIdeaCard({ idea }: PolicyIdeaCardProps) {
     init();
   }, [idea.id, supabase]);
 
-  // Rotates critiques every 5 seconds if multiple exist
-  useEffect(() => {
-    if (idea.ai_analysis?.persona_critiques) {
-      const personas = Object.keys(idea.ai_analysis.persona_critiques);
-      if (personas.length > 1) {
-        const interval = setInterval(() => {
-          setCurrentPersonaIndex((prev) => (prev + 1) % personas.length);
-        }, 5000);
-        return () => clearInterval(interval);
-      }
-    }
-  }, [idea.ai_analysis]);
+
 
   const handleVote = async () => {
     if (!currentUser) {
@@ -106,64 +83,7 @@ export function PolicyIdeaCard({ idea }: PolicyIdeaCardProps) {
     }
   };
 
-  const handleAIDraft = async () => {
-    setIsDrafting(true);
-    const stages = [
-      "Analyzing Constitutional alignment...",
-      "Synthesizing fiscal impact models...",
-      "Formatting legislative text...",
-      "Finalizing Act of Parliament draft...",
-    ];
 
-    let currentStage = 0;
-    const interval = setInterval(() => {
-      currentStage++;
-      if (currentStage >= stages.length) clearInterval(interval);
-    }, 800);
-
-    setTimeout(async () => {
-      const simulatedBill = {
-        bill_number: `BUNGE-AI-2026-${Math.floor(Math.random() * 9000) + 1000}`,
-        title: `The National ${idea.category} Development (Citizen Initiative) Bill, 2026`,
-        preamble: `An Act of Parliament to give effect to the citizen proposal titled "${idea.title}", providing for sustainable development goals and community-led innovation framework in the ${idea.category} sector.`,
-        sections: [
-          {
-            title: "Preliminary Provisions",
-            content: `This Act may be cited as the ${idea.category} Development Act and shall come into operation on the date of publication in the Gazette after presidential assent.`,
-          },
-          {
-            title: "Strategic Objectives",
-            content: `To promote ${idea.description.toLowerCase().slice(0, 100)}... and ensure equitable distribution of resources in the ${idea.category} domain.`,
-          },
-          {
-            title: "Financial Provisions",
-            content: `The National Treasury shall, in consultation with the stakeholders, allocate resources for the implementation of this Act based on the feasibility score of ${idea.ai_analysis?.feasibility || 75}%.`,
-          },
-          {
-            title: "Community Oversight",
-            content: `Establishment of a neutral oversight committee consisting of verified citizens to manage implementation in direct alignment with the stated impact: "${idea.impactStatement}".`,
-          },
-        ],
-        legal_basis:
-          "Drafted in compliance with Article 118 of the Constitution regarding Public Participation and Article 35 on Access to Information.",
-      };
-
-      const { error } = await supabase
-        .from("policy_ideas")
-        .update({
-          ai_draft_bill: simulatedBill,
-          status: "under-review",
-        })
-        .eq("id", idea.id);
-
-      if (!error) {
-        setDraftedBill(simulatedBill);
-        setShowBill(true);
-      }
-      setIsDrafting(false);
-      clearInterval(interval);
-    }, 4000);
-  };
 
   const statusConfig = {
     submitted: { color: "bg-blue-500", label: "Submitted" },
@@ -175,15 +95,7 @@ export function PolicyIdeaCard({ idea }: PolicyIdeaCardProps) {
 
   const status = statusConfig[idea.status as keyof typeof statusConfig] || statusConfig.submitted;
 
-  const currentPersonaId = idea.ai_analysis?.persona_critiques 
-    ? Object.keys(idea.ai_analysis.persona_critiques)[currentPersonaIndex]
-    : null;
-  const currentPersona = ANALYST_PERSONAS.find(p => p.id === currentPersonaId);
-  const currentCritique = currentPersonaId ? idea.ai_analysis?.persona_critiques[currentPersonaId] : null;
 
-  const alignedProjects = (idea.ai_analysis?.project_alignment || []).map(id => 
-    NATIONAL_PROJECTS.find(p => p.id === id)
-  ).filter(Boolean);
 
   return (
     <motion.div 
@@ -233,111 +145,12 @@ export function PolicyIdeaCard({ idea }: PolicyIdeaCardProps) {
         {idea.description}
       </p>
 
-      {/* AI Analyst War Room Section */}
-      {idea.ai_analysis && (
-        <div className="bg-white/2 border border-white/5 rounded-4xl p-6 space-y-6 relative overflow-hidden">
-          <div className="flex items-center justify-between border-b border-white/5 pb-4">
-            <div className="flex items-center gap-3">
-              <AnalystAvatars activePersonaId={currentPersonaId || undefined} isAnalyzing={isDrafting} />
-              <div className="h-4 w-px bg-white/10 mx-2" />
-              <div className="space-y-0.5">
-                <h4 className="text-[10px] font-black uppercase tracking-widest text-brand-primary flex items-center gap-2">
-                  <Sparkles className="w-3 h-3" /> Intelligence Synthesis
-                </h4>
-                <p className="text-[9px] font-bold text-brand-text-muted uppercase">Multi-Persona Peer Review</p>
-              </div>
-            </div>
-            
-            <div className="flex gap-6">
-              {[
-                { label: 'Feasibility', val: idea.ai_analysis.feasibility, color: 'text-kenya-gold' },
-                { label: 'Impact', val: idea.ai_analysis.impact_score, color: 'text-kenya-green' },
-                { label: 'Fiscal Cost', val: idea.ai_analysis.cost_index, color: 'text-kenya-red' },
-              ].map(stat => (
-                <div key={stat.label} className="text-right">
-                  <div className={cn("text-lg font-black", stat.color)}>{stat.val}%</div>
-                  <div className="text-[8px] font-black text-brand-text-muted uppercase tracking-widest">{stat.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
 
-          <AnimatePresence mode="wait">
-            <motion.div 
-              key={currentPersonaId}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="flex gap-4 items-start bg-white/5 p-6 rounded-2xl border border-white/5"
-            >
-              <div className="text-3xl">{currentPersona?.avatar}</div>
-              <div className="space-y-2 flex-1">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <span className={cn("text-[10px] font-black uppercase tracking-widest", currentPersona?.color)}>
-                      {currentPersona?.name}
-                    </span>
-                    <span className="text-[9px] font-bold text-brand-text-muted uppercase ml-2">— {currentPersona?.role}</span>
-                  </div>
-                </div>
-                <p className="text-sm font-medium text-white/90 leading-relaxed italic">
-                  &quot;{currentCritique}&quot;
-                </p>
-              </div>
-            </motion.div>
-          </AnimatePresence>
 
-          {alignedProjects.length > 0 && (
-             <div className="flex flex-wrap items-center gap-3 pt-2">
-                <span className="text-[10px] font-black text-brand-text-muted uppercase tracking-widest">Supports National Projects:</span>
-                {alignedProjects.map(p => p && (
-                  <div key={p.id} className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-lg border border-white/5 hover:border-brand-primary/30 transition-colors">
-                    <Zap className="w-3 h-3 text-brand-primary" />
-                    <span className="text-[9px] font-black uppercase tracking-widest text-white">{p.title}</span>
-                  </div>
-                ))}
-             </div>
-          )}
-        </div>
-      )}
 
-      {draftedBill && showBill && <AIDraftBill bill={draftedBill} />}
 
       <div className="flex flex-col sm:flex-row gap-4">
-        {voteCount >= 5 && !draftedBill && (
-          <Button
-            onClick={handleAIDraft}
-            disabled={isDrafting}
-            className="flex-1 bg-brand-primary text-white rounded-3xl font-black text-[10px] uppercase gap-3 h-14 group/btn relative overflow-hidden shadow-xl shadow-brand-primary/20"
-          >
-            <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" />
-            {isDrafting ? (
-              <span className="animate-pulse">Synthesizing Legislative Text...</span>
-            ) : (
-              <>
-                <Gavel className="w-5 h-5" /> Move to AI Implementation
-              </>
-            )}
-          </Button>
-        )}
-        
-        {draftedBill && (
-          <Button
-            onClick={() => setShowBill(!showBill)}
-            className="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-3xl font-black text-[10px] uppercase gap-3 h-14"
-          >
-            <FileText className="w-5 h-5 text-brand-primary" />{" "}
-            {showBill ? "Minimize Draft Bill" : "View Generated Bill"}
-          </Button>
-        )}
 
-        <Button
-          onClick={() => setIsAnalystOpen(true)}
-          variant="outline"
-          className="rounded-3xl border-white/10 text-brand-text-muted hover:text-white font-black text-[10px] uppercase h-14 px-8 gap-2"
-        >
-          <TrendingUp className="w-4 h-4" /> Comprehensive Audit
-        </Button>
       </div>
 
       <div className="flex items-center justify-between pt-6 border-t border-white/5">
@@ -390,13 +203,7 @@ export function PolicyIdeaCard({ idea }: PolicyIdeaCardProps) {
         )}
       </AnimatePresence>
 
-      <AIAnalystSheet
-        isOpen={isAnalystOpen}
-        onClose={() => setIsAnalystOpen(false)}
-        ideaTitle={idea.title}
-        category={idea.category}
-        analysis={idea.ai_analysis}
-      />
+
     </motion.div>
   );
 }

@@ -155,13 +155,7 @@ export function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
           isActive={pathname.startsWith("/parliament")}
           onClick={onLinkClick}
         />
-        <SidebarItem
-          icon={Sparkles}
-          label="Polify AI (Analysts)"
-          href="/policy-ideas"
-          isActive={pathname.startsWith("/policy-ideas")}
-          onClick={onLinkClick}
-        />
+
         <SidebarItem
           icon={FileCheck}
           label="Auditor General"
