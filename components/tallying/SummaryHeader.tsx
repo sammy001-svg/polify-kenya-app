@@ -1,7 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { ArrowUpRight, Camera, Upload, X, CheckCircle2, AlertCircle, RefreshCw } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 /* cspell:ignore Scanline, Sparkline */
 
 const calculateTimeLeft = () => {
@@ -22,6 +30,58 @@ const calculateTimeLeft = () => {
 export function SummaryHeader() {
   const [timeLeft, setTimeLeft] = useState<{days: number; hours: number; minutes: number; seconds: number} | null>(null);
   const [showCountdownTooltip, setShowCountdownTooltip] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCameraActive, setIsCameraActive] = useState(false);
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        streamRef.current = stream;
+        setIsCameraActive(true);
+      }
+    } catch (err) {
+      console.error("Error accessing camera:", err);
+    }
+  };
+
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    setIsCameraActive(false);
+  };
+
+  const captureImage = () => {
+    if (videoRef.current) {
+      const canvas = document.createElement("canvas");
+      canvas.width = videoRef.current.videoWidth;
+      canvas.height = videoRef.current.videoHeight;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.drawImage(videoRef.current, 0, 0);
+        setCapturedImage(canvas.toDataURL("image/jpeg"));
+        stopCamera();
+      }
+    }
+  };
+
+  const handleManualSubmission = () => {
+    setIsSubmitting(true);
+    // Simulate submission
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setIsModalOpen(false);
+      setCapturedImage(null);
+      // You could add a toast here
+    }, 2000);
+  };
 
   useEffect(() => {
     // Set initial time on client (deferred to avoid cascading render warning)
@@ -104,7 +164,24 @@ export function SummaryHeader() {
         </div>
 
         <div className="flex flex-col items-center mt-5 w-full">
-           <div className="flex flex-col xl:flex-row items-center justify-center gap-4 xl:gap-8 w-full max-w-[1200px]">
+            <div className="flex flex-col lg:flex-row items-center justify-center gap-6 xl:gap-8 w-full max-w-[1400px]">
+              {/* Manual Submission Button - HUD Style */}
+              <motion.button 
+                onClick={() => setIsModalOpen(true)}
+                whileHover={{ scale: 1.05, backgroundColor: "rgba(6, 78, 59, 0.8)" }}
+                whileTap={{ scale: 0.95 }}
+                className="group relative flex items-center gap-3 bg-[#064e3b]/40 border border-[#00FF8C]/30 hover:border-[#00FF8C] px-5 py-2.5 [clip-path:polygon(10px_0,100%_0,calc(100%-10px)_100%,0_100%)] transition-all duration-300 shadow-[0_0_20px_rgba(0,255,140,0.15)] mb-4 lg:mb-0 lg:mr-4 shrink-0"
+              >
+                <div className="absolute inset-0 bg-linear-to-r from-[#00FF8C]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="flex items-center gap-3 relative z-10">
+                  <div className="w-2.5 h-2.5 bg-[#00FF8C] rounded-full animate-pulse shadow-[0_0_10px_#00FF8C]" />
+                  <span className="text-xs font-black text-white hover:text-[#00FF8C] uppercase tracking-[0.25em] transition-colors">
+                    Manual Submission
+                  </span>
+                </div>
+                <ArrowUpRight className="w-4 h-4 text-[#00FF8C] group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform relative z-10" />
+              </motion.button>
+
               {/* 3. ELECTION DAY COUNTDOWN HUD */}
               <AnimatePresence>
                 {timeLeft && (
@@ -246,8 +323,10 @@ export function SummaryHeader() {
               </AnimatePresence>
            </div>
 
-           <div className="flex flex-col items-center mt-3 opacity-40">
-              <span className="text-[7px] md:text-[8px] font-black text-white/60 uppercase tracking-[0.5em]">COUNTDOWN TO GENERAL ELECTION 2027</span>
+           <div className="flex flex-col items-center mt-3 opacity-60">
+              <span className="text-[8px] md:text-[10px] font-black text-white/80 uppercase tracking-[0.5em] border-b border-[#00FF8C]/20 pb-1">
+                 COUNTDOWN TO GENERAL ELECTION 2027
+              </span>
            </div>
         </div>
       </div>
@@ -298,6 +377,122 @@ export function SummaryHeader() {
          </div>
       </div>
 
+      {/* Manual Submission Modal */}
+      <Dialog open={isModalOpen} onOpenChange={(open) => {
+        setIsModalOpen(open);
+        if (!open) {
+          stopCamera();
+          setCapturedImage(null);
+        }
+      }}>
+        <DialogContent className="max-w-2xl bg-[#06120E] border-[#00FF8C]/30 p-0 overflow-hidden shadow-[0_0_50px_rgba(0,255,140,0.1)]">
+          <div className="relative">
+            {/* Header Ticker Line */}
+            <div className="h-1 w-full bg-[#00FF8C]/20 relative overflow-hidden">
+              <motion.div 
+                animate={{ x: ["-100%", "100%"] }}
+                transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
+                className="absolute top-0 left-0 w-1/3 h-full bg-[#00FF8C] shadow-[0_0_10px_#00FF8C]"
+              />
+            </div>
+
+            <div className="p-6 md:p-8 space-y-6">
+              <DialogHeader>
+                <div className="flex items-center gap-3 mb-2">
+                   <div className="w-1.5 h-6 bg-[#00FF8C]/60" />
+                   <DialogTitle className="text-2xl font-black text-white italic uppercase tracking-tighter">
+                      Manual Form-34A Submission
+                   </DialogTitle>
+                </div>
+                <DialogDescription className="text-[#00FF8C]/60 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
+                  <AlertCircle className="w-3 h-3" /> SECURITY_PROTOCOL_ALPHA: Capture and upload physical result forms for AI validation.
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="relative aspect-video bg-black/60 border border-[#00FF8C]/20 rounded-lg overflow-hidden group shadow-inner">
+                {capturedImage ? (
+                  <div className="relative w-full h-full">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={capturedImage} alt="Captured Result" className="w-full h-full object-contain" />
+                    <div className="absolute top-4 right-4 flex gap-2">
+                        <button 
+                          onClick={() => { setCapturedImage(null); startCamera(); }}
+                          className="p-2 bg-black/60 border border-[#00FF8C]/40 text-[#00FF8C] hover:bg-[#00FF8C] hover:text-black transition-all rounded-full"
+                        >
+                          <RefreshCw className="w-5 h-5" />
+                        </button>
+                    </div>
+                  </div>
+                ) : isCameraActive ? (
+                  <div className="relative w-full h-full">
+                    <video 
+                      ref={videoRef} 
+                      autoPlay 
+                      playsInline 
+                      className="w-full h-full object-cover grayscale brightness-110 contrast-125"
+                    />
+                    {/* Camera Overlay HUD */}
+                    <div className="absolute inset-0 pointer-events-none">
+                       <div className="absolute top-4 left-4 w-8 h-8 border-t-2 border-l-2 border-[#00FF8C]" />
+                       <div className="absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 border-[#00FF8C]" />
+                       <div className="absolute bottom-4 left-4 w-8 h-8 border-b-2 border-l-2 border-[#00FF8C]" />
+                       <div className="absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 border-[#00FF8C]" />
+                       <div className="absolute top-1/2 left-0 w-full h-px bg-[#00FF8C]/10" />
+                       <div className="absolute top-0 left-1/2 w-px h-full bg-[#00FF8C]/10" />
+                    </div>
+                    
+                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2">
+                       <button 
+                         onClick={captureImage}
+                         className="w-16 h-16 rounded-full border-4 border-[#00FF8C] flex items-center justify-center bg-black/40 hover:scale-110 transition-transform shadow-[0_0_20px_rgba(0,255,140,0.4)] pointer-events-auto"
+                       >
+                         <div className="w-10 h-10 rounded-full bg-[#00FF8C] animate-pulse" />
+                       </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center gap-4">
+                    <div className="w-20 h-20 rounded-full bg-[#00FF8C]/5 border border-[#00FF8C]/20 flex items-center justify-center text-[#00FF8C]/40 group-hover:text-[#00FF8C] group-hover:border-[#00FF8C]/50 transition-all">
+                      <Camera className="w-10 h-10" />
+                    </div>
+                    <button 
+                      onClick={startCamera}
+                      className="px-6 py-2 bg-[#00FF8C]/10 border border-[#00FF8C]/40 text-[#00FF8C] font-black uppercase tracking-[0.2em] text-[10px] hover:bg-[#00FF8C] hover:text-black transition-all"
+                    >
+                      Initialize Camera Stream
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-4">
+                <button 
+                   disabled={!capturedImage || isSubmitting}
+                   onClick={handleManualSubmission}
+                   className="flex-1 h-14 bg-[#00FF8C] text-black font-black uppercase tracking-[0.2em] text-xs hover:bg-white transition-all disabled:opacity-30 disabled:grayscale flex items-center justify-center gap-3 shadow-[0_0_30px_rgba(0,255,140,0.2)]"
+                >
+                  {isSubmitting ? (
+                    <RefreshCw className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <>
+                       <Upload className="w-5 h-5" />
+                       Transmit Encrypted Result
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between text-[7px] font-mono text-[#00FF8C]/40 tracking-widest uppercase">
+                 <span>Lat: -1.2921 | Long: 36.8219</span>
+                 <span className="flex items-center gap-2">
+                    <div className="w-1 h-1 bg-[#00FF8C] rounded-full animate-ping" />
+                    Secure Uplink Established
+                 </span>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -11,6 +11,13 @@ import { DataProcessingNodeV2 } from "./DataProcessingNodeV2";
 import { AIAlertsPane } from "./AIAlertsPane";
 import { AuditLogPane } from "./AuditLogPane";
 import { VerifiedBadge } from "./VerifiedBadge";
+import { Heart, Cpu, Sparkles, ChevronRight } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
+import { motion, AnimatePresence } from "framer-motion";
+
 
 // Lazy-load heavy visualization components
 const ElectionHeatMap = dynamic(() => import("./ElectionHeatMap").then(mod => mod.ElectionHeatMap), { 
@@ -55,6 +62,16 @@ export function TallyDashboard() {
     { name: "Candidate P", votes: 1, photo: "/images/candidates/p4.png", party_color: "bg-yellow-400", party_symbol: "/parties/uda-wheelbarrow.png" },
     { name: "Candidate Q", votes: 1, photo: "/images/candidates/p1.png", party_color: "bg-orange-500", party_symbol: "/parties/odm-orange.png" }
   ]);
+
+  const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
+
+  useEffect(() => {
+    // Show support modal after small delay
+    const timer = setTimeout(() => {
+      setIsSupportModalOpen(true);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Aggressive Real-Time Tally Simulation (Sprinting from 0)
   useEffect(() => {
@@ -237,6 +254,81 @@ export function TallyDashboard() {
             </div>
         </div>
       </div>
+
+      <AnimatePresence>
+        <Dialog open={isSupportModalOpen} onOpenChange={setIsSupportModalOpen}>
+          <DialogContent className="max-w-md bg-[#06120E]/95 border-[#00FF8C]/30 p-0 overflow-hidden shadow-[0_0_50px_rgba(0,255,140,0.2)] rounded-3xl backdrop-blur-2xl">
+            <div className="relative">
+              {/* Futuristic Accent Line */}
+              <div className="h-1.5 w-full bg-[#00FF8C]/10 relative overflow-hidden">
+                <motion.div 
+                  animate={{ x: ["-100%", "100%"] }}
+                  transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
+                  className="absolute top-0 left-0 w-1/3 h-full bg-[#00FF8C] shadow-[0_0_15px_#00FF8C]"
+                />
+              </div>
+
+              <div className="p-8 space-y-8">
+                <div className="flex flex-col items-center text-center space-y-6">
+                  {/* Icon Cluster */}
+                  <div className="relative">
+                    <div className="w-24 h-24 rounded-full bg-[#00FF8C]/5 border border-[#00FF8C]/20 flex items-center justify-center relative z-10">
+                        <Cpu className="w-10 h-10 text-[#00FF8C] animate-pulse" />
+                    </div>
+                    <motion.div 
+                       animate={{ 
+                         scale: [1, 1.2, 1],
+                         opacity: [0.3, 0.6, 0.3]
+                       }}
+                       transition={{ repeat: Infinity, duration: 2 }}
+                       className="absolute -top-2 -right-2 w-10 h-10 rounded-full bg-[#00FF8C]/10 border border-[#00FF8C]/20 flex items-center justify-center"
+                    >
+                       <Heart className="w-5 h-5 text-red-500 fill-red-500/20" />
+                    </motion.div>
+                    <div className="absolute -bottom-2 -left-2 w-8 h-8 rounded-full bg-[#00FF8C]/10 border border-[#00FF8C]/20 flex items-center justify-center animate-bounce">
+                       <Sparkles className="w-4 h-4 text-yellow-400" />
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <h3 className="text-2xl font-black text-white italic uppercase tracking-tighter leading-none">
+                      Support Polify AI Core
+                    </h3>
+                    <p className="text-sm text-[#00FF8C]/80 font-bold uppercase tracking-widest leading-relaxed">
+                      Support our AIs as they continue to prepare to tally results for all Kenyans
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <button 
+                    onClick={() => setIsSupportModalOpen(false)}
+                    className="w-full h-16 bg-[#00FF8C] text-black font-black uppercase tracking-[0.3em] text-xs hover:bg-white transition-all shadow-[0_0_30px_rgba(0,255,140,0.3)] flex items-center justify-center gap-3 group rounded-xl"
+                  >
+                    Initiate Support <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                  
+                  <button 
+                    onClick={() => setIsSupportModalOpen(false)}
+                    className="w-full py-4 text-[9px] font-black text-white/30 hover:text-[#00FF8C] uppercase tracking-[0.4em] transition-colors"
+                  >
+                    Dismiss Core Access
+                  </button>
+                </div>
+
+                {/* Telemetry Footer */}
+                <div className="flex justify-between items-center text-[7px] font-mono text-[#00FF8C]/30 tracking-widest">
+                   <span>NODE_AI_SUPPORT_SECURE</span>
+                   <div className="flex gap-1 items-center">
+                      <div className="w-1 h-1 bg-[#00FF8C] rounded-full animate-ping" />
+                      <span>UPLINK_READY</span>
+                   </div>
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </AnimatePresence>
 
       <Toaster position="top-right" theme="dark" closeButton richColors />
     </div>
