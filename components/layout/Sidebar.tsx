@@ -19,6 +19,7 @@ import {
   Sparkles,
   FileCheck,
   MessageSquare,
+  MessageCircle,
   UserCircle,
   Briefcase,
   ShoppingBag,
@@ -205,6 +206,13 @@ export function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
           label="Youth Issue Hubs"
           href="/youth"
           isActive={pathname.startsWith("/youth")}
+          onClick={onLinkClick}
+        />
+        <SidebarItem
+          icon={MessageCircle}
+          label="Chat Space"
+          href="/chat"
+          isActive={pathname.startsWith("/chat")}
           onClick={onLinkClick}
         />
         <SidebarItem
