@@ -1,137 +1,104 @@
 "use client";
 
-import { NationalProject, ProjectStatus } from "@/lib/national-projects";
+import React from "react";
+import { NationalProject } from "@/lib/national-projects";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
-import { Calendar, CircleDollarSign, MapPin, TrendingUp, CheckCircle2, Clock, Ban } from "lucide-react";
+import { 
+  MapPin, 
+  TrendingUp, 
+  ShieldCheck, 
+  Zap, 
+  AlertTriangle, 
+  Clock, 
+  Target 
+} from "lucide-react";
 import { motion } from "framer-motion";
 
 interface ProjectCardProps {
   project: NationalProject;
+  onClick?: () => void;
 }
 
-const statusConfig: Record<ProjectStatus, { color: string; icon: React.ElementType }> = {
-  Completed: { color: "text-kenya-green bg-kenya-green/10 border-kenya-green/20", icon: CheckCircle2 },
-  "In Progress": { color: "text-kenya-gold bg-kenya-gold/10 border-kenya-gold/20", icon: Clock },
-  Stalled: { color: "text-kenya-red bg-kenya-red/10 border-kenya-red/20", icon: Ban },
-  "Not Started": { color: "text-brand-text-muted bg-white/5 border-white/10", icon: CircleDollarSign },
-  Planned: { color: "text-blue-400 bg-blue-400/10 border-blue-400/20", icon: TrendingUp },
-};
+export function ProjectCard({ project, onClick }: ProjectCardProps) {
+  const statusConfig = {
+    'Completed': { color: 'text-kenya-green', bg: 'bg-kenya-green/10', border: 'border-kenya-green/20', icon: ShieldCheck },
+    'In Progress': { color: 'text-kenya-gold', bg: 'bg-kenya-gold/10', border: 'border-kenya-gold/20', icon: Zap },
+    'Stalled': { color: 'text-kenya-red', bg: 'bg-kenya-red/10', border: 'border-kenya-red/20', icon: AlertTriangle },
+    'Not Started': { color: 'text-brand-text-muted', bg: 'bg-white/5', border: 'border-white/10', icon: Clock },
+    'Planned': { color: 'text-blue-400', bg: 'bg-blue-400/10', border: 'border-blue-400/20', icon: Target }
+  };
 
-export function ProjectCard({ project }: ProjectCardProps) {
-  const status = statusConfig[project.status];
-  const StatusIcon = status.icon;
+  const config = statusConfig[project.status as keyof typeof statusConfig] || statusConfig['Not Started'];
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-brand-surface-secondary border border-white/5 rounded-3xl p-6 shadow-2xl hover:shadow-brand-primary/5 transition-all duration-500 group relative overflow-hidden flex flex-col gap-6"
+      whileHover={{ y: -8, scale: 1.02 }}
+      onClick={onClick}
+      className="group relative bg-black/40 backdrop-blur-2xl border border-white/10 rounded-4xl p-8 hover:bg-white/5 hover:border-white/20 transition-all duration-500 cursor-pointer overflow-hidden shadow-2xl hover:shadow-kenya-gold/5 flex flex-col justify-between h-full"
     >
-      {/* Background Accent */}
-      <div className="absolute -right-10 -top-10 w-40 h-40 bg-linear-to-bl from-white/5 to-transparent blur-2xl rounded-full opacity-50 group-hover:opacity-100 transition-opacity duration-700" />
-
-      <div className="flex justify-between items-start gap-4 relative z-10">
-        <Badge 
-          variant="outline" 
-          className={cn("text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-xl border flex gap-2 items-center", status.color)}
-        >
-          <StatusIcon className="w-3.5 h-3.5" />
-          {project.status}
-        </Badge>
-        {project.promiseDate && (
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-[9px] font-black text-brand-text-muted uppercase tracking-widest">
-            <Calendar className="w-3 h-3 text-kenya-gold" /> {project.promiseDate}
+      {/* HUD Accent Glitch Effect */}
+      <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-bl from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+      
+      <div className="relative space-y-6">
+        {/* Card Header */}
+        <div className="flex justify-between items-start gap-4">
+          <div className={cn("p-4 rounded-2xl backdrop-blur-xl border transition-all duration-500 group-hover:scale-110", config.bg, config.border)}>
+            <config.icon className={cn("w-6 h-6", config.color)} />
           </div>
-        )}
-      </div>
+          <div className="text-right">
+            <div className={cn("text-[10px] font-black uppercase tracking-[0.2em] mb-1", config.color)}>
+              {project.status}
+            </div>
+            <div className="text-[10px] font-bold text-white/30 uppercase tracking-widest">
+              {project.category}
+            </div>
+          </div>
+        </div>
 
-      <div className="space-y-4 flex-1">
-        <div className="space-y-1">
-          <span className="text-[10px] font-black text-kenya-gold uppercase tracking-[0.2em]">{project.category}</span>
-          <h3 className="font-black text-xl text-white leading-tight tracking-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-linear-to-r group-hover:from-white group-hover:to-white/50 transition-all duration-500">
+        {/* Content */}
+        <div className="space-y-3">
+          <h3 className="text-2xl font-black tracking-tighter text-white leading-tight group-hover:text-kenya-gold transition-colors">
             {project.title}
           </h3>
+          <p className="text-sm text-brand-text-muted font-medium leading-relaxed line-clamp-3">
+            {project.description}
+          </p>
         </div>
 
-        {project.location && (
-          <div className="flex items-center gap-2">
-             <MapPin className="w-3.5 h-3.5 text-brand-text-muted" />
-             <p className="text-[10px] font-bold text-brand-text-muted uppercase tracking-widest truncate">{project.location}</p>
-          </div>
-        )}
-
-        <p className="text-sm text-brand-text-muted/80 leading-relaxed font-medium line-clamp-3">
-          {project.description}
-        </p>
-
-        {(project.purpose || project.goal) && (
-          <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
-            <p className="text-[11px] font-bold text-white/90">
-              <span className="text-kenya-gold uppercase text-[9px] tracking-widest mr-2">{project.purpose ? 'Purpose' : 'Goal'}:</span>
-              {project.purpose || project.goal}
-            </p>
-          </div>
-        )}
-
-        {/* Budget Stats (only if present) */}
-        {project.budget && (
-          <div className="grid grid-cols-2 gap-4 p-4 rounded-2xl bg-black/40 border border-white/5 relative overflow-hidden">
-             <div className="space-y-1">
-                <span className="text-[9px] font-black text-brand-text-muted uppercase tracking-widest block opacity-50">Budget Allocation</span>
-                <p className="text-sm font-black text-white">{project.budget}</p>
-             </div>
-             <div className="space-y-1">
-                <span className="text-[9px] font-black text-brand-text-muted uppercase tracking-widest block opacity-50">Actual Expenditure</span>
-                <p className="text-sm font-black text-white">{project.amountUsed || 'TBD'}</p>
-             </div>
-          </div>
-        )}
-      </div>
-
-      <div className="space-y-4">
-        <div className="space-y-2">
-            <div className="flex justify-between text-[10px] font-black uppercase tracking-[0.2em]">
-                <span className="text-brand-text-muted">Implementation Progress</span>
-                <span className="text-white">{project.progress}%</span>
+        {/* Dynamic Detail Sections */}
+        <div className="grid grid-cols-1 gap-4 pt-4">
+          {project.location && (
+            <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/2 border border-white/5 group-hover:bg-white/5 transition-colors">
+              <MapPin className="w-3.5 h-3.5 text-white/30" />
+              <span className="text-[10px] font-bold text-white/60 uppercase tracking-widest truncate">{project.location}</span>
             </div>
-            <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden flex shadow-inner border border-white/5">
+          )}
+          
+          <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/2 border border-white/5 group-hover:bg-white/5 transition-colors">
+            <TrendingUp className="w-3.5 h-3.5 text-white/30" />
+            <div className="flex-1">
+              <div className="flex justify-between text-[9px] font-bold text-white/40 uppercase mb-1.5">
+                <span>Implementation Progress</span>
+                <span className="text-white/80">{project.progress}%</span>
+              </div>
+              <div className="h-1 bg-white/5 rounded-full overflow-hidden">
                 <motion.div 
                   initial={{ width: 0 }}
-                  animate={{ width: `${project.progress}%` }} 
-                  transition={{ duration: 1.5, ease: "easeOut" }}
-                  className={cn(
-                    "h-full rounded-full shadow-[0_0_15px]",
-                    project.status === "Completed" ? "bg-kenya-green shadow-kenya-green/30" : "bg-kenya-gold shadow-kenya-gold/30"
-                  )} 
+                  whileInView={{ width: `${project.progress}%` }}
+                  className={cn("h-full", 
+                    project.status === 'Completed' ? "bg-kenya-green shadow-[0_0_10px_rgba(34,197,94,0.3)]" : 
+                    project.status === 'Stalled' ? "bg-kenya-red shadow-[0_0_10px_rgba(239,68,68,0.3)]" : "bg-kenya-gold shadow-[0_0_10px_rgba(255,193,7,0.3)]"
+                  )}
                 />
+              </div>
             </div>
-        </div>
-
-        {project.achievements && project.achievements.length > 0 && (
-          <div className="space-y-2">
-            <span className="text-[9px] font-black text-brand-text-muted uppercase tracking-widest block opacity-50">Top Achievements</span>
-            <ul className="space-y-2">
-              {project.achievements.map((ach, i) => (
-                <li key={i} className="flex gap-2 text-[11px] font-medium text-white/90">
-                   <div className="w-1.5 h-1.5 rounded-full bg-kenya-gold mt-1.5 shrink-0 shadow-[0_0_10px_rgba(255,193,7,0.5)]" />
-                   {ach}
-                </li>
-              ))}
-            </ul>
           </div>
-        )}
+        </div>
       </div>
 
-      {project.impact && (
-        <div className="pt-4 border-t border-white/5 mt-auto">
-          <div className="flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-kenya-green" />
-            <span className="text-[10px] font-black text-brand-text-muted uppercase tracking-widest">Economic Impact: </span>
-            <span className="text-[10px] font-bold text-white/90 truncate">{project.impact}</span>
-          </div>
-        </div>
-      )}
+      {/* Decorative HUD corners */}
+      <div className="absolute top-4 left-4 w-2 h-2 border-t border-l border-white/10 group-hover:border-white/30 transition-colors" />
+      <div className="absolute bottom-4 right-4 w-2 h-2 border-b border-r border-white/10 group-hover:border-white/30 transition-colors" />
     </motion.div>
   );
 }

@@ -15,6 +15,8 @@ import { Heart, Cpu, Sparkles, ChevronRight } from "lucide-react";
 import {
   Dialog,
   DialogContent,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -28,6 +30,7 @@ const ElectionHeatMap = dynamic(() => import("./ElectionHeatMap").then(mod => mo
 const ResultProjectionsNode = dynamic(() => import("./ResultProjectionsNode").then(mod => mod.ResultProjectionsNode), { ssr: false });
 
 interface Candidate {
+  id: string;
   name: string;
   votes: number;
   photo?: string;
@@ -37,30 +40,30 @@ interface Candidate {
 
 export function TallyDashboard() {
   const [presidential, setPresidential] = useState<Candidate[]>([
-    { name: "Candidate A", votes: 1, photo: "/images/candidates/william_ruto.png", party_color: "bg-yellow-400", party_symbol: "/parties/uda-wheelbarrow.png" },
-    { name: "Candidate B", votes: 1, photo: "/images/candidates/raila_odinga.png", party_color: "bg-orange-500", party_symbol: "/parties/odm-orange.png" },
-    { name: "Candidate C", votes: 0, photo: "/images/candidates/david_mwaure.png", party_color: "bg-blue-900", party_symbol: "/parties/agano-lamp.png" },
-    { name: "Candidate D", votes: 0, photo: "/images/candidates/george_wajackoyah.png", party_color: "bg-green-500", party_symbol: "/parties/roots-leaf.png" }
+    { id: "P1", name: "Candidate A", votes: 450000, photo: "/images/candidates/william_ruto.png", party_color: "bg-yellow-400", party_symbol: "/parties/uda-wheelbarrow.png" },
+    { id: "P2", name: "Candidate B", votes: 420000, photo: "/images/candidates/raila_odinga.png", party_color: "bg-orange-500", party_symbol: "/parties/odm-orange.png" },
+    { id: "P3", name: "Candidate C", votes: 15000, photo: "/images/candidates/david_mwaure.png", party_color: "bg-blue-900", party_symbol: "/parties/agano-lamp.png" },
+    { id: "P4", name: "Candidate D", votes: 12000, photo: "/images/candidates/george_wajackoyah.png", party_color: "bg-green-500", party_symbol: "/parties/roots-leaf.png" }
   ]);
 
   const [parliamentary, setParliamentary] = useState<Candidate[]>([
-    { name: "Candidate M", votes: 1, photo: "/images/candidates/p1.png", party_color: "bg-yellow-400", party_symbol: "/parties/uda-wheelbarrow.png" },
-    { name: "Candidate N", votes: 1, photo: "/images/candidates/p2.png", party_color: "bg-orange-500", party_symbol: "/parties/odm-orange.png" },
+    { id: "M1", name: "Candidate M", votes: 210000, photo: "/images/candidates/p1.png", party_color: "bg-yellow-400", party_symbol: "/parties/uda-wheelbarrow.png" },
+    { id: "N1", name: "Candidate N", votes: 195000, photo: "/images/candidates/p2.png", party_color: "bg-orange-500", party_symbol: "/parties/odm-orange.png" },
     /* cspell:disable-next-line */
-    { name: "M. Ochieng", votes: 0, photo: "/images/candidates/p3.png", party_color: "bg-blue-400", party_symbol: "/parties/wiper-umbrella.png" },
+    { id: "O1", name: "M. Ochieng", votes: 45000, photo: "/images/candidates/p3.png", party_color: "bg-blue-400", party_symbol: "/parties/wiper-umbrella.png" },
     /* cspell:disable-next-line */
-    { name: "S. Kamau", votes: 0, photo: "/images/candidates/p4.png", party_color: "bg-red-600", party_symbol: "/parties/jubilee-dove.png" }
+    { id: "K1", name: "S. Kamau", votes: 32000, photo: "/images/candidates/p4.png", party_color: "bg-red-600", party_symbol: "/parties/jubilee-dove.png" }
   ]);
 
   const [governor, setGovernor] = useState<Candidate[]>([
-    { name: "Candidate X", votes: 1, photo: "/images/candidates/p1.png", party_color: "bg-yellow-400", party_symbol: "/parties/uda-wheelbarrow.png" },
-    { name: "Candidate Y", votes: 1, photo: "/images/candidates/p2.png", party_color: "bg-orange-500", party_symbol: "/parties/odm-orange.png" },
-    { name: "Candidate Z", votes: 0, photo: "/images/candidates/p3.png", party_color: "bg-blue-400", party_symbol: "/parties/wiper-umbrella.png" }
+    { id: "G1", name: "Candidate X", votes: 550000, photo: "/images/candidates/p1.png", party_color: "bg-yellow-400", party_symbol: "/parties/uda-wheelbarrow.png" },
+    { id: "G2", name: "Candidate Y", votes: 512000, photo: "/images/candidates/p2.png", party_color: "bg-orange-500", party_symbol: "/parties/odm-orange.png" },
+    { id: "G3", name: "Candidate Z", votes: 85000, photo: "/images/candidates/p3.png", party_color: "bg-blue-400", party_symbol: "/parties/wiper-umbrella.png" }
   ]);
 
   const [senator, setSenator] = useState<Candidate[]>([
-    { name: "Candidate P", votes: 1, photo: "/images/candidates/p4.png", party_color: "bg-yellow-400", party_symbol: "/parties/uda-wheelbarrow.png" },
-    { name: "Candidate Q", votes: 1, photo: "/images/candidates/p1.png", party_color: "bg-orange-500", party_symbol: "/parties/odm-orange.png" }
+    { id: "S1", name: "Candidate P", votes: 85000, photo: "/images/candidates/p4.png", party_color: "bg-yellow-400", party_symbol: "/parties/uda-wheelbarrow.png" },
+    { id: "S2", name: "Candidate Q", votes: 78000, photo: "/images/candidates/p1.png", party_color: "bg-orange-500", party_symbol: "/parties/odm-orange.png" }
   ]);
 
   const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
@@ -291,6 +294,9 @@ export function TallyDashboard() {
                   </div>
 
                   <div className="space-y-4">
+                    <DialogHeader className="opacity-0 absolute h-0 w-0 overflow-hidden">
+                      <DialogTitle>Support Polify AI Core</DialogTitle>
+                    </DialogHeader>
                     <h3 className="text-2xl font-black text-white italic uppercase tracking-tighter leading-none">
                       Support Polify AI Core
                     </h3>

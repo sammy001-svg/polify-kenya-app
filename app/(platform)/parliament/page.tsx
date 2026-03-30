@@ -1,23 +1,34 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { 
   NATIONAL_PROJECTS, 
   BETA_AGENDA, 
-  VISION_2030_FLAGSHIP 
+  VISION_2030_FLAGSHIP,
+  NationalProject 
 } from "@/lib/national-projects";
 import { ProjectCard } from "@/components/projects/ProjectCard";
 import { ProjectStatusTable } from "@/components/projects/ProjectStatusTable";
 import { ChallengesCard } from "@/components/projects/ChallengesCard";
 import { CountyProjectMonitor } from "@/components/projects/CountyProjectMonitor";
 import { ProjectGallery } from "@/components/projects/ProjectGallery";
+import { ProjectDetailModal } from "@/components/projects/ProjectDetailModal";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function NationalProjectsPage() {
+  const [selectedProject, setSelectedProject] = useState<NationalProject | null>(null);
+
   return (
     <div className="min-h-screen text-white font-sans selection:bg-kenya-gold/30">
+      {/* Project Detail Modal */}
+      <ProjectDetailModal 
+        project={selectedProject}
+        isOpen={!!selectedProject}
+        onClose={() => setSelectedProject(null)}
+      />
+
       {/* Background Effects */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-kenya-gold/5 blur-[120px] rounded-full animate-pulse" />
@@ -75,7 +86,11 @@ export default function NationalProjectsPage() {
           <TabsContent value="national" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
               {NATIONAL_PROJECTS.map((project) => (
-                <ProjectCard key={project.title} project={project} />
+                <ProjectCard 
+                  key={project.id} 
+                  project={project} 
+                  onClick={() => setSelectedProject(project)}
+                />
               ))}
             </div>
           </TabsContent>

@@ -4,20 +4,22 @@ export interface NationalProject {
   id: string;
   title: string;
   category: string;
-  promiseDate?: string;
-  completionDate?: string;
   description: string;
-  budget?: string;
-  amountUsed?: string;
   status: ProjectStatus;
-  achievements?: string[];
-  impact?: string;
-  location?: string;
   progress: number; // 0-100
   tags: string[];
+  location?: string;
   purpose?: string;
   goal?: string;
-  components?: string[];
+  // Comprehensive Details
+  totalBudget?: string;
+  fundingSource?: string;
+  contractor?: string;
+  startDate?: string;
+  expectedCompletion?: string;
+  keyChallenges?: string[];
+  mainComponents?: string[];
+  socialImpact?: string;
 }
 
 export const NATIONAL_PROJECTS: NationalProject[] = [
@@ -25,23 +27,48 @@ export const NATIONAL_PROJECTS: NationalProject[] = [
     id: "sgr-mombasa-nairobi",
     title: "Standard Gauge Railway (SGR)",
     category: "Transport & Infrastructure",
-    description: "Phase 1 (Mombasa–Nairobi) and Phase 2 (Naivasha) completed. Regional trade and logistics corridor.",
+    description: "The flagship Vision 2030 project transforming regional trade and logistics.",
     status: "Completed",
     purpose: "Regional trade + logistics corridor",
     location: "Mombasa → Nairobi → Naivasha",
     progress: 100,
-    tags: ["Transport", "Infrastructure", "Trade"]
+    tags: ["Transport", "Infrastructure", "Trade"],
+    totalBudget: "KES 327B (Phase 1) + KES 150B (Phase 2A)",
+    fundingSource: "Exim Bank of China (90%) + Government of Kenya (10%)",
+    contractor: "China Road and Bridge Corporation (CRBC)",
+    startDate: "2014",
+    expectedCompletion: "Completed (2017/2019)",
+    mainComponents: [
+      "Mombasa-Nairobi Mainline (472km)",
+      "Nairobi-Naivasha Extension (120km)",
+      "Inland Container Depots (Mombasa & Naivasha)"
+    ],
+    socialImpact: "Created 30,000+ local jobs during construction; reduced transit time from 10 to 4 hours."
   },
   {
     id: "lapsset-corridor",
     title: "LAPSSET Corridor Project",
     category: "Transport & Infrastructure",
-    description: "Lamu Port–South Sudan–Ethiopia Transport corridor including port, highways, and oil pipeline.",
+    description: "Lamu Port–South Sudan–Ethiopia Transport corridor aimed at unlocking Northern Kenya.",
     status: "Stalled",
     purpose: "Transform northern Kenya into trade hub",
     location: "Lamu, Northern Kenya",
     progress: 25,
-    tags: ["Transport", "Energy", "Regional hub"]
+    tags: ["Transport", "Energy", "Regional hub"],
+    totalBudget: "USD 24.5B (Estimated)",
+    fundingSource: "Public-Private Partnerships (PPP) + Government Funding",
+    keyChallenges: [
+      "Funding constraints for major components",
+      "Security concerns in Northern corridors",
+      "Land acquisition delays"
+    ],
+    mainComponents: [
+      "Lamu Port (32 Berths)",
+      "Standard Gauge Railway link",
+      "Highway Corridors",
+      "Crude Oil Pipeline",
+      "Resort Cities (Lamu, Isiolo, Turkana)"
+    ]
   },
   {
     id: "road-expansion",
@@ -79,12 +106,21 @@ export const NATIONAL_PROJECTS: NationalProject[] = [
     id: "thwake-dam",
     title: "Thwake Dam",
     category: "Energy & Utilities",
-    description: "Multi-purpose dam for water supply, irrigation, and power.",
+    description: "A flagship project under the Water and Sanitation sector for climate-resilient water supply.",
     status: "In Progress",
     purpose: "Water supply + irrigation + power",
     location: "Kitui/Makueni",
     progress: 70,
-    tags: ["Water", "Energy", "Agriculture"]
+    tags: ["Water", "Energy", "Agriculture"],
+    totalBudget: "KES 82B (Phased)",
+    contractor: "China Gezhouba Group Company (CGGC)",
+    mainComponents: [
+      "Rock-fill dam (80m high)",
+      "Hydropower plant (20MW)",
+      "Irrigation infrastructure (40,000 hectares)",
+      "Water treatment plant"
+    ],
+    expectedCompletion: "2026 (Phase 1)"
   },
   {
     id: "affordable-housing-nationwide",
@@ -101,7 +137,7 @@ export const NATIONAL_PROJECTS: NationalProject[] = [
     id: "konza-technopolis",
     title: "Konza Technopolis (Silicon Savannah)",
     category: "Urban & Housing",
-    description: "Tech hub and smart city development.",
+    description: "A world-class technology hub and smart city to drive Kenya's digital economy.",
     status: "In Progress",
     purpose: "Tech hub + smart city",
     location: "Makueni",

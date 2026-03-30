@@ -15,6 +15,7 @@ import { KENYA_LOCATIONS } from "@/lib/location-data";
 const ALL_CONSTITUENCIES = KENYA_LOCATIONS.flatMap(county => county.constituencies.map(c => c.name)).sort();
 
 interface Candidate {
+  id: string;
   name: string;
   pct: string;
   votes?: string;
@@ -282,7 +283,7 @@ function DetailedResultCardComponent({
               {candidates.map((candidate) => (
                 <motion.div 
                   layout
-                  key={candidate.name} 
+                  key={candidate.id} 
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ 
