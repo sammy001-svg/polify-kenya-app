@@ -268,8 +268,8 @@ export function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
 
       <div className="mt-auto pt-8 pb-4 px-4 space-y-4">
         <a
-           href="/PROJECT_DOCUMENTATION.pdf"
-           download="Political_Intelligence_Documentation.pdf"
+           href="/Polify_Kenya_System_Documentation_v1.pdf"
+           download="Polify_Kenya_System_Documentation_v1.pdf"
            className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all group"
         >
           <div className="p-1.5 rounded-lg bg-white/10 text-white group-hover:scale-110 transition-transform">
