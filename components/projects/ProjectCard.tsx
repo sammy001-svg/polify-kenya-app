@@ -15,6 +15,7 @@ const statusConfig: Record<ProjectStatus, { color: string; icon: React.ElementTy
   "In Progress": { color: "text-kenya-gold bg-kenya-gold/10 border-kenya-gold/20", icon: Clock },
   Stalled: { color: "text-kenya-red bg-kenya-red/10 border-kenya-red/20", icon: Ban },
   "Not Started": { color: "text-brand-text-muted bg-white/5 border-white/10", icon: CircleDollarSign },
+  Planned: { color: "text-blue-400 bg-blue-400/10 border-blue-400/20", icon: TrendingUp },
 };
 
 export function ProjectCard({ project }: ProjectCardProps) {
@@ -38,9 +39,11 @@ export function ProjectCard({ project }: ProjectCardProps) {
           <StatusIcon className="w-3.5 h-3.5" />
           {project.status}
         </Badge>
-        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-[9px] font-black text-brand-text-muted uppercase tracking-widest">
-          <Calendar className="w-3 h-3 text-kenya-gold" /> {project.promiseDate}
-        </div>
+        {project.promiseDate && (
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-[9px] font-black text-brand-text-muted uppercase tracking-widest">
+            <Calendar className="w-3 h-3 text-kenya-gold" /> {project.promiseDate}
+          </div>
+        )}
       </div>
 
       <div className="space-y-4 flex-1">
@@ -51,26 +54,39 @@ export function ProjectCard({ project }: ProjectCardProps) {
           </h3>
         </div>
 
-        <div className="flex items-center gap-2">
-           <MapPin className="w-3.5 h-3.5 text-brand-text-muted" />
-           <p className="text-[10px] font-bold text-brand-text-muted uppercase tracking-widest truncate">{project.location}</p>
-        </div>
+        {project.location && (
+          <div className="flex items-center gap-2">
+             <MapPin className="w-3.5 h-3.5 text-brand-text-muted" />
+             <p className="text-[10px] font-bold text-brand-text-muted uppercase tracking-widest truncate">{project.location}</p>
+          </div>
+        )}
 
         <p className="text-sm text-brand-text-muted/80 leading-relaxed font-medium line-clamp-3">
           {project.description}
         </p>
 
-        {/* Budget Stats */}
-        <div className="grid grid-cols-2 gap-4 p-4 rounded-2xl bg-black/40 border border-white/5 relative overflow-hidden">
-           <div className="space-y-1">
-              <span className="text-[9px] font-black text-brand-text-muted uppercase tracking-widest block opacity-50">Budget Allocation</span>
-              <p className="text-sm font-black text-white">{project.budget}</p>
-           </div>
-           <div className="space-y-1">
-              <span className="text-[9px] font-black text-brand-text-muted uppercase tracking-widest block opacity-50">Actual Expenditure</span>
-              <p className="text-sm font-black text-white">{project.amountUsed}</p>
-           </div>
-        </div>
+        {(project.purpose || project.goal) && (
+          <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
+            <p className="text-[11px] font-bold text-white/90">
+              <span className="text-kenya-gold uppercase text-[9px] tracking-widest mr-2">{project.purpose ? 'Purpose' : 'Goal'}:</span>
+              {project.purpose || project.goal}
+            </p>
+          </div>
+        )}
+
+        {/* Budget Stats (only if present) */}
+        {project.budget && (
+          <div className="grid grid-cols-2 gap-4 p-4 rounded-2xl bg-black/40 border border-white/5 relative overflow-hidden">
+             <div className="space-y-1">
+                <span className="text-[9px] font-black text-brand-text-muted uppercase tracking-widest block opacity-50">Budget Allocation</span>
+                <p className="text-sm font-black text-white">{project.budget}</p>
+             </div>
+             <div className="space-y-1">
+                <span className="text-[9px] font-black text-brand-text-muted uppercase tracking-widest block opacity-50">Actual Expenditure</span>
+                <p className="text-sm font-black text-white">{project.amountUsed || 'TBD'}</p>
+             </div>
+          </div>
+        )}
       </div>
 
       <div className="space-y-4">
@@ -92,26 +108,30 @@ export function ProjectCard({ project }: ProjectCardProps) {
             </div>
         </div>
 
-        <div className="space-y-2">
-          <span className="text-[9px] font-black text-brand-text-muted uppercase tracking-widest block opacity-50">Top Achievements</span>
-          <ul className="space-y-2">
-            {project.achievements.map((ach, i) => (
-              <li key={i} className="flex gap-2 text-[11px] font-medium text-white/90">
-                 <div className="w-1.5 h-1.5 rounded-full bg-kenya-gold mt-1.5 shrink-0 shadow-[0_0_10px_rgba(255,193,7,0.5)]" />
-                 {ach}
-              </li>
-            ))}
-          </ul>
-        </div>
+        {project.achievements && project.achievements.length > 0 && (
+          <div className="space-y-2">
+            <span className="text-[9px] font-black text-brand-text-muted uppercase tracking-widest block opacity-50">Top Achievements</span>
+            <ul className="space-y-2">
+              {project.achievements.map((ach, i) => (
+                <li key={i} className="flex gap-2 text-[11px] font-medium text-white/90">
+                   <div className="w-1.5 h-1.5 rounded-full bg-kenya-gold mt-1.5 shrink-0 shadow-[0_0_10px_rgba(255,193,7,0.5)]" />
+                   {ach}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
 
-      <div className="pt-4 border-t border-white/5 mt-auto">
-        <div className="flex items-center gap-2">
-          <TrendingUp className="w-4 h-4 text-kenya-green" />
-          <span className="text-[10px] font-black text-brand-text-muted uppercase tracking-widest">Economic Impact: </span>
-          <span className="text-[10px] font-bold text-white/90 truncate">{project.impact}</span>
+      {project.impact && (
+        <div className="pt-4 border-t border-white/5 mt-auto">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-kenya-green" />
+            <span className="text-[10px] font-black text-brand-text-muted uppercase tracking-widest">Economic Impact: </span>
+            <span className="text-[10px] font-bold text-white/90 truncate">{project.impact}</span>
+          </div>
         </div>
-      </div>
+      )}
     </motion.div>
   );
 }

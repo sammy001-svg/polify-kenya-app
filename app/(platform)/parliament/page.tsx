@@ -1,47 +1,21 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import React from "react";
 import { 
   NATIONAL_PROJECTS, 
-  PROJECT_CATEGORIES, 
+  BETA_AGENDA, 
+  VISION_2030_FLAGSHIP 
 } from "@/lib/national-projects";
 import { ProjectCard } from "@/components/projects/ProjectCard";
+import { ProjectStatusTable } from "@/components/projects/ProjectStatusTable";
+import { ChallengesCard } from "@/components/projects/ChallengesCard";
+import { CountyProjectMonitor } from "@/components/projects/CountyProjectMonitor";
+import { ProjectGallery } from "@/components/projects/ProjectGallery";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { 
-  BarChart3, 
-  Globe2, 
-  Search, 
-  Zap, 
-  TrendingUp, 
-  ShieldCheck, 
-  Calculator,
-  Target
-} from "lucide-react";
-
-import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
+import { TrendingUp } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function NationalProjectsPage() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
-
-  const filteredProjects = useMemo(() => {
-    return NATIONAL_PROJECTS.filter(project => {
-      const matchesSearch = project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          project.description.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesCategory = selectedCategory === "All" || project.category === selectedCategory;
-      return matchesSearch && matchesCategory;
-    });
-  }, [searchQuery, selectedCategory]);
-
-  const stats = [
-    { label: "Active Projects", value: NATIONAL_PROJECTS.filter(p => p.status === "In Progress").length, icon: Zap, color: "text-kenya-gold" },
-    { label: "Completed Promises", value: NATIONAL_PROJECTS.filter(p => p.status === "Completed").length, icon: ShieldCheck, color: "text-kenya-green" },
-    { label: "Total Budget Tracked", value: "KSh 520B", icon: Calculator, color: "text-blue-400" },
-    { label: "Delivery Score", value: "68%", icon: Target, color: "text-kenya-red" },
-  ];
-
   return (
     <div className="min-h-screen text-white font-sans selection:bg-kenya-gold/30">
       {/* Background Effects */}
@@ -50,152 +24,150 @@ export default function NationalProjectsPage() {
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-kenya-red/5 blur-[120px] rounded-full animate-pulse delay-700" />
       </div>
 
-      <div className="relative z-10 p-6 lg:p-12 space-y-12 max-w-[1600px] mx-auto">
-        {/* Header Section */}
-        <header className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 pb-12 border-b border-white/5">
-          <div className="space-y-4 max-w-2xl">
+      <div className="relative z-10 p-6 lg:p-10 space-y-6 max-w-[1800px] mx-auto">
+        {/* Project Gallery Hero - Now at the Top */}
+        <section className="animate-in fade-in slide-in-from-top-4 duration-1000 w-full">
+          <ProjectGallery />
+        </section>
+
+        {/* Oversight Info */}
+        <div className="py-8 border-b border-white/5">
+          <div className="space-y-4 max-w-4xl">
             <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl group">
               <span className="relative flex h-3 w-3">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-kenya-green opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-kenya-green"></span>
               </span>
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-text-muted group-hover:text-white transition-colors">National Development Tracker • 2022-2027</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-text-muted group-hover:text-white transition-colors">National & County Tracker • 2026-2030</span>
             </div>
-            <h1 className="text-5xl lg:text-7xl font-black tracking-tighter leading-[0.9] text-white">
-              PROJECTS <span className="text-transparent bg-clip-text bg-linear-to-r from-kenya-gold via-white to-kenya-red">&</span> PROMISES
-            </h1>
-            <p className="text-lg text-brand-text-muted font-medium max-w-xl">
-               Real-time monitoring of Presidential pledges, infrastructure development, and budget transparency across the Republic of Kenya.
+            <p className="text-[11px] md:text-sm text-brand-text-muted font-bold uppercase tracking-wider whitespace-nowrap overflow-hidden text-ellipsis">
+               Comprehensive oversight of Major Infrastructure, the BETA Agenda, and localized projects across all 47 Counties.
             </p>
           </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full lg:w-auto">
-            {stats.map((stat, i) => (
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: i * 0.1 }}
-                key={stat.label} 
-                className="bg-white/2 backdrop-blur-3xl border border-white/10 rounded-4xl p-10 mb-12 hover:bg-white/5 transition-all group"
-              >
-                <stat.icon className={cn("w-6 h-6 mb-4", stat.color)} />
-                <div className="text-3xl font-black mb-1 group-hover:scale-110 transition-transform origin-left">{stat.value}</div>
-                <div className="text-[10px] font-bold text-brand-text-muted uppercase tracking-widest">{stat.label}</div>
-              </motion.div>
-            ))}
-          </div>
-        </header>
-
-        {/* Search & Filter Bar */}
-        <div className="flex flex-col lg:flex-row gap-6 items-center justify-between">
-            <div className="relative w-full lg:w-96 group">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-text-muted group-focus-within:text-kenya-gold transition-colors" />
-                <input 
-                    type="text" 
-                    placeholder="Search for projects, promises..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-6 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-kenya-gold/30 focus:border-kenya-gold/50 transition-all placeholder:text-brand-text-muted/50"
-                />
-            </div>
-
-            <ScrollArea className="w-full lg:w-auto pb-4">
-                <div className="flex gap-3">
-                    {PROJECT_CATEGORIES.map((cat) => (
-                        <button
-                            key={cat}
-                            onClick={() => setSelectedCategory(cat)}
-                            className={cn(
-                                "px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all duration-300 border",
-                                selectedCategory === cat 
-                                    ? "bg-white/10 border-white/20 text-white shadow-lg shadow-white/5" 
-                                    : "bg-white/2 border-white/5 text-brand-text-muted hover:bg-white/5 hover:border-white/10"
-                            )}
-                        >
-                            {cat}
-                        </button>
-                    ))}
-                </div>
-                <ScrollBar orientation="horizontal" className="hidden" />
-            </ScrollArea>
         </div>
 
-        {/* Main Content Tabs */}
-        <Tabs defaultValue="promises" className="space-y-12">
-          <TabsList className="bg-white/5 p-2 rounded-4xl border border-white/10 h-auto gap-2">
-            <TabsTrigger value="promises" className="rounded-2xl px-8 py-4 data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:shadow-xl text-[10px] font-black uppercase tracking-widest gap-2">
-              <Zap className="w-4 h-4 text-kenya-gold" /> Presidential Promises
-            </TabsTrigger>
-            <TabsTrigger value="budget" className="rounded-2xl px-8 py-4 data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:shadow-xl text-[10px] font-black uppercase tracking-widest gap-2">
-              <TrendingUp className="w-4 h-4 text-kenya-green" /> Economic Impact
-            </TabsTrigger>
-            <TabsTrigger value="map" className="rounded-2xl px-8 py-4 data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:shadow-xl text-[10px] font-black uppercase tracking-widest gap-2">
-              <Globe2 className="w-4 h-4 text-blue-400" /> Geographic View
-            </TabsTrigger>
-          </TabsList>
+        {/* Project Lists Tabs */}
+        <Tabs defaultValue="national" className="w-full space-y-12">
+          <div className="flex flex-col lg:flex-row gap-6 items-center justify-between border-b border-white/5 pb-8">
+            <h2 className="text-xl font-bold flex items-center gap-2">
+                <span className="w-1 h-6 bg-kenya-red rounded-full" />
+                Delivery Modules
+            </h2>
+            <TabsList className="bg-white/5 border border-white/10 p-1 rounded-2xl h-14 backdrop-blur-xl">
+              <TabsTrigger value="national" className="px-8 rounded-xl font-black uppercase text-[10px] tracking-widest data-[state=active]:bg-kenya-red data-[state=active]:text-white transition-all h-full">
+                Major Infrastructure
+              </TabsTrigger>
+              <TabsTrigger value="county" className="px-8 rounded-xl font-black uppercase text-[10px] tracking-widest data-[state=active]:bg-blue-600 data-[state=active]:text-white transition-all h-full">
+                County Monitor
+              </TabsTrigger>
+              <TabsTrigger value="beta" className="px-8 rounded-xl font-black uppercase text-[10px] tracking-widest data-[state=active]:bg-kenya-gold data-[state=active]:text-white transition-all h-full">
+                BETA Agenda
+              </TabsTrigger>
+              <TabsTrigger value="vision" className="px-8 rounded-xl font-black uppercase text-[10px] tracking-widest data-[state=active]:bg-kenya-green data-[state=active]:text-white transition-all h-full">
+                Vision 2030
+              </TabsTrigger>
+              <TabsTrigger value="challenges" className="px-8 rounded-xl font-black uppercase text-[10px] tracking-widest data-[state=active]:bg-orange-600 data-[state=active]:text-white transition-all h-full">
+                Challenges
+              </TabsTrigger>
+            </TabsList>
+          </div>
+
+          <TabsContent value="national" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+              {NATIONAL_PROJECTS.map((project) => (
+                <ProjectCard key={project.title} project={project} />
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="county" className="m-0 focus-visible:ring-0">
+             <CountyProjectMonitor />
+          </TabsContent>
 
           <TabsContent value="promises" className="m-0 focus-visible:ring-0">
-             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-                <AnimatePresence mode="popLayout">
-                    {filteredProjects.map((project) => (
-                        <ProjectCard key={project.id} project={project} />
-                    ))}
-                </AnimatePresence>
-             </div>
-             {filteredProjects.length === 0 && (
-                <div className="h-[400px] flex flex-col items-center justify-center text-center space-y-4 border-2 border-dashed border-white/5 rounded-[3rem]">
-                    <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center">
-                        <Search className="w-10 h-10 text-brand-text-muted/20" />
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {BETA_AGENDA.map((agenda, index) => (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    key={agenda.title}
+                    className="p-8 rounded-[2.5rem] bg-white/2 border border-white/5 hover:bg-white/5 transition-all space-y-6"
+                  >
+                    <div className="flex justify-between items-start">
+                      <h3 className="text-xl font-black text-white leading-tight">{agenda.title}</h3>
+                      <span className="px-3 py-1 rounded-full bg-kenya-gold/10 text-kenya-gold text-[9px] font-black uppercase tracking-widest border border-kenya-gold/20">
+                        {agenda.status}
+                      </span>
                     </div>
-                    <div>
-                        <p className="text-xl font-black text-white">No projects found</p>
-                        <p className="text-brand-text-muted text-sm font-medium">Try adjusting your filters or search query</p>
-                    </div>
-                </div>
-             )}
-          </TabsContent>
-
-          <TabsContent value="budget" className="m-0 focus-visible:ring-0">
-             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="bg-white/2 border border-white/5 rounded-[3rem] p-12 flex flex-col justify-center items-center gap-6 min-h-[500px]">
-                    <div className="w-16 h-16 rounded-full bg-kenya-green/10 flex items-center justify-center">
-                        <BarChart3 className="w-8 h-8 text-kenya-green" />
-                    </div>
-                    <h2 className="text-3xl font-black text-white text-center">Expenditure Oversight</h2>
-                    <p className="text-brand-text-muted text-center max-w-sm font-medium">Detailed breakdown of how development funds are utilized across each project category.</p>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                     {[
-                        { label: "Agriculture", amount: "KSh 15B", change: "+12%" },
-                        { label: "Infrastructure", amount: "KSh 250B", change: "-5%" },
-                        { label: "ICT", amount: "KSh 120B", change: "+45%" },
-                        { label: "Healthcare", amount: "KSh 80B", change: "+18%" },
-                     ].map((item) => (
-                        <div key={item.label} className="bg-white/2 border border-white/5 rounded-4xl p-8 flex flex-col justify-between hover:bg-white/5 transition-all">
-                            <span className="text-[10px] font-black text-brand-text-muted uppercase tracking-widest">{item.label}</span>
-                            <div className="space-y-1">
-                                <div className="text-3xl font-black text-white">{item.amount}</div>
-                                <div className="text-[10px] font-bold text-kenya-green uppercase tracking-widest">{item.change} Absorption</div>
-                            </div>
+                    <div className="space-y-4">
+                      {agenda.promises.map((promise, i) => (
+                        <div key={i} className="flex items-center gap-3">
+                           <div className="w-2 h-2 rounded-full bg-kenya-gold shadow-[0_0_10px_rgba(255,193,7,0.5)]" />
+                           <span className="text-sm font-medium text-brand-text-muted">{promise}</span>
                         </div>
-                     ))}
-                </div>
+                      ))}
+                    </div>
+                  </motion.div>
+                ))}
              </div>
           </TabsContent>
 
-          <TabsContent value="map" className="m-0 focus-visible:ring-0">
-             <div className="bg-white/2 border border-white/5 rounded-[3rem] p-12 h-[600px] flex flex-col items-center justify-center gap-6 relative overflow-hidden group">
-                <div className="absolute inset-0 grayscale opacity-20 group-hover:grayscale-0 group-hover:opacity-40 transition-all duration-1000 bg-[url('https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Kenya_location_map.svg/1200px-Kenya_location_map.svg.png')] bg-center bg-no-repeat bg-contain" />
-                <div className="relative z-10 text-center space-y-4">
-                    <div className="w-16 h-16 rounded-full bg-blue-400/10 flex items-center justify-center mx-auto">
-                        <Globe2 className="w-8 h-8 text-blue-400" />
-                    </div>
-                    <h2 className="text-3xl font-black text-white">Project Density Map</h2>
-                    <p className="text-brand-text-muted max-w-sm font-medium">Interactive visualization of projects across all 47 counties of Kenya. (Coming Soon)</p>
+          <TabsContent value="flagship" className="m-0 focus-visible:ring-0">
+             <div className="space-y-8">
+                <div className="max-w-2xl">
+                    <h2 className="text-3xl font-black text-white mb-2 underline decoration-kenya-gold decoration-4 underline-offset-8">Vision 2030 Status Report</h2>
+                    <p className="text-brand-text-muted font-medium">Tracking the flagship projects that form the backbone of Kenya&apos;s long-term transformation strategy.</p>
                 </div>
+                <ProjectStatusTable />
+             </div>
+          </TabsContent>
+
+          <TabsContent value="challenges" className="m-0 focus-visible:ring-0">
+             <div className="space-y-8">
+                <div className="max-w-2xl">
+                    <h2 className="text-3xl font-black text-white mb-2 border-l-4 border-kenya-red pl-6">Implementation Obstacles</h2>
+                    <p className="text-brand-text-muted font-medium">Key factors affecting the timely completion and funding of national government projects.</p>
+                </div>
+                <ChallengesCard />
              </div>
           </TabsContent>
         </Tabs>
+
+        {/* Strategic Dashboard Footer */}
+        <div className="mt-24 p-12 rounded-[3.5rem] bg-brand-surface-secondary border border-white/5 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-12 opacity-5 scale-150 rotate-12">
+                <TrendingUp className="w-64 h-64 text-kenya-green" />
+            </div>
+            <div className="relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-12">
+                <div className="space-y-6">
+                    <h3 className="text-2xl font-black text-white">Project Summary</h3>
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5">
+                            <span className="text-[10px] font-black text-brand-text-muted uppercase tracking-widest">Completed</span>
+                            <span className="text-xl font-black text-kenya-green">Expressway, SGR Tech</span>
+                        </div>
+                        <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
+                            <span className="text-[10px] font-black text-brand-text-muted uppercase tracking-widest">Active County Projects</span>
+                            <span className="text-sm font-bold text-white px-2">47 Counties Live</span>
+                        </div>
+                    </div>
+                </div>
+                <div className="space-y-6 lg:col-span-2">
+                    <h3 className="text-2xl font-black text-white">Regional Development Nodes</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="p-6 rounded-3xl bg-white/2 border border-white/5">
+                            <h4 className="font-black text-kenya-gold mb-1">Coast Region Hub</h4>
+                            <p className="text-xs text-brand-text-muted font-medium">Monitoring Dongo Kundu and Port Expansion delivery.</p>
+                        </div>
+                        <div className="p-6 rounded-3xl bg-white/2 border border-white/5">
+                            <h4 className="font-black text-blue-400 mb-1">Rift Valley Geothermal</h4>
+                            <p className="text-xs text-brand-text-muted font-medium">Strategic power capacity tracking at Olkaria sites.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
       </div>
 
       {/* Modern Footer */}
@@ -209,9 +181,9 @@ export default function NationalProjectsPage() {
              </div>
           </div>
           <div className="flex gap-8 text-[10px] font-black text-brand-text-muted uppercase tracking-widest">
-            <a href="#" className="hover:text-white transition-colors">API Docs</a>
-            <a href="#" className="hover:text-white transition-colors">Transparency Report</a>
-            <a href="#" className="hover:text-white transition-colors">Contact Support</a>
+            <a href="#" className="hover:text-white transition-colors">Project API</a>
+            <a href="#" className="hover:text-white transition-colors">County Data</a>
+            <a href="#" className="hover:text-white transition-colors">Strategic Portal</a>
           </div>
         </div>
       </footer>
