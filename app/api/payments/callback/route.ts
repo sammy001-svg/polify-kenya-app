@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase-server";
+import { createAdminClient } from "@/lib/supabase-admin";
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
     const data = await req.json();
     console.log("Kopo Kopo Callback Received:", JSON.stringify(data, null, 2));
 
-    const supabase = await createClient();
+    const supabase = createAdminClient();
     
     // Log the Raw Callback for Debugging
     await supabase.from('debug_logs').insert({
