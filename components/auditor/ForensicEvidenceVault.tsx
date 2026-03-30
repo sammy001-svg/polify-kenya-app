@@ -5,13 +5,16 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   FileText, 
   CheckCircle,
-  Eye,
   Fingerprint,
   ShieldAlert,
   Download,
   Share2,
   ChevronRight,
-  Maximize2
+  Maximize2,
+  AlertTriangle,
+  FileSearch,
+  Lock,
+  Terminal
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AuditReport, ForensicQuery } from "@/lib/auditor-data";
@@ -22,14 +25,11 @@ interface ForensicEvidenceVaultProps {
 
 export function ForensicEvidenceVault({ report }: ForensicEvidenceVaultProps) {
   const [activeQuery, setActiveQuery] = useState<ForensicQuery | null>(null);
-  const [isScanning, setIsScanning] = useState(true); // Initialize as true to avoid sync setState in effect
+  const [isScanning, setIsScanning] = useState(true);
   const [visibleQueries, setVisibleQueries] = useState<ForensicQuery[]>([]);
 
   useEffect(() => {
     if (!report) return;
-
-    // We initialize isScanning to true in useState to avoid sync setState here.
-    // The key-based remount (in parent) handles state reset for new reports.
 
     const timer = setTimeout(() => {
       setVisibleQueries(report.forensicData || []);
@@ -41,130 +41,148 @@ export function ForensicEvidenceVault({ report }: ForensicEvidenceVaultProps) {
 
   if (!report) {
     return (
-      <div className="flex flex-col items-center justify-center h-[700px] bg-black/40 backdrop-blur-xl border border-white/10 rounded-[40px] opacity-40">
-        <Fingerprint className="w-20 h-20 mb-6 text-white/20" />
-        <p className="text-sm font-black uppercase tracking-widest text-white/40">Select a report below to initiate forensic scan</p>
+      <div className="flex flex-col items-center justify-center h-full bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl opacity-40">
+        <Fingerprint className="w-16 h-16 mb-6 text-white/20" />
+        <p className="text-sm font-mono uppercase tracking-widest text-white/40">Probe system to initiate scan</p>
       </div>
     );
   }
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className="grid grid-cols-12 gap-6 h-[700px] bg-black/40 backdrop-blur-xl border border-white/10 rounded-[40px] overflow-hidden"
-    >
-      {/* Left Pane: Document Viewer */}
-      <div className="col-span-12 lg:col-span-7 relative border-r border-white/5 bg-black/20 flex flex-col">
-        <div className="p-6 border-b border-white/10 flex justify-between items-center bg-white/2">
+    <div className="grid grid-cols-12 h-full bg-black/20 overflow-hidden font-mono">
+      {/* Left Pane: Document Viewer (The "Dossier") */}
+      <div className="col-span-12 lg:col-span-7 relative border-r border-white/10 bg-black/40 flex flex-col overflow-hidden">
+        {/* Scanned Paper Texture & Scanline Overlay */}
+        <div className="absolute inset-0 pointer-events-none opacity-[0.03] z-20">
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/natural-paper.png')]" />
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(255,0,0,0.03),rgba(0,255,0,0.01),rgba(0,0,255,0.03))] bg-size-[100%_2px,3px_100%]" />
+        </div>
+
+        <div className="p-4 border-b border-white/10 flex justify-between items-center bg-black/60 relative z-30">
             <div className="flex items-center gap-3">
-                <div className="p-2 bg-kenya-dark-orange/20 rounded-lg">
-                    <FileText className="w-5 h-5 text-kenya-dark-orange" />
+                <div className="p-2 bg-emerald-500/20 rounded border border-emerald-500/30">
+                    <FileText className="w-4 h-4 text-emerald-400" />
                 </div>
                 <div>
-                    <h3 className="text-sm font-black text-white uppercase tracking-tighter truncate max-w-[300px]">
-                      {report.id.toUpperCase().replace(/-/g, '_')}.PDF
+                    <h3 className="text-xs font-bold text-white uppercase tracking-tighter truncate max-w-[250px]">
+                      {report.id.toUpperCase().replace(/-/g, '_')}_SCAN.PDF
                     </h3>
-                    <p className="text-[10px] text-brand-text-muted font-mono uppercase">
-                      ENTITY: {report.entity} {" // "} FISCAL: {report.fiscalYear}
-                    </p>
+                    <div className="flex items-center gap-2 text-[8px] text-emerald-500/50 uppercase font-bold tracking-widest mt-0.5">
+                      <span className="animate-pulse">●</span> READ_ONLY_ENCRYPTED_STREAM
+                    </div>
                 </div>
             </div>
             <div className="flex gap-2">
-                <button className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white/40 hover:text-white">
-                    <Download className="w-4 h-4" />
-                </button>
-                <button className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white/40 hover:text-white">
-                    <Maximize2 className="w-4 h-4" />
+                <button className="p-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded transition-all">
+                    <Maximize2 className="w-3.5 h-3.5 text-white/40" />
                 </button>
             </div>
         </div>
 
-        {/* Simulated PDF Content */}
-        <div className="flex-1 overflow-y-auto p-12 space-y-8 font-serif text-white/70 relative">
-            <div className="absolute inset-0 pointer-events-none opacity-5 bg-[url('https://www.transparenttextures.com/patterns/natural-paper.png')]" />
-            
-            <div className="max-w-2xl mx-auto space-y-6">
-                <div className="text-center space-y-2 mb-12">
-                    <h4 className="text-2xl font-bold italic text-white/90 underline decoration-kenya-dark-orange/50 uppercase tracking-tighter">OFFICE OF THE AUDITOR GENERAL</h4>
-                    <p className="text-[10px] uppercase tracking-[0.4em] text-white/40">{report.fiscalYear} Audit Review</p>
+        {/* Simulated Document Content */}
+        <div className="flex-1 overflow-y-auto p-10 space-y-8 relative z-10 selection:bg-red-500/30">
+            <div className="max-w-2xl mx-auto space-y-8">
+                {/* OAG Header */}
+                <div className="flex flex-col items-center text-center space-y-4 mb-12 relative">
+                    {/* Flagged Stamp for Adverse/Disclaimer */}
+                    {(report.opinion === 'Adverse' || report.opinion === 'Disclaimer') && (
+                      <motion.div 
+                        initial={{ opacity: 0, scale: 2, rotate: -20 }}
+                        animate={{ opacity: 0.6, scale: 1 }}
+                        className="absolute top-10 -right-4 border-4 border-red-600 px-4 py-1 text-red-600 font-bold text-2xl uppercase tracking-[0.2em] -rotate-12 pointer-events-none"
+                      >
+                        {report.opinion === 'Adverse' ? 'FLAGGED' : 'RESTRICTED'}
+                      </motion.div>
+                    )}
+                    
+                    <div className="w-12 h-12 border-2 border-white/20 rounded-full flex items-center justify-center">
+                      <ShieldAlert className="w-6 h-6 text-white/40" />
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="text-xl font-bold text-white uppercase tracking-tighter">Office of the Auditor General</h4>
+                      <p className="text-[10px] uppercase tracking-[0.5em] text-white/30">Republic of Kenya :: Audit Summary</p>
+                    </div>
+                    <div className="w-full h-px bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent)]" />
                 </div>
 
-                <div className="space-y-4 text-justify leading-relaxed">
-                    <h5 className="text-lg font-bold text-white mb-4 underline decoration-white/20">{report.title}</h5>
-                    <p className="text-sm">
-                      {report.summary} Our forensic audit team sampled 24% of the total expenditure to determine if value for money was achieved in accordance with Article 229 of the Constitution.
+                <div className="space-y-6 text-sm text-white/60 leading-relaxed font-serif italic text-justify">
+                    <div className="flex justify-between items-baseline border-b border-white/5 pb-2">
+                      <span className="text-[10px] font-bold text-white/40 uppercase font-mono tracking-widest italic">Subject:</span>
+                      <span className="text-white font-bold uppercase tracking-tighter font-serif">{report.title}</span>
+                    </div>
+
+                    <p>
+                      {report.summary} In accordance with Article 229 of the Constitution of Kenya, we have audited the financial statements for the period ended {report.fiscalYear}. 
                     </p>
                     
-                    <div className="p-6 bg-white/5 border border-white/10 rounded-2xl italic space-y-4">
-                      <p className="text-xs font-black uppercase text-kenya-gold tracking-widest">Key Findings Summary</p>
-                      <ul className="text-xs space-y-2">
+                    <div className="p-6 bg-white/2 border border-white/10 rounded-lg space-y-4 relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-30 transition-opacity">
+                        <Terminal className="w-8 h-8 text-white" />
+                      </div>
+                      <h5 className="text-[10px] font-bold uppercase text-emerald-500 tracking-[0.3em]">EXECUTIVE_SUMMARY_FINDINGS</h5>
+                      <ul className="text-xs space-y-3 font-mono not-italic mt-2">
                         {report.keyFindings.map((finding, i) => (
-                          <li key={i} className="flex gap-2">
-                            <span className="text-kenya-dark-orange shrink-0">0{i+1}.</span> {finding}
+                          <li key={i} className="flex gap-3 text-white/70">
+                            <span className="text-emerald-500 shrink-0 font-bold">[{i+1}]</span> 
+                            <span>{finding}</span>
                           </li>
                         ))}
                       </ul>
                     </div>
 
-                    <p className="opacity-50">
-                      [...] The lack of documentation suggests a systemic failure in the procurement process. 
-                      Further scanning of subsequent quarters is required to determine the full extent of the leakage. 
-                      The OAG recommends immediate recovery of funds for projects certified but not completed.
+                    <p className="opacity-40 text-xs">
+                      [DATA_TRUNCATED] :: Full judicial report available via encrypted link. 
+                      Evidence chain suggests significant deviation from the Public Procurement and Asset Disposal Act (2015).
                     </p>
-                </div>
-
-                {/* AI Analysis Overlay */}
-                <div className="pt-8 border-t border-white/5 space-y-4 italic text-[10px] font-mono text-white/20 uppercase tracking-widest">
-                    <p>[ END OF DIGITIZED SUMMARY ] -- STANDBY FOR FULL ANOMALY SCAN...</p>
                 </div>
             </div>
         </div>
 
-        {/* Viewer Footer Hub */}
-        <div className="p-4 border-t border-white/10 bg-black/40 flex justify-between items-center">
-            <div className="flex items-center gap-4">
-                <div className="flex -space-x-2">
-                    {[1,2,3].map(i => (
-                        <div key={i} className="w-6 h-6 rounded-full border-2 border-black bg-brand-surface flex items-center justify-center text-[8px] font-bold text-white/60">
-                            {i}
-                        </div>
-                    ))}
-                </div>
-                <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">3 AI Auditors Active</span>
+        {/* Metadata Footer */}
+        <div className="p-4 bg-black/60 border-t border-white/10 flex justify-between items-center text-[9px] font-bold text-white/40 uppercase tracking-widest relative z-30">
+          <div className="flex items-center gap-4">
+            <span className="flex items-center gap-1.5"><Lock className="w-3 h-3 text-emerald-500/50" /> SHA-256::VERIFIED</span>
+            <span className="hidden md:inline">COMPLIANCE_SCORE::{(100 - (report.opinion === 'Adverse' ? 45 : report.opinion === 'Qualified' ? 15 : 0))}%</span>
+          </div>
+          <div className="flex items-center gap-2 text-emerald-500/70">
+            <div className="w-24 h-1 bg-white/5 rounded-full overflow-hidden">
+                <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${report.completionPct || 15}%` }}
+                    className="h-full bg-emerald-500" 
+                />
             </div>
-            <div className="flex items-center gap-2">
-                <div className="h-1.5 w-24 bg-white/5 rounded-full overflow-hidden">
-                    <motion.div 
-                        initial={{ width: 0 }}
-                        animate={{ width: `${report.completionPct || 10}%` }}
-                        transition={{ duration: 2 }}
-                        className="h-full bg-kenya-dark-orange" 
-                    />
-                </div>
-                <span className="text-[10px] font-mono text-kenya-dark-orange">{report.completionPct || 10}% SCANNED</span>
-            </div>
+            <span>{report.completionPct || 15}% SCAN_COMPLETED</span>
+          </div>
         </div>
       </div>
 
-      {/* Right Pane: AI Analysis */}
-      <div className="col-span-12 lg:col-span-5 p-6 flex flex-col gap-6 overflow-y-auto">
-        <div className="flex items-center justify-between">
-            <h4 className="text-xs font-black text-white uppercase tracking-[0.2em] flex items-center gap-2">
-                <Fingerprint className="w-4 h-4 text-kenya-dark-orange" />
-                FORENSIC_ANOMALIES
-            </h4>
-            <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-kenya-dark-orange/10 border border-kenya-dark-orange/30 text-[9px] font-bold text-kenya-dark-orange animate-pulse">
-                SCANNED_LIVE
-            </span>
+      {/* Right Pane: AI Forensic Analysis */}
+      <div className="col-span-12 lg:col-span-5 p-6 flex flex-col gap-6 bg-black/20 overflow-hidden relative">
+        <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-[0.02] z-0">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.1),transparent_70%)]" />
         </div>
 
-        <div className="space-y-4">
+        <div className="flex items-center justify-between relative z-10">
+            <div className="flex items-center gap-3">
+              <FileSearch className="w-5 h-5 text-emerald-500" />
+              <h4 className="text-xs font-black text-white uppercase tracking-[0.25em]">ANOMALY_ENGINE</h4>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[8px] font-bold text-emerald-500 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-full animate-pulse uppercase tracking-tighter">
+                Scanning_Live
+              </span>
+            </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto space-y-4 pr-2 relative z-10 custom-scrollbar">
             <AnimatePresence mode="popLayout">
                 {isScanning ? (
-                    <div className="py-20 flex flex-col items-center justify-center text-center opacity-40">
-                        <RefreshCwIcon className="w-8 h-8 text-white animate-spin mb-3" />
-                        <p className="text-[10px] font-black uppercase tracking-widest">Feeding document to Neural Audit...</p>
+                    <div className="flex flex-col items-center justify-center h-full opacity-40 py-20">
+                        <Terminal className="w-10 h-10 mb-4 animate-bounce text-emerald-500" />
+                        <div className="text-[10px] font-bold uppercase tracking-[0.3em] flex items-center gap-2">
+                          RUNNING_NEURAL_AUDIT <span className="animate-pulse">...</span>
+                        </div>
                     </div>
                 ) : visibleQueries.length > 0 ? (
                     visibleQueries.map((query, idx) => (
@@ -176,100 +194,83 @@ export function ForensicEvidenceVault({ report }: ForensicEvidenceVaultProps) {
                             whileHover={{ scale: 1.02 }}
                             onClick={() => setActiveQuery(query)}
                             className={cn(
-                                "group p-4 bg-white/3 border rounded-2xl cursor-pointer transition-all",
-                                activeQuery?.id === query.id ? "border-kenya-dark-orange/50 bg-kenya-dark-orange/5" : "border-white/5 hover:border-white/10"
+                                "group p-4 bg-white/3 border rounded-lg cursor-pointer transition-all relative overflow-hidden",
+                                activeQuery?.id === query.id ? "border-red-500/50 bg-red-500/5" : "border-white/10 hover:border-emerald-500/30"
                             )}
                         >
+                            {/* Alert Flash for Active Query */}
+                            {activeQuery?.id === query.id && (
+                              <div className="absolute top-0 left-0 w-1 h-full bg-red-500" />
+                            )}
+
                             <div className="flex justify-between items-start mb-3">
                                 <div className="space-y-1">
                                     <div className="flex items-center gap-2">
-                                        <span className="text-[10px] font-mono text-white/40">{query.id}</span>
-                                        <Badge variant={query.status === 'flagged' ? 'destructive' : 'secondary'} className="text-[8px] h-4 uppercase tracking-tighter">
+                                        <span className="text-[8px] font-mono text-white/30 tracking-widest">{query.id}</span>
+                                        <span className={cn(
+                                          "text-[8px] font-bold uppercase px-1.5 py-0.5 rounded border tracking-tighter",
+                                          query.status === 'flagged' ? "bg-red-500/10 text-red-500 border-red-500/30" : "bg-emerald-500/10 text-emerald-500 border-emerald-500/30"
+                                        )}>
                                             {query.category}
-                                        </Badge>
+                                        </span>
                                     </div>
-                                    <h5 className="font-bold text-white text-sm tracking-tight leading-none group-hover:text-kenya-dark-orange transition-colors">
-                                        Amount: Ksh {query.amount}
+                                    <h5 className="font-bold text-white text-xs tracking-tight uppercase group-hover:text-emerald-400 transition-colors">
+                                        Value:: <span className={query.status === 'flagged' ? 'text-red-500' : 'text-emerald-500'}>KES {query.amount}</span>
                                     </h5>
                                 </div>
-                                <div className="p-1.5 bg-black/40 rounded-lg group-hover:bg-kenya-dark-orange/20 transition-colors">
-                                    <ChevronRight className="w-4 h-4 text-white/20 group-hover:text-kenya-dark-orange" />
+                                <div className="p-1 bg-black/40 rounded border border-white/5 opacity-40">
+                                    <ChevronRight className="w-3.5 h-3.5" />
                                 </div>
                             </div>
-                            <p className="text-xs text-brand-text-muted leading-relaxed line-clamp-2">
-                                {query.description}
+                            <p className="text-[10px] text-white/50 leading-relaxed line-clamp-2 italic font-serif">
+                                &ldquo;{query.description}&rdquo;
                             </p>
-                            <div className="mt-3 pt-3 border-t border-white/5 flex justify-between items-center text-[9px] font-black uppercase tracking-widest">
-                                <span className="text-white/20">FOUND ON PAGE {query.page}</span>
-                                {query.status === 'flagged' && <span className="text-kenya-dark-orange flex items-center gap-1"><ShieldAlert className="w-3 h-3" /> CRITICAL</span>}
+                            <div className="mt-3 pt-3 border-t border-white/5 flex justify-between items-center text-[8px] font-bold uppercase tracking-widest">
+                              <span className="text-white/20">LOC::PAGE_{query.page}</span>
+                              {query.status === 'flagged' && (
+                                <span className="text-red-500 flex items-center gap-1 animate-pulse">
+                                  <AlertTriangle className="w-2.5 h-2.5" /> HIGH_RISK
+                                </span>
+                              )}
                             </div>
                         </motion.div>
                     ))
                 ) : (
-                  <div className="py-20 flex flex-col items-center justify-center text-center opacity-40">
-                    <CheckCircle className="w-8 h-8 text-kenya-green mb-3" />
-                    <p className="text-[10px] font-black uppercase tracking-widest">No anomalies detected in this section</p>
+                  <div className="flex flex-col items-center justify-center h-full opacity-30 py-20">
+                    <CheckCircle className="w-10 h-10 mb-4 text-emerald-500" />
+                    <p className="text-[10px] font-bold uppercase tracking-[0.3em]">No direct anomalies detected</p>
                   </div>
                 )}
             </AnimatePresence>
         </div>
 
-        {/* Global Action Terminal */}
-        <div className="mt-auto p-4 bg-kenya-dark-orange/5 border border-kenya-dark-orange/20 rounded-2xl space-y-3">
-            <h6 className="text-[10px] font-black text-kenya-dark-orange uppercase tracking-widest">Direct Citizen Action</h6>
-            <p className="text-xs text-white/50 leading-relaxed italic">
-                Our AI has flagged these entries based on OAG Report inconsistencies. 
-            </p>
-            <div className="flex gap-2">
-                <button className="flex-1 py-2 bg-kenya-dark-orange text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-lg shadow-kenya-dark-orange/20 hover:scale-[1.02] transition-transform flex items-center justify-center gap-2">
-                    <Share2 className="w-3 h-3" /> Export Evidence
+        {/* Global Terminal Actions */}
+        <div className="mt-auto space-y-3 relative z-10 pt-4">
+            <div className="flex items-center gap-2 text-[8px] font-bold text-white/30 uppercase tracking-widest mb-1 border-white/5 border-t pt-4">
+              <Terminal className="w-3 h-3" /> Execute_Query_Matrix
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+                <button className="py-2.5 bg-red-600/10 hover:bg-red-600/20 border border-red-600/30 text-red-500 text-[10px] font-black uppercase tracking-widest rounded transition-all flex items-center justify-center gap-2 group">
+                    <Share2 className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" /> Export Evidence
                 </button>
-                <button className="flex-1 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest rounded-lg transition-all flex items-center justify-center gap-2">
-                    <Eye className="w-3 h-3" /> Verify Link
+                <button className="py-2.5 bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-600/30 text-emerald-500 text-[10px] font-black uppercase tracking-widest rounded transition-all flex items-center justify-center gap-2 group">
+                    <Download className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" /> Source Report
                 </button>
             </div>
         </div>
       </div>
-    </motion.div>
+
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 2px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: rgba(255, 255, 255, 0.02);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(16, 185, 129, 0.2);
+        }
+      `}</style>
+    </div>
   );
-}
-
-function RefreshCwIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
-      <path d="M21 3v5h-5" />
-      <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
-      <path d="M3 21v-5h5" />
-    </svg>
-  );
-}
-
-interface BadgeProps {
-  children: React.ReactNode;
-  variant?: 'destructive' | 'secondary';
-  className?: string;
-}
-
-function Badge({ children, variant, className }: BadgeProps) {
-    return (
-        <span className={cn(
-            "px-2 py-0.5 rounded-md font-bold text-center",
-            variant === 'destructive' ? "bg-kenya-dark-orange/20 text-kenya-dark-orange border border-kenya-dark-orange/30" : "bg-white/10 text-white/60 border border-white/10",
-            className
-        )}>
-            {children}
-        </span>
-    )
 }
