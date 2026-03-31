@@ -4,6 +4,8 @@ import { useState } from "react";
 import { Shield, Lock, Mail, ArrowRight, AlertCircle, Loader2, ShieldCheck, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
 import { AdminMarketingCarousel } from "@/components/admin/AdminMarketingCarousel";
@@ -123,8 +125,7 @@ export default function AdminLoginPage() {
                         <div className="space-y-2">
                            <div className="relative">
                               <Lock className="absolute left-3 top-3 w-4 h-4 text-slate-600" />
-                              <Input
-                                 type="password"
+                              <PasswordInput
                                  placeholder="Security Token"
                                  value={password}
                                  onChange={(e) => setPassword(e.target.value)}

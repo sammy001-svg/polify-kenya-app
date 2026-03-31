@@ -25,6 +25,7 @@ import {
   ShoppingBag,
   Globe,
   Gavel,
+  PieChart,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -138,6 +139,13 @@ export function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
           label="IEBC"
           href="/iebc"
           isActive={pathname === "/iebc"}
+          onClick={onLinkClick}
+        />
+        <SidebarItem
+          icon={PieChart}
+          label="Opinion Polls"
+          href="/polls"
+          isActive={pathname.startsWith("/polls")}
           onClick={onLinkClick}
         />
       </div>

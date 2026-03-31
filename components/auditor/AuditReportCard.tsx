@@ -4,10 +4,6 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { AuditReport } from '@/lib/auditor-data';
 import { 
-  FileText, 
-  AlertTriangle, 
-  CheckCircle, 
-  ShieldAlert, 
   Download, 
   ExternalLink,
   MapPin,
@@ -88,7 +84,7 @@ export const AuditReportCard: React.FC<AuditReportCardProps> = ({ report, onSele
         </div>
 
         <p className="text-xs text-gray-400 mb-6 line-clamp-2 leading-relaxed italic border-l-2 border-white/10 pl-3 min-h-[32px]">
-          "{report.summary}"
+          &ldquo;{report.summary}&rdquo;
         </p>
 
         <div className="flex justify-between items-center bg-black/20 -mx-5 -mb-5 p-4 border-t border-white/10">

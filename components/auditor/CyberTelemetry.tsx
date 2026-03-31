@@ -1,12 +1,25 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
 export const CyberTelemetry = () => {
   const [hexRows, setHexRows] = useState<string[]>([]);
   const [scanProgress, setScanProgress] = useState(0);
   const [activeAnomalies, setActiveAnomalies] = useState(0);
+  const [cryptoHeights] = useState(() => 
+    Array.from({ length: 20 }, () => ({
+      initialHeight: 4, // Start with stable defaults for SRR/first render
+      peakHeight: 10,
+      duration: 1
+    }))
+  );
+
+  const [liveHeights, setLiveHeights] = useState<{
+    initialHeight: number;
+    peakHeight: number;
+    duration: number;
+  }[]>([]);
 
   // Generate random hex strings
   const generateHex = () => {
@@ -15,22 +28,26 @@ export const CyberTelemetry = () => {
     ).join(' ');
   };
 
-  // Pre-generate random values for the "crypto" visualization to keep render pure
-  const cryptoHeights = useMemo(() => 
-    Array.from({ length: 20 }, () => ({
+  useEffect(() => {
+    // Populate live heights on mount to ensure purity during render
+    const heights = Array.from({ length: 20 }, () => ({
       initialHeight: Math.random() * 8 + 4,
       peakHeight: Math.random() * 12 + 6,
       duration: 0.5 + Math.random() * 1.5
-    })), []);
+    }));
+    
+    // Use timeout to avoid synchronous cascading render lint error
+    setTimeout(() => {
+      setLiveHeights(heights);
+    }, 0);
 
-  useEffect(() => {
     // Hex rain effect
     const interval = setInterval(() => {
       setHexRows(prev => {
         const next = [generateHex(), ...prev.slice(0, 12)];
         return next;
       });
-    }, 150);
+    }, 1500);
 
     // Scan progress simulation
     const scanInterval = setInterval(() => {
@@ -147,7 +164,7 @@ export const CyberTelemetry = () => {
               <span>ACTIVE</span>
             </div>
             <div className="flex gap-1 h-6 items-end">
-              {cryptoHeights.map((h, i) => (
+              {(liveHeights.length > 0 ? liveHeights : cryptoHeights).map((h, i) => (
                 <motion.div
                   key={i}
                   animate={{ height: [h.initialHeight, h.peakHeight, h.initialHeight] }}

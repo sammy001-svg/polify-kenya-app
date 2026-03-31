@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
+
 import {
   Card,
   CardContent,
@@ -28,6 +30,9 @@ import { validateUsername } from "@/lib/validators";
 import { lookupEmailByIdentifier } from "@/lib/auth-actions";
 import { KENYA_LOCATIONS } from "@/lib/location-data";
 import { ContactSupportModal } from "./ContactSupportModal";
+import { TermsModal } from "./TermsModal";
+import { ForgotPasswordModal } from "./ForgotPasswordModal";
+
 
 export function SigninForm() {
   const router = useRouter();
@@ -109,17 +114,26 @@ export function SigninForm() {
             </div>
           </div>
           <div className="space-y-2">
-            <label
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              htmlFor="password"
-            >
-              Password
-            </label>
+            <div className="flex items-center justify-between">
+              <label
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                htmlFor="password"
+              >
+                Password
+              </label>
+              <ForgotPasswordModal 
+                trigger={
+                  <button type="button" className="text-xs text-brand-primary hover:underline font-medium">
+                    Forgot Password?
+                  </button>
+                }
+              />
+            </div>
+
             <div className="relative">
               <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
+              <PasswordInput
                 id="password"
-                type="password"
                 className="pl-10 bg-brand-surface border-brand-border"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -149,7 +163,7 @@ export function SigninForm() {
         <p className="text-sm text-brand-muted">
           Don&apos;t have an account?{" "}
           <Link
-            href="/auth"
+            href="/auth/signup"
             className="text-brand-primary hover:underline font-medium"
           >
             Sign up
@@ -371,9 +385,8 @@ export function SignupForm({ role }: SignupFormProps) {
             </label>
             <div className="relative">
               <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
+              <PasswordInput
                 id="password"
-                type="password"
                 className="pl-10 bg-brand-surface border-brand-border"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -527,9 +540,14 @@ export function SignupForm({ role }: SignupFormProps) {
               className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
               I accept the{" "}
-              <Link href="/terms" className="text-brand-primary hover:underline">
-                terms and conditions
-              </Link>
+              <TermsModal 
+                trigger={
+                  <button type="button" className="text-brand-primary hover:underline font-medium">
+                    terms and conditions
+                  </button>
+                }
+              />
+
             </label>
           </div>
 

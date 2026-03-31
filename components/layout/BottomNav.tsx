@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Gavel, Vote, User, Scale } from "lucide-react";
+import { Home, Gavel, Vote, User, Scale, PieChart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
@@ -13,6 +13,7 @@ export function BottomNav() {
   const navItems = [
     { icon: Home, label: "Home", href: "/feed" },
     { icon: Vote, label: "IEBC", href: "/iebc" },
+    { icon: PieChart, label: "Polls", href: "/polls" },
     { icon: Scale, label: "Const.", href: "/constitution" },
     { icon: Gavel, label: "Justice", href: "/justice" },
     { icon: User, label: "Profile", href: "/profile" },

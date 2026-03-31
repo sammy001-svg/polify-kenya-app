@@ -3,7 +3,9 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, Map, MapPin, Vote, Home, Activity } from 'lucide-react';
-import { mockVoterStats, VoterStats as VoterStatsType } from '@/data/iebc-data';
+import { mockVoterStats, VoterStats as VoterStatsType, registeredVotersByCounty, registeredVotersByConstituency } from '@/data/iebc-data';
+
+import { createClient } from '@/lib/supabase';
 
 const AnimatedCounter = ({ end, duration = 2000 }: { end: number, duration?: number }) => {
   const [count, setCount] = useState(0);
@@ -47,6 +49,47 @@ export function VoterStats() {
       today: [42, 18, 5, 2][index % 4] || 10 // Deterministic starting values based on hierarchy
     }))
   );
+
+  useEffect(() => {
+    const fetchUserLocation = async () => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user?.user_metadata) {
+        setLiveStats(prev => {
+          // Get the base county count for proportional scaling
+          let baseCountyCount = 2415310;
+          let baseConstCount = Math.floor(baseCountyCount * 0.18);
+
+          if (user.user_metadata.county) {
+            const countyName = user.user_metadata.county.toUpperCase();
+            baseCountyCount = registeredVotersByCounty[countyName] || baseCountyCount;
+            baseConstCount = Math.floor(baseCountyCount * 0.18); // Default fallback
+          }
+
+          return prev.map(stat => {
+            if (stat.category === 'County' && user.user_metadata.county) {
+              return { ...stat, name: user.user_metadata.county, count: baseCountyCount };
+            }
+            if (stat.category === 'Constituency' && user.user_metadata.constituency) {
+              const constName = user.user_metadata.constituency.toUpperCase();
+              const realConstCount = registeredVotersByConstituency[constName];
+              baseConstCount = realConstCount || (Math.floor(baseCountyCount * 0.18) + (user.user_metadata.constituency.length * 100));
+              return { ...stat, name: user.user_metadata.constituency, count: baseConstCount };
+            }
+            if (stat.category === 'Ward' && user.user_metadata.ward) {
+              // Simulate a realistic ward count (~20-25% of constituency)
+              const simWardCount = Math.floor(baseConstCount * 0.22) + (user.user_metadata.ward.length * 50);
+              return { ...stat, name: user.user_metadata.ward, count: simWardCount };
+            }
+            return stat;
+          });
+        });
+      }
+    };
+    
+    fetchUserLocation();
+  }, []);
 
   // Simulate real-time Continuous Voter Registration (CVR)
   useEffect(() => {
