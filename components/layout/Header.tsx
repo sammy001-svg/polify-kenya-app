@@ -11,6 +11,7 @@ import { NotificationsPopover } from "@/components/layout/NotificationsPopover";
 import type { User } from "@supabase/supabase-js";
 import { CommandCenter } from "@/components/search/CommandCenter";
 import { MobileSidebar } from "@/components/layout/MobileSidebar";
+import { AdSense } from "@/components/common/AdSense";
 
 export function Header() {
   const [user, setUser] = React.useState<User | null>(null);
@@ -89,6 +90,13 @@ export function Header() {
           </Link>
         )}
       </div>
+
+      {/* Header Ad Unit - Horizontal placeholder */}
+      <AdSense 
+        adSlot="1234567890" 
+        className="hidden xl:block absolute left-1/2 -translate-x-1/2 top-1 h-[54px] w-[468px] border border-white/5 bg-white/5 rounded-lg overflow-hidden" 
+        fullWidthResponsive={false}
+      />
     </header>
   );
 }

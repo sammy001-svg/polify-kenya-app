@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import { AdSense } from "@/components/common/AdSense";
 
 interface SidebarItemProps {
   icon: React.ElementType;
@@ -271,6 +272,15 @@ export function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
           href="/profile"
           isActive={pathname === "/profile"}
           onClick={onLinkClick}
+        />
+      </div>
+
+      {/* Sidebar Ad Unit */}
+      <div className="px-4 py-2">
+        <AdSense 
+          adSlot="0987654321" 
+          adFormat="rectangle"
+          className="rounded-2xl border border-white/10 bg-white/5 overflow-hidden"
         />
       </div>
 

@@ -5,12 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, 
   MapPin, 
-  Target, 
-  TrendingUp, 
   Zap, 
   ShieldCheck, 
   Clock, 
-  Briefcase, 
   AlertTriangle,
   Building2,
   DollarSign,
@@ -213,7 +210,7 @@ export function ProjectDetailModal({ project, isOpen, onClose }: ProjectDetailMo
                             <Users className="w-3 h-3" /> Social Impact Score
                           </div>
                           <p className="text-xs font-medium text-brand-text-muted leading-relaxed italic">
-                            "{project.socialImpact}"
+                            &quot;{project.socialImpact}&quot;
                           </p>
                         </div>
                       )}

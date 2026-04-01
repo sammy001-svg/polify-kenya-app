@@ -27,7 +27,7 @@ const SLIDES: Slide[] = [
   },
   {
     id: 2,
-    image: "/poli-landing-v2-2.png",
+    image: "/poli-landing-v2-2.webp",
     title: "The Baraza",
     subtitle: "Active Engagement.",
     description: "Connect directly with leaders in a verified digital square designed for transparent debate and community action.",
@@ -36,7 +36,7 @@ const SLIDES: Slide[] = [
   },
   {
     id: 3,
-    image: "/poli-landing-v2-3.png",
+    image: "/poli-landing-v2-3.webp",
     title: "Tallying Center",
     subtitle: "Pure Integrity.",
     description: "Monitor elections with citizen-led, crowd-verified data tracking that ensures every vote is accounted for and transparent.",

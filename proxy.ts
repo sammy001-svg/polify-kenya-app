@@ -2,6 +2,24 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function proxy(request: NextRequest) {
+  const path = request.nextUrl.pathname;
+
+  // 1. FAST PATH: Early return for static assets and known public paths
+  const isStaticAsset = 
+    path.startsWith('/_next') || 
+    path.startsWith('/static') || 
+    path.startsWith('/images') ||
+    path.startsWith('/api') ||
+    path.includes('.') ||
+    path === '/favicon.ico' ||
+    path === '/manifest.json' ||
+    path === '/sw.js';
+
+  if (isStaticAsset) {
+    return NextResponse.next();
+  }
+
+  // 2. Initialize Supabase only if we need to check auth
   let response = NextResponse.next({
     request: {
       headers: request.headers,
@@ -11,7 +29,6 @@ export async function proxy(request: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://tlrmxgptetlfdekxegyp.supabase.co'
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
 
-  // Create an unmodified response for the Supabase client to manipulate cookies
   const supabase = createServerClient(
     supabaseUrl,
     supabaseAnonKey,
@@ -43,27 +60,21 @@ export async function proxy(request: NextRequest) {
     console.error('Supabase auth error in proxy:', e);
   }
 
-  const path = request.nextUrl.pathname;
-
-  // Define public paths that don't require authentication
-  const isPublicPath = 
+  // 3. Define public routes that don't require authentication
+  const isPublicRoute = 
     path === '/' ||
-    path.startsWith('/auth') || 
     path === '/auth' ||
-    path.startsWith('/admin') || // Delegate administration routes to sub-layouts
-    path.startsWith('/api') || // Allow APIs (handle auth inside if needed)
-    path.startsWith('/_next') || // Next.js internals
-    path.startsWith('/static') || // Static files
-    path.includes('.'); // Files with extensions (images, etc)
+    path.startsWith('/auth/') ||
+    path.startsWith('/admin') ||
+    path.startsWith('/terms');
 
-  // If no user and trying to access a protected route
-  if (!user && !isPublicPath) {
+  // 4. Redirect Logic
+  if (!user && !isPublicRoute) {
     const url = request.nextUrl.clone()
     url.pathname = '/auth'
     return NextResponse.redirect(url)
   }
 
-  // If user is logged in and tries to access /auth, redirect to dashboard
   if (user && (path === '/auth' || path.startsWith('/auth/signin'))) {
     const url = request.nextUrl.clone()
     url.pathname = '/feed'
@@ -80,8 +91,8 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * Feel free to modify this pattern to include more paths.
+     * - public files (images, etc)
      */
-    '/((?!_next/static|_next/image|favicon.ico).*)',
+    '/((?!_next/static|_next/image|favicon.ico|images|api|static).*)',
   ],
 }

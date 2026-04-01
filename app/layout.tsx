@@ -35,6 +35,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script 
+          async 
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9668981117691126"
+          crossOrigin="anonymous"
+        ></script>
+      </head>
+
       <body
         className={`${inter.variable} ${libre_baskerville.variable} ${dancing_script.variable} antialiased selection:bg-kenya-gold selection:text-black`}
       >
