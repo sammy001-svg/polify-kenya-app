@@ -4,7 +4,7 @@ import { PARTIES_DATA } from "@/lib/parties-data";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Users, Trophy, BookOpen, Scale, FileText } from "lucide-react";
+import { ArrowLeft, Users, Trophy, BookOpen, Scale, FileText, MapPin, Search } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -15,6 +15,7 @@ export default function PartyDetailsPage({ params }: { params: Promise<{ id: str
   const { id } = use(params);
   const party = PARTIES_DATA.find((p) => p.id === id);
   const [isJoinDialogOpen, setIsJoinDialogOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   if (!party) {
     notFound();
@@ -71,6 +72,7 @@ export default function PartyDetailsPage({ params }: { params: Promise<{ id: str
                 <TabsList className="w-full bg-brand-surface border border-white/5 p-1 h-auto">
                     <TabsTrigger value="overview" className="flex-1 data-[state=active]:bg-brand-surface-highlight data-[state=active]:text-white text-brand-text-muted">Overview</TabsTrigger>
                     <TabsTrigger value="leadership" className="flex-1 data-[state=active]:bg-brand-surface-highlight data-[state=active]:text-white text-brand-text-muted">Leadership</TabsTrigger>
+                    <TabsTrigger value="officials" className="flex-1 data-[state=active]:bg-brand-surface-highlight data-[state=active]:text-white text-brand-text-muted">Elected Officials</TabsTrigger>
                     <TabsTrigger value="manifesto" className="flex-1 data-[state=active]:bg-brand-surface-highlight data-[state=active]:text-white text-brand-text-muted">Manifesto</TabsTrigger>
                 </TabsList>
                 
@@ -157,6 +159,84 @@ export default function PartyDetailsPage({ params }: { params: Promise<{ id: str
                         </ul>
                     </div>
                 </TabsContent>
+
+                <TabsContent value="officials" className="space-y-6 mt-4">
+                    <div className="bg-brand-surface p-6 rounded-xl border border-white/5 space-y-6">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <h3 className="font-bold text-lg">Elected Officials</h3>
+                            <div className="relative w-full md:max-w-xs">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-text-muted" />
+                                <input 
+                                    type="text" 
+                                    placeholder="Search by name or county..." 
+                                    className="w-full bg-brand-surface-secondary border border-white/5 rounded-lg py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-1 focus:ring-kenya-red"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-8">
+                            {['Governor', 'Senator', 'MP', 'Women Rep', 'MCA'].map(role => {
+                                const roleOfficials = party.electedOfficials.filter(o => 
+                                    o.role === role && 
+                                    (o.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                                     o.county.toLowerCase().includes(searchTerm.toLowerCase()))
+                                );
+                                
+                                if (roleOfficials.length === 0) return null;
+
+                                return (
+                                    <div key={role} className="space-y-4">
+                                        <h4 className="text-xs font-bold text-brand-text-muted uppercase tracking-widest pl-1 border-l-2 border-kenya-red/50 py-1">
+                                            {role}s ({roleOfficials.length})
+                                        </h4>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                            {roleOfficials.map((official, idx) => (
+                                                <div key={idx} className="p-4 bg-brand-surface-secondary/50 rounded-xl border border-white/5 flex items-center justify-between group hover:bg-brand-surface-highlight/20 transition-all">
+                                                    <div>
+                                                        <p className="font-bold text-white leading-none mb-1.5">{official.name}</p>
+                                                        <p className="text-xs text-brand-text-muted flex items-center gap-1.5 font-medium">
+                                                            <MapPin className="w-3 h-3 text-kenya-gold" /> {official.county}
+                                                        </p>
+                                                    </div>
+                                                    <Badge variant="outline" className="text-[10px] uppercase font-black tracking-tighter text-white/40 border-white/10">
+                                                        {official.role}
+                                                    </Badge>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                            
+                            {party.electedOfficials.length === 0 && (
+                                <div className="py-20 text-center space-y-4">
+                                    <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto grayscale opacity-50">
+                                        <Users className="w-8 h-8" />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-white font-bold">No officials found</p>
+                                        <p className="text-brand-text-muted text-sm px-12">The directory for this party is still being populated. Check back soon for updates.</p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {party.electedOfficials.length > 0 && 
+                             !['Governor', 'Senator', 'MP', 'Women Rep', 'MCA'].some(role => 
+                                party.electedOfficials.some(o => 
+                                    o.role === role && 
+                                    (o.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                                     o.county.toLowerCase().includes(searchTerm.toLowerCase()))
+                                )
+                             ) && (
+                                <div className="py-12 text-center text-brand-text-muted italic border border-dashed border-white/10 rounded-xl">
+                                    No results matching &quot;{searchTerm}&quot;
+                                </div>
+                             )}
+                        </div>
+                    </div>
+                </TabsContent>
             </Tabs>
         </div>
 
@@ -178,6 +258,10 @@ export default function PartyDetailsPage({ params }: { params: Promise<{ id: str
                     <div className="flex items-center justify-between p-3 rounded-lg bg-brand-surface-secondary/50">
                         <span className="text-sm font-medium">MPs</span>
                         <Badge className="bg-white/10 text-white hover:bg-white/20 border-none">{party.stats.electedMPs}</Badge>
+                    </div>
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-brand-surface-secondary/50">
+                        <span className="text-sm font-medium">Women Reps</span>
+                        <Badge className="bg-white/10 text-white hover:bg-white/20 border-none">{party.stats.electedWomenReps}</Badge>
                     </div>
                     <div className="flex items-center justify-between p-3 rounded-lg bg-brand-surface-secondary/50">
                         <span className="text-sm font-medium">MCAs</span>

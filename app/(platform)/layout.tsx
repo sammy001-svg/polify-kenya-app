@@ -2,6 +2,7 @@ import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { ClientLayoutUtilities } from "@/components/layout/ClientLayoutUtilities";
+import { PlatformContentWrapper } from "@/components/layout/PlatformContentWrapper";
 import type { Metadata } from "next";
 import { baseMetadata } from "@/lib/metadata";
 
@@ -22,9 +23,9 @@ export default function PlatformLayout({
       <div className="md:flex pt-16 min-h-screen bg-brand-bg relative overflow-x-hidden">
         <Sidebar />
         <main className="flex-1 md:pl-72 relative md:border-l md:border-white/5 min-w-0">
-          <div className="main-content-container py-6 pb-24 md:pb-8">
+          <PlatformContentWrapper>
             {children}
-          </div>
+          </PlatformContentWrapper>
         </main>
       </div>
       <BottomNav />
