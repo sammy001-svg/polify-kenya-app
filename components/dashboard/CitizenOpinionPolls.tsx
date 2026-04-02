@@ -88,12 +88,7 @@ export function CitizenOpinionPolls() {
                     if (votesData) {
                         const votesMap: Record<string, string> = {};
                         votesData.forEach(v => {
-                            const poll = processedPolls.find(p => p.id === v.poll_id);
-                            const isPresidential = poll?.question.toLowerCase().includes("presidential election");
-                            
-                            if (!isPresidential) {
-                                votesMap[v.poll_id] = v.option_id;
-                            }
+                            votesMap[v.poll_id] = v.option_id;
                         });
                         setUserVotes(votesMap);
                     }
@@ -122,7 +117,7 @@ export function CitizenOpinionPolls() {
         try {
             console.log("SUBMITTING VOTE:", { pollId, optionId, userId: user.id });
             
-            // 1. Record the vote
+            // 1. Record the vote in table
             const { error: voteError } = await supabase
                 .from('opinion_poll_votes')
                 .insert({
@@ -133,7 +128,7 @@ export function CitizenOpinionPolls() {
 
             if (voteError) throw voteError;
 
-            // 2. Increment count atomically
+            // 2. Increment count atomically via RPC
             const { error: rpcError } = await supabase.rpc('increment_opinion_poll_vote', { 
                 option_id_param: optionId 
             });
@@ -147,18 +142,15 @@ export function CitizenOpinionPolls() {
             await fetchPolls();
         } catch (err: unknown) {
             const error = err as { message?: string; code?: string; details?: string; hint?: string };
-            console.error("Voting failed details:", {
-                message: error?.message,
-                code: error?.code,
-                details: error?.details,
-                hint: error?.hint
-            });
             
             // Check for duplicate vote constraint (Error 23505)
             if (error?.code === '23505') {
-                alert("You have already voted in this poll. Your participation is recorded.");
+                // Silently treat as success since the user's vote is already in the DB
                 setUserVotes(prev => ({ ...prev, [pollId]: optionId }));
+                // Refresh data to show total votes and individual counts from the DB
+                await fetchPolls();
             } else {
+                console.error("Voting failed details:", error);
                 const errorMessage = error?.message || "Unknown database error";
                 const errorCode = error?.code || "No code";
                 
@@ -219,6 +211,12 @@ export function CitizenOpinionPolls() {
                                         <Clock className="w-3 h-3" />
                                         {new Date(poll.expires_at) > new Date() ? 'ACTIVE' : 'CLOSED'}
                                     </div>
+                                    {hasVoted && (
+                                        <div className="flex items-center gap-1 text-[10px] font-black text-kenya-gold bg-kenya-gold/10 px-2 py-0.5 rounded border border-kenya-gold/20 ml-auto">
+                                            <Users className="w-3 h-3" />
+                                            {totalVotes.toLocaleString()} TOTAL VOTES
+                                        </div>
+                                    )}
                                 </div>
 
                                 <h4 className="text-sm font-bold text-brand-text leading-tight mb-4 pr-10">
@@ -258,13 +256,16 @@ export function CitizenOpinionPolls() {
                                                             </span>
                                                         </div>
                                                         {(hasVoted || votingId === option.id) && (
-                                                            <div className="flex items-center gap-2">
-                                                                <span className="text-[10px] font-black text-brand-text-muted italic">
-                                                                    {option.votes_count.toLocaleString()}
-                                                                </span>
-                                                                <span className="text-xs font-black text-brand-text">
-                                                                    {percentage}%
-                                                                </span>
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="flex flex-col items-end">
+                                                                    <span className="text-[11px] font-black text-brand-text-muted flex items-center gap-1 opacity-80">
+                                                                        {option.votes_count.toLocaleString()}
+                                                                        <span className="text-[8px] opacity-40">VOTES</span>
+                                                                    </span>
+                                                                    <span className="text-[14px] font-black text-brand-text leading-tight mt-[-2px]">
+                                                                        {percentage}%
+                                                                    </span>
+                                                                </div>
                                                             </div>
                                                         )}
                                                         {votingId === option.id && (
