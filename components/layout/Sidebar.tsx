@@ -26,10 +26,12 @@ import {
   Globe,
   Gavel,
   PieChart,
+  ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { AdSense } from "@/components/common/AdSense";
+import { createClient } from "@/lib/supabase";
 
 interface SidebarItemProps {
   icon: React.ElementType;
@@ -149,6 +151,8 @@ export function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
           isActive={pathname.startsWith("/polls")}
           onClick={onLinkClick}
         />
+        {/* Party Console - Conditional */}
+        <PartyAdminLink onLinkClick={onLinkClick} />
       </div>
 
       <div className="h-px bg-white/10 mx-4" />
@@ -344,5 +348,41 @@ export function Sidebar({ forceShow }: SidebarProps) {
 
       <SidebarContent />
     </aside>
+  );
+}
+
+function PartyAdminLink({ onLinkClick }: { onLinkClick?: () => void }) {
+  const [isAdmin, setIsAdmin] = React.useState(false);
+  const pathname = usePathname();
+  const supabase = createClient();
+
+  React.useEffect(() => {
+    async function checkRole() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: member } = await supabase
+        .from("party_memberships")
+        .select("role")
+        .eq("user_id", user.id)
+        .eq("role", "party_admin")
+        .eq("status", "active")
+        .maybeSingle();
+
+      if (member) setIsAdmin(true);
+    }
+    checkRole();
+  }, [supabase]);
+
+  if (!isAdmin) return null;
+
+  return (
+    <SidebarItem
+      icon={ShieldCheck}
+      label="Party Console"
+      href="/party-admin"
+      isActive={pathname.startsWith("/party-admin")}
+      onClick={onLinkClick}
+    />
   );
 }

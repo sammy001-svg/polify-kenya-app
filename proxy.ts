@@ -66,6 +66,7 @@ export async function proxy(request: NextRequest) {
     path === '/auth' ||
     path.startsWith('/auth/') ||
     path.startsWith('/admin') ||
+    path.startsWith('/party-admin') ||
     path.startsWith('/terms');
 
   // 4. Redirect Logic

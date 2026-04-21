@@ -4,30 +4,45 @@ import { useState, useRef, useEffect } from "react";
 import { createClient } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { User, LogOut, Settings } from "lucide-react";
+import { User, LogOut, Settings, ShieldCheck } from "lucide-react";
 import Link from "next/link";
-
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 export function UserMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [isPartyAdmin, setIsPartyAdmin] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const supabase = createClient();
 
-  // Fetch avatar
+  // Fetch avatar and role
   useEffect(() => {
     async function fetchProfile() {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        const { data } = await supabase
+        // Fetch profile avatar
+        const { data: profile } = await supabase
           .from("profiles")
           .select("avatar_url")
           .eq("id", user.id)
           .single();
-        if (data?.avatar_url) {
-          setAvatarUrl(data.avatar_url);
+        
+        if (profile?.avatar_url) {
+          setAvatarUrl(profile.avatar_url);
+        }
+
+        // Check party admin role
+        const { data: member } = await supabase
+          .from("party_memberships")
+          .select("role")
+          .eq("user_id", user.id)
+          .eq("role", "party_admin")
+          .eq("status", "active")
+          .maybeSingle();
+        
+        if (member) {
+          setIsPartyAdmin(true);
         }
       }
     }
@@ -77,6 +92,17 @@ export function UserMenu() {
             <Settings className="w-4 h-4" />
             My Profile
           </Link>
+
+          {isPartyAdmin && (
+            <Link
+              href="/party-admin"
+              className="flex items-center gap-2 px-4 py-2 text-sm text-brand-primary hover:bg-brand-primary/10 w-full"
+              onClick={() => setIsOpen(false)}
+            >
+              <ShieldCheck className="w-4 h-4" />
+              Party Console
+            </Link>
+          )}
 
           <div className="h-px bg-border my-1" />
 

@@ -51,6 +51,8 @@ export async function proxy(request: NextRequest) {
     path.startsWith('/auth') || 
     path === '/auth' ||
     path.startsWith('/api') || // Allow APIs (handle auth inside if needed)
+    path.startsWith('/admin') ||
+    path.startsWith('/party-admin') ||
     path.startsWith('/_next') || // Next.js internals
     path.startsWith('/static') || // Static files
     path.includes('.'); // Files with extensions (images, etc)
